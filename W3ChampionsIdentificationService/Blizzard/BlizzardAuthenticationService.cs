@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace W3ChampionsIdentificationService.Authorization
+namespace W3ChampionsIdentificationService.Blizzard
 {
     public class BlizzardAuthenticationService : IBlizzardAuthenticationService
     {

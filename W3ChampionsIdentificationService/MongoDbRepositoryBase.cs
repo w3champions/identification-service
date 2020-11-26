@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
-namespace W3ChampionsIdentificationService.Authorization
+namespace W3ChampionsIdentificationService
 {
     public class MongoDbRepositoryBase
     {

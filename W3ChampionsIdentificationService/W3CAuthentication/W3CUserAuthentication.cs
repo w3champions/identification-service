@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
+using W3ChampionsIdentificationService.Authorization;
 
-namespace W3ChampionsIdentificationService.Authorization
+namespace W3ChampionsIdentificationService.W3CAuthentication
 {
     public class W3CUserAuthentication : IIdentifiable
     {
@@ -17,7 +17,7 @@ namespace W3ChampionsIdentificationService.Authorization
         public string Token { get; set; }
         public string BattleTag { get; set; }
         public string Name => BattleTag.Split("#")[0];
-        public Boolean isAdmin { get { return Admins.ApprovedAdmins.Any(p => p == BattleTag.ToLower()); } }
+        public Boolean isAdmin => Admins.IsAdmin(BattleTag);
         public string Id => BattleTag;
     }
 }

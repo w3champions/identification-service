@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
-namespace W3ChampionsIdentificationService.Authorization
+namespace W3ChampionsIdentificationService.W3CAuthentication
 {
     public class W3CAuthenticationService : MongoDbRepositoryBase, IW3CAuthenticationService
     {

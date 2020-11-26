@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using W3ChampionsIdentificationService.W3CAuthentication;
 
 namespace W3ChampionsIdentificationService.Authorization
 {

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace W3ChampionsIdentificationService.Authorization
 {
     public static class Admins
     {
         // battletags have to be lowercased!
-        public static List<string> ApprovedAdmins =>
+        private static List<string> ApprovedAdmins =>
             new List<string>
             {
                 "gab#1546",
@@ -17,5 +18,10 @@ namespace W3ChampionsIdentificationService.Authorization
                 "cepheid#1467",
                 "helpstone#2919"
             };
+
+        public static bool IsAdmin(string battleTag)
+        {
+            return ApprovedAdmins.Any(p => p == battleTag.ToLower());
+        }
     }
 }

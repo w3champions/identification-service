@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace W3ChampionsIdentificationService.Authorization
+namespace W3ChampionsIdentificationService.Twitch
 {
     public class TwitchAuthenticationService : ITwitchAuthenticationService
     {

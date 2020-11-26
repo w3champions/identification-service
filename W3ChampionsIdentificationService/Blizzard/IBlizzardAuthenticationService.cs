@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace W3ChampionsIdentificationService.Authorization
+namespace W3ChampionsIdentificationService.Blizzard
 {
     public interface IBlizzardAuthenticationService
     {

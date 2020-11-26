@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace W3ChampionsIdentificationService.Authorization
+namespace W3ChampionsIdentificationService
 {
     public class OAuthToken
     {

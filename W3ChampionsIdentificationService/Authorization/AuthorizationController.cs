@@ -1,5 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using W3ChampionsIdentificationService.Blizzard;
+using W3ChampionsIdentificationService.Twitch;
+using W3ChampionsIdentificationService.W3CAuthentication;
 
 namespace W3ChampionsIdentificationService.Authorization
 {
