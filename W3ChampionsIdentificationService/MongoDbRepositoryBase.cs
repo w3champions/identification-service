@@ -10,7 +10,7 @@ namespace W3ChampionsIdentificationService
     public class MongoDbRepositoryBase
     {
         private readonly MongoClient _mongoClient;
-        private readonly string _databaseName = "W3Champions-Statistic-Service";
+        private readonly string _databaseName = "W3Champions-Identification-Service";
 
         public MongoDbRepositoryBase(MongoClient mongoClient)
         {
