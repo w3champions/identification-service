@@ -29,7 +29,7 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'official-docker-modmoto'
-    repository: 'modmoto/w3champions-chat-service'
+    repository: 'modmoto/w3champions-identification-service'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
     buildContext: '.'
