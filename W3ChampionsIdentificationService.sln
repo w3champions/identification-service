@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "W3ChampionsIdentificationService", "W3ChampionsIdentificationService\W3ChampionsIdentificationService.csproj", "{B75887F5-E67E-4514-A0A3-1F3BB142992F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{3242B362-A159-4C3E-888D-4CBE3694DA74}"
+ProjectSection(SolutionItems) = preProject
+	azure-pipelines.yml = azure-pipelines.yml
+	Dockerfile = Dockerfile
+	README.md = README.md
+	.gitignore = .gitignore
+EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B75887F5-E67E-4514-A0A3-1F3BB142992F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B75887F5-E67E-4514-A0A3-1F3BB142992F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B75887F5-E67E-4514-A0A3-1F3BB142992F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B75887F5-E67E-4514-A0A3-1F3BB142992F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

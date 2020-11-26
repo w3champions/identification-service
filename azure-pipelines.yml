@@ -1,0 +1,37 @@
+name: $(Build.BuildID)
+
+pool:
+  vmImage: 'ubuntu-18.04'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '5.0.x'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    feedsToUse: 'select'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'official-docker-modmoto'
+    repository: 'modmoto/w3champions-chat-service'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    buildContext: '.'
+    tags: |
+      $(Build.BuildID)
+      latest
