@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using W3ChampionsIdentificationService.Authorization;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
@@ -18,6 +19,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public string BattleTag { get; set; }
         public string Name => BattleTag.Split("#")[0];
         public Boolean isAdmin => Admins.IsAdmin(BattleTag);
+
+        [JsonIgnore]
         public string Id => BattleTag;
     }
 }
