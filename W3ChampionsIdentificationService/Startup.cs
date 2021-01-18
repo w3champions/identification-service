@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using W3ChampionsIdentificationService.ActionFilters;
+using W3ChampionsIdentificationService.Authorization;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Twitch;
 using W3ChampionsIdentificationService.W3CAuthentication;
@@ -23,6 +25,9 @@ namespace W3ChampionsIdentificationService
             services.AddTransient<IBlizzardAuthenticationService, BlizzardAuthenticationService>();
             services.AddTransient<ITwitchAuthenticationService, TwitchAuthenticationService>();
             services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<InjectActingPlayerFromAuthCodeFilter>();
+            services.AddTransient<CheckIfUserIsAdminFilter>();
 
             services.AddSignalR();
 
