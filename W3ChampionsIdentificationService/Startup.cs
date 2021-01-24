@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Twitch;
-using W3ChampionsIdentificationService.W3CAuthentication;
 
 namespace W3ChampionsIdentificationService
 {
@@ -22,7 +21,6 @@ namespace W3ChampionsIdentificationService
 
             services.AddTransient<IBlizzardAuthenticationService, BlizzardAuthenticationService>();
             services.AddTransient<ITwitchAuthenticationService, TwitchAuthenticationService>();
-            services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
 
             services.AddSignalR();
 

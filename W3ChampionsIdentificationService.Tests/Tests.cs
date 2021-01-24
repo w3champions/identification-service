@@ -1,20 +1,16 @@
+using System;
 using JWT;
+using JWT.Algorithms;
+using JWT.Builder;
+using JWT.Exceptions;
 using JWT.Serializers;
 using NUnit.Framework;
-using W3ChampionsIdentificationService.Authorization;
 using W3ChampionsIdentificationService.W3CAuthentication;
 
 namespace W3ChampionsIdentificationService.Tests
 {
     public class Tests
     {
-        [Test]
-        public void TestError()
-        {
-            var errorResult = new ErrorResult("jeah");
-            Assert.AreEqual("jeah", errorResult.Error);
-        }
-
         [Test]
         public void TestPropertyMapping()
         {
@@ -40,6 +36,33 @@ namespace W3ChampionsIdentificationService.Tests
 
             var decode = new JwtDecoder(new JsonNetSerializer(), new JwtBase64UrlEncoder()).Decode(userAuthentication.JwtToken);
             Assert.AreEqual("{\"battle-tag\":\"modmoto#2809\",\"name\":\"modmoto\",\"is-admin\":true}", decode);
+        }
+
+        [Test]
+        public void JwtCanBeInvalidated()
+        {
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
+
+            var decode = new JwtBuilder()
+                .WithAlgorithm(new HMACSHA256Algorithm())
+                .WithSecret("secret")
+                .MustVerifySignature()
+                .Decode(userAuthentication.JwtToken);
+
+            Assert.AreEqual("{\"battle-tag\":\"modmoto#2809\",\"name\":\"modmoto\",\"is-admin\":true}", decode);
+        }
+
+        [Test]
+        public void InvalidSecretThrows()
+        {
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
+
+            var jwtDecoder = new JwtBuilder()
+                .WithAlgorithm(new HMACSHA256Algorithm())
+                .WithSecret("DEFINITELY_THE_WRONG_SECRET")
+                .MustVerifySignature();
+
+            Assert.Throws<SignatureVerificationException>(() => jwtDecoder.Decode(userAuthentication.JwtToken));
         }
     }
 }
