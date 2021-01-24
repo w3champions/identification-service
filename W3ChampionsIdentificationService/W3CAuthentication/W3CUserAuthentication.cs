@@ -37,6 +37,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 .Decode(jwt);
 
             var user = JsonSerializer.Deserialize<W3CUserAuthentication>(decode);
+            user.JWT = jwt;
             return user;
         }
 

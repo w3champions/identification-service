@@ -47,6 +47,7 @@ namespace W3ChampionsIdentificationService.Tests
             Assert.AreEqual("modmoto#2809", decode.BattleTag);
             Assert.AreEqual(true, decode.IsAdmin);
             Assert.AreEqual("modmoto", decode.Name);
+            Assert.AreEqual(userAuthentication.JWT, decode.JWT);
         }
 
         [Test]
