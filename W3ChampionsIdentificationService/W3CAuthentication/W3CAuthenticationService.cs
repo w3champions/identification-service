@@ -12,7 +12,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
         public Task<W3CUserAuthentication> GetUserByToken(string bearer)
         {
-            return LoadFirst<W3CUserAuthentication>(u => u.Token == bearer);
+            return LoadFirst<W3CUserAuthentication>(u => u.JwtToken == bearer);
 
         }
 

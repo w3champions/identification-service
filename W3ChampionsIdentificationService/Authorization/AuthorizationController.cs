@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using JWT.Algorithms;
+using JWT.Builder;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Twitch;
@@ -15,6 +18,7 @@ namespace W3ChampionsIdentificationService.Authorization
         private readonly IW3CAuthenticationService _w3CAuthenticationService;
 
         private readonly ITwitchAuthenticationService _twitchAuthenticationService;
+
 
         public AuthorizationController(
             IBlizzardAuthenticationService authenticationService,
@@ -45,9 +49,8 @@ namespace W3ChampionsIdentificationService.Authorization
 
             if (w3User == null)
             {
-                var w3CUserAuthentication = W3CUserAuthentication.Create(userInfo.battletag);
-                await _w3CAuthenticationService.Save(w3CUserAuthentication);
-                return Ok(w3CUserAuthentication);
+                w3User = W3CUserAuthentication.Create(userInfo.battletag);
+                await _w3CAuthenticationService.Save(w3User);
             }
 
             return Ok(w3User);
