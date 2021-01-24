@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Text.Json;
 using JWT.Algorithms;
 using JWT.Builder;
 
@@ -6,29 +6,42 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 {
     public class W3CUserAuthentication
     {
-        private string _jwtTokenSecret;
-
         public static W3CUserAuthentication Create(string battleTag, string jwtSecret = "secret")
         {
-            return new()
+            var isAdmin = Admins.IsAdmin(battleTag);
+            var name = battleTag.Split("#")[0];
+            var jwt = new JwtBuilder()
+                .WithAlgorithm(new HMACSHA256Algorithm())
+                .WithSecret(jwtSecret)
+                .AddClaim("BattleTag", battleTag)
+                .AddClaim("Name", name)
+                .AddClaim("IsAdmin", isAdmin)
+                .Encode();
+            return new W3CUserAuthentication
             {
                 BattleTag = battleTag,
-                _jwtTokenSecret = jwtSecret
+                JWT = jwt,
+                IsAdmin = isAdmin,
+                Name = name
             };
         }
 
-        public string BattleTag { get; set; }
-        public string Name => BattleTag.Split("#")[0];
+        public string JWT { get; set; }
 
-        public Boolean IsAdmin => Admins.IsAdmin(BattleTag);
-
-        public string JwtToken =>
-            new JwtBuilder()
+        public static W3CUserAuthentication FromJWT(string jwt, string jwtSecret = "secret")
+        {
+            var decode = new JwtBuilder()
                 .WithAlgorithm(new HMACSHA256Algorithm())
-                .WithSecret(_jwtTokenSecret)
-                .AddClaim("battle-tag", BattleTag)
-                .AddClaim("name", Name)
-                .AddClaim("is-admin", IsAdmin)
-                .Encode();
+                .WithSecret(jwtSecret)
+                .MustVerifySignature()
+                .Decode(jwt);
+
+            var user = JsonSerializer.Deserialize<W3CUserAuthentication>(decode);
+            return user;
+        }
+
+        public string BattleTag { get; set; }
+        public string Name { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

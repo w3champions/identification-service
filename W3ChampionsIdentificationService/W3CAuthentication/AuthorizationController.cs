@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Text.Json;
 using System.Threading.Tasks;
-using JWT.Algorithms;
-using JWT.Builder;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Twitch;
@@ -48,15 +45,9 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         }
 
         [HttpGet("user-info")]
-        public IActionResult GetUserInfo([FromQuery] string jwtToken)
+        public IActionResult GetUserInfo([FromQuery] string jwt)
         {
-            var decode = new JwtBuilder()
-                .WithAlgorithm(new HMACSHA256Algorithm())
-                .WithSecret(JwtTokenSecret)
-                .MustVerifySignature()
-                .Decode(jwtToken);
-
-            var user = JsonSerializer.Deserialize<W3CUserAuthentication>(decode);
+            var user = W3CUserAuthentication.FromJWT(jwt);
             return Ok(user);
         }
 
