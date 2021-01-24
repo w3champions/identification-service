@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using JWT.Algorithms;
-using JWT.Builder;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Twitch;
