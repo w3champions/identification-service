@@ -55,8 +55,7 @@ namespace W3ChampionsIdentificationService.Tests
         {
             var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
 
-            Assert.Throws<SignatureVerificationException>(
-                () => W3CUserAuthentication.FromJWT(userAuthentication.JWT, "NotTheSecret"));
+            Assert.IsNull(W3CUserAuthentication.FromJWT(userAuthentication.JWT, "NotTheSecret"));
         }
     }
 }
