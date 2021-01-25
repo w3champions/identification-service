@@ -47,7 +47,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         [HttpGet("user-info")]
         public IActionResult GetUserInfo([FromQuery] string jwt)
         {
-            var user = W3CUserAuthentication.FromJWT(jwt);
+            var user = W3CUserAuthentication.FromJWT(jwt, JwtTokenSecret);
             return user != null ? (IActionResult) Ok(user) : Unauthorized("Sorry Hackerboi");
         }
 

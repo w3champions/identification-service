@@ -11,7 +11,7 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void TestPropertyMapping()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", "secret");
 
             Assert.IsTrue(userAuthentication.IsAdmin);
             Assert.AreEqual("modmoto", userAuthentication.Name);
@@ -21,7 +21,7 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void TestJwtTokenGeneration()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", "secret");
 
             Assert.AreEqual(
                 "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJCYXR0bGVUYWciOiJtb2Rtb3RvIzI4MDkiLCJOYW1lIjoibW9kbW90byIsIklzQWRtaW4iOnRydWV9.lMT680d_JC2zqHvhFxTJs3eLEu2SM0jVQ7dup_mW4fA",
@@ -31,7 +31,7 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void JwtCanRetrieveClaims()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", "secret");
 
             var decode = new JwtDecoder(new JsonNetSerializer(), new JwtBase64UrlEncoder()).Decode(userAuthentication.JWT);
             Assert.AreEqual("{\"BattleTag\":\"modmoto#2809\",\"Name\":\"modmoto\",\"IsAdmin\":true}", decode);
@@ -40,9 +40,9 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void JwtCanBeInvalidated()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", "secret");
 
-            var decode = W3CUserAuthentication.FromJWT(userAuthentication.JWT);
+            var decode = W3CUserAuthentication.FromJWT(userAuthentication.JWT, "secret");
 
             Assert.AreEqual("modmoto#2809", decode.BattleTag);
             Assert.AreEqual(true, decode.IsAdmin);
@@ -53,7 +53,7 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void InvalidSecretThrows()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809");
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", "secret");
 
             Assert.IsNull(W3CUserAuthentication.FromJWT(userAuthentication.JWT, "NotTheSecret"));
         }

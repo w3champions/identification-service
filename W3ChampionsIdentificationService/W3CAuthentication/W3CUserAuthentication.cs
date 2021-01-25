@@ -7,7 +7,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 {
     public class W3CUserAuthentication
     {
-        public static W3CUserAuthentication Create(string battleTag, string jwtSecret = "secret")
+        public static W3CUserAuthentication Create(string battleTag, string jwtSecret)
         {
             var isAdmin = Admins.IsAdmin(battleTag);
             var name = battleTag.Split("#")[0];
@@ -29,7 +29,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
         public string JWT { get; set; }
 
-        public static W3CUserAuthentication FromJWT(string jwt, string jwtSecret = "secret")
+        public static W3CUserAuthentication FromJWT(string jwt, string jwtSecret)
         {
             try
             {
