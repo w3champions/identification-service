@@ -48,7 +48,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public IActionResult GetUserInfo([FromQuery] string jwt)
         {
             var user = W3CUserAuthentication.FromJWT(jwt);
-            return Ok(user);
+            return user != null ? (IActionResult) Ok(user) : Unauthorized("Sorry Hackerboi");
         }
 
         [HttpGet("twitch")]
