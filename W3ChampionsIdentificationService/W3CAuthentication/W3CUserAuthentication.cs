@@ -1,26 +1,56 @@
 ﻿using System;
-using System.Text.Json.Serialization;
-using W3ChampionsIdentificationService.Authorization;
+using System.Text.Json;
+using JWT.Algorithms;
+using JWT.Builder;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
 {
-    public class W3CUserAuthentication : IIdentifiable
+    public class W3CUserAuthentication
     {
-        public static W3CUserAuthentication Create(string battletag)
+        public static W3CUserAuthentication Create(string battleTag, string jwtSecret = "secret")
         {
+            var isAdmin = Admins.IsAdmin(battleTag);
+            var name = battleTag.Split("#")[0];
+            var jwt = new JwtBuilder()
+                .WithAlgorithm(new HMACSHA256Algorithm())
+                .WithSecret(jwtSecret)
+                .AddClaim("BattleTag", battleTag)
+                .AddClaim("Name", name)
+                .AddClaim("IsAdmin", isAdmin)
+                .Encode();
             return new W3CUserAuthentication
             {
-                Token = Guid.NewGuid().ToString(),
-                BattleTag = battletag
+                BattleTag = battleTag,
+                JWT = jwt,
+                IsAdmin = isAdmin,
+                Name = name
             };
         }
 
-        public string Token { get; set; }
-        public string BattleTag { get; set; }
-        public string Name => BattleTag.Split("#")[0];
-        public Boolean isAdmin => Admins.IsAdmin(BattleTag);
+        public string JWT { get; set; }
 
-        [JsonIgnore]
-        public string Id => BattleTag;
+        public static W3CUserAuthentication FromJWT(string jwt, string jwtSecret = "secret")
+        {
+            try
+            {
+                var decode = new JwtBuilder()
+                    .WithAlgorithm(new HMACSHA256Algorithm())
+                    .WithSecret(jwtSecret)
+                    .MustVerifySignature()
+                    .Decode(jwt);
+
+                var user = JsonSerializer.Deserialize<W3CUserAuthentication>(decode);
+                user.JWT = jwt;
+                return user;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public string BattleTag { get; set; }
+        public string Name { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }
