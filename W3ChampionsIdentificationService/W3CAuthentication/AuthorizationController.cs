@@ -44,15 +44,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             return Ok(w3User);
         }
 
-        [HttpGet("battleTag")]
-        [Obsolete("should be removed when all services are using the new rout")]
-        public async Task<IActionResult> GetUserInfoOld([FromQuery] string bearer)
-        {
-
-            var user = W3CUserAuthentication.FromJWT(bearer, JwtTokenSecret);
-            return user != null ? (IActionResult) Ok(user) : Unauthorized("Sorry Hackerboi");
-        }
-
         [HttpGet("user-info")]
         public IActionResult GetUserInfo([FromQuery] string jwt)
         {
