@@ -14,7 +14,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         private readonly IBlizzardAuthenticationService _blizzardAuthenticationService;
         private readonly ITwitchAuthenticationService _twitchAuthenticationService;
 
-        private static readonly string JwtTokenSecret = Environment.GetEnvironmentVariable("JWT_TOKEN_SECRET") ?? "secret";
+        private static readonly string JwtPrivateKey = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY");
+        private static readonly string JwtPublicKey = Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY");
 
         public AuthorizationController(
             IBlizzardAuthenticationService blizzardAuthenticationService,
@@ -39,7 +40,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 return Unauthorized("Sorry H4ckerb0i");
             }
 
-            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtTokenSecret);
+            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, JwtPublicKey);
 
             return Ok(w3User);
         }
@@ -47,7 +48,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         [HttpGet("user-info")]
         public IActionResult GetUserInfo([FromQuery] string jwt)
         {
-            var user = W3CUserAuthentication.FromJWT(jwt, JwtTokenSecret);
+            var user = W3CUserAuthentication.FromJWT(jwt, JwtPublicKey);
             return user != null ? (IActionResult) Ok(user) : Unauthorized("Sorry Hackerboi");
         }
 
