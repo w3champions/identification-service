@@ -13,6 +13,9 @@ namespace W3ChampionsIdentificationService.Tests
         private string _publicKey =
             "MIIBCgKCAQEAsXVkEXqldnZwDotoberO7fwMgR8QBdCmIJYrjBfl+qEXAMFv3UMLtNyWLvZKrObaXB3IH2iy0GLraJdFdAXZgiQdfH9qBgGpuEUOADi26k+sQ4CtHJxvkj6tzZtFf166PGItmZVeyCQkGfHJB9jBvUnFLEAwCJXor29XPm1DS8tRKN8nKxcPa+Mkj5981uWNoluQPxXdhGK/7auxdfc6IfzPPaKc7qWyCG4jNgyNAezqF0pBiCi2klmgHLhgmf1tnsU9vAnz/rYx9w3Y8AgILuEoBW0bwOguqXgOgFjQMGpZGdITanVlJiIiSKB5HXxfi34hLjFiUqlDgZAnhVz9QQIDAQAB";
 
+        private string _wrongPublicKey =
+            "MIIBCgKCAQEAwpRjp/3Xh8MtwsYxI6CqnxtHlEclWS5kQ1gbhR6WUUhm+Sizl3E5rgdVo6SxuUEGphF2Vih1NYGEbL4fWNqY+jqhtZb8AA/1qLSOVl9BdDw1nM0upuY0IPl9qPAnrveDjxR8WGdTywW6Hjf30gTkxCbgyISMoEOaKycmWlk+kS3GoonOLGLnGJKT4QniIC5LxOBRyjRYXyhq0Jd8r/bhLeyKVbCSz5mWjQhNe90lV/8oc34GvemlPe1//jufL3ZlJ3rK34axnEgqFEVebpGgYEV+5DUO/3qAWOwtbxiuqqQE7EywaotPFPEhenHxBBKlcRuycKQnBq94w068E2TVbQIDAQAB";
+
         [Test]
         public void TestPropertyMapping()
         {
@@ -60,7 +63,7 @@ namespace W3ChampionsIdentificationService.Tests
         {
             var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, _publicKey);
 
-            Assert.IsNull(W3CUserAuthentication.FromJWT(userAuthentication.JWT, "NotThePublicSecret"));
+            Assert.IsNull(W3CUserAuthentication.FromJWT(userAuthentication.JWT, _wrongPublicKey));
         }
 
         // run this test to generate secrets and copy the values from the tuple.
