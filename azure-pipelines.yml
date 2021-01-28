@@ -26,7 +26,7 @@ steps:
   inputs:
     command: 'test'
 
-- task: Docker@2.176.0
+- task: Docker@2
   inputs:
     containerRegistry: 'official-docker-modmoto'
     repository: 'modmoto/w3champions-identification-service'
