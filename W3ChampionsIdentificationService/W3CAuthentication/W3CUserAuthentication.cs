@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
