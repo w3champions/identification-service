@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
@@ -14,8 +15,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         private readonly IBlizzardAuthenticationService _blizzardAuthenticationService;
         private readonly ITwitchAuthenticationService _twitchAuthenticationService;
 
-        private static readonly string JwtPrivateKey = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY");
-        private static readonly string JwtPublicKey = Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY");
+        private static readonly string JwtPrivateKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY") ?? "");
+        private static readonly string JwtPublicKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY") ?? "");
 
         public AuthorizationController(
             IBlizzardAuthenticationService blizzardAuthenticationService,

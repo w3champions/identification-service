@@ -12,6 +12,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public static Tuple<string, string> CreatePublicAndPrivateKey()
         {
             var rsa = RSA.Create();
+
             var priv = rsa.ExportRSAPrivateKey();
             var pub = rsa.ExportRSAPublicKey();
 
@@ -24,7 +25,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public static W3CUserAuthentication Create(string battleTag, string privateKey)
         {
             var rsa = RSA.Create();
-            rsa.ImportRSAPrivateKey(Convert.FromBase64String(privateKey), out _);
+            rsa.ImportFromPem(privateKey);
 
             var isAdmin = Admins.IsAdmin(battleTag);
             var name = battleTag.Split("#")[0];
@@ -36,9 +37,9 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
             var jwt = new JwtSecurityToken(
                 claims: new Claim[] {
-                    new Claim("BattleTag", battleTag),
-                    new Claim("IsAdmin", isAdmin.ToString()),
-                    new Claim("Name", name)
+                    new("BattleTag", battleTag),
+                    new("IsAdmin", isAdmin.ToString()),
+                    new("Name", name)
                 },
                 signingCredentials: signingCredentials
             );
@@ -61,7 +62,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             try
             {
                 var rsa = RSA.Create();
-                rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey), out _);
+                rsa.ImportFromPem(publicKey);
 
                 var validationParameters = new TokenValidationParameters
                 {
