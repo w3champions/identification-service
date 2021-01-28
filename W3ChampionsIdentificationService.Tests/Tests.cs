@@ -63,13 +63,14 @@ namespace W3ChampionsIdentificationService.Tests
             Assert.IsNull(W3CUserAuthentication.FromJWT(userAuthentication.JWT, "NotThePublicSecret"));
         }
 
+        // run this test to generate secrets and copy the values from the tuple.
         [Test]
-        public void TestSecretGeneration()
+        public void SecretGeneration()
         {
             var tuple = W3CUserAuthentication.CreatePublicAndPrivateKey();
 
-            Assert.IsNotNull(tuple.Item1);
-            Assert.IsNotNull(tuple.Item2);
+            Assert.IsNotNull(tuple.Item1); // private key
+            Assert.IsNotNull(tuple.Item2); // piblic key
         }
     }
 }
