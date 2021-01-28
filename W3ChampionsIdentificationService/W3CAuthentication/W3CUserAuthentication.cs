@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
-using JWT.Algorithms;
-using JWT.Builder;
+using Microsoft.IdentityModel.Tokens;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
 {
@@ -20,33 +22,34 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             return new Tuple<string, string>(privText, pubText);
         }
 
-        public static W3CUserAuthentication Create(string battleTag, string privateKey, string publicKey)
+        public static W3CUserAuthentication Create(string battleTag, string privateKey)
         {
-            var publicKeyAsBytes = Convert.FromBase64String(publicKey);
-            var privateKeyAsBytes = Convert.FromBase64String(privateKey);
-
-            var rsaPrivate = RSA.Create();
-            rsaPrivate.ImportRSAPrivateKey(privateKeyAsBytes, out _);
-
-            var rsaPublic = RSA.Create();
-            rsaPublic.ImportRSAPublicKey(publicKeyAsBytes, out _);
-
+            var rsa = RSA.Create();
+            rsa.ImportRSAPrivateKey(Convert.FromBase64String(privateKey), out _);
 
             var isAdmin = Admins.IsAdmin(battleTag);
             var name = battleTag.Split("#")[0];
 
-            var jwt = new JwtBuilder()
-                .WithAlgorithm(new RS256Algorithm(rsaPublic, rsaPrivate))
-                .MustVerifySignature()
-                .AddClaim("BattleTag", battleTag)
-                .AddClaim("Name", name)
-                .AddClaim("IsAdmin", isAdmin)
-                .Encode();
+            var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256)
+            {
+                CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false },
+            };
+
+            var jwt = new JwtSecurityToken(
+                claims: new Claim[] {
+                    new Claim("BattleTag", battleTag),
+                    new Claim("IsAdmin", isAdmin.ToString()),
+                    new Claim("Name", name)
+                },
+                signingCredentials: signingCredentials
+            );
+
+            var token = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             return new W3CUserAuthentication
             {
                 BattleTag = battleTag,
-                JWT = jwt,
+                JWT = token,
                 IsAdmin = isAdmin,
                 Name = name
             };
@@ -61,14 +64,30 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 var rsa = RSA.Create();
                 rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey), out _);
 
-                var decode = new JwtBuilder()
-                    .WithAlgorithm(new RS256Algorithm(rsa))
-                    .MustVerifySignature()
-                    .Decode(jwt);
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ValidateTokenReplay = false,
+                    ValidateActor = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new RsaSecurityKey(rsa)
+                };
 
-                var user = JsonSerializer.Deserialize<W3CUserAuthentication>(decode);
-                user.JWT = jwt;
-                return user;
+                var handler = new JwtSecurityTokenHandler();
+                var claims = handler.ValidateToken(jwt, validationParameters, out _);
+                var btag = claims.Claims.First(c => c.Type == "BattleTag").Value;
+                var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "IsAdmin").Value);
+                var name = claims.Claims.First(c => c.Type == "Name").Value;
+
+                return new W3CUserAuthentication
+                {
+                    Name = name,
+                    BattleTag = btag,
+                    IsAdmin = isAdmin,
+                    JWT = jwt
+                };
             }
             catch (Exception)
             {

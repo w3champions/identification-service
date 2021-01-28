@@ -40,7 +40,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 return Unauthorized("Sorry H4ckerb0i");
             }
 
-            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, JwtPublicKey);
+            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey);
 
             return Ok(w3User);
         }

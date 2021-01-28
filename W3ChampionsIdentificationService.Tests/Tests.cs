@@ -1,5 +1,3 @@
-using JWT;
-using JWT.Serializers;
 using NUnit.Framework;
 using W3ChampionsIdentificationService.W3CAuthentication;
 
@@ -19,7 +17,7 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void TestPropertyMapping()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, _publicKey);
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey);
 
             Assert.IsTrue(userAuthentication.IsAdmin);
             Assert.AreEqual("modmoto", userAuthentication.Name);
@@ -29,26 +27,17 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void TestJwtTokenGeneration()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, _publicKey);
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey);
 
             Assert.AreEqual(
-                "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJCYXR0bGVUYWciOiJtb2Rtb3RvIzI4MDkiLCJOYW1lIjoibW9kbW90byIsIklzQWRtaW4iOnRydWV9.cdou95TWyIkmTzri5HoCjMWVtLAu2r0DAUfl5rh8e6i6oP89Lq1XsRJ1wxGMr2RrDGKv-vh_6mS-ulmE1zlr0fIk1e1JBwHxCBitmh7rjLfLMZMQXCDoA2z5CJDTg3hxaOWh8I_6F0x9JAaY5tXkwpl07wImoQNthVgoMC3Rt6c70Qa_LnWOos7iAmA2UUXhoZEemMfyCi2EHtCofG8qI8HIDjGHN3WhQmEjCeiBNjcso9JRXpI9ieuaJQi0gDq2FQcaKtdS0R2oXXF-CH9MnuDzeBrNFYqkConWwgWl3fnxO_zTPhqphUyqq4jp_mlW1PdKeGZhXU8FLyByahkyDg",
+                "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJCYXR0bGVUYWciOiJtb2Rtb3RvIzI4MDkiLCJJc0FkbWluIjoiVHJ1ZSIsIk5hbWUiOiJtb2Rtb3RvIn0.p7MtNKivSkLfad6a-KEE_brGyrJg81Zo21KqmdytC_n-J_tKffMb_DPotxRd10rEseo_OuAlsZc0Iv3jUU5IPi9nyOgdxjGvzqI6YgZMgJlE9l2XDHpuCkcUdr_us5pv9R_qJDLT8jv9XJynboynrPJzsGFTg2us9mtO9PZ4xid2dOoV7sfJauELhOoXlrQe_Pbgp8J3i5h2tQSJ7ZByubY5wfkJvp6-03leIYGJhMMmCSsc4bRTsGimZKMZhOTvwJaV4OUcemZz3onsZ7uSCL5Fwl46L0mWCkBIJsPUuS0MNS3LLqYxuUlt4unb1G7VT7XUtfR8RgIKQvt1nwQvUA",
                 userAuthentication.JWT);
         }
 
         [Test]
-        public void JwtCanRetrieveClaims()
+        public void JwtCanBeValidated()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, _publicKey);
-
-            var decode = new JwtDecoder(new JsonNetSerializer(), new JwtBase64UrlEncoder()).Decode(userAuthentication.JWT);
-            Assert.AreEqual("{\"BattleTag\":\"modmoto#2809\",\"Name\":\"modmoto\",\"IsAdmin\":true}", decode);
-        }
-
-        [Test]
-        public void JwtCanBeInvalidated()
-        {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, _publicKey);
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey);
 
             var decode = W3CUserAuthentication.FromJWT(userAuthentication.JWT, _publicKey);
 
@@ -61,7 +50,7 @@ namespace W3ChampionsIdentificationService.Tests
         [Test]
         public void InvalidSecretThrows()
         {
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, _publicKey);
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey);
 
             Assert.IsNull(W3CUserAuthentication.FromJWT(userAuthentication.JWT, _wrongPublicKey));
         }
@@ -73,7 +62,7 @@ namespace W3ChampionsIdentificationService.Tests
             var tuple = W3CUserAuthentication.CreatePublicAndPrivateKey();
 
             Assert.IsNotNull(tuple.Item1); // private key
-            Assert.IsNotNull(tuple.Item2); // piblic key
+            Assert.IsNotNull(tuple.Item2); // public key
         }
     }
 }

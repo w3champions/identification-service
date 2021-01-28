@@ -1,8 +1,9 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace W3ChampionsIdentificationService.Twitch
 {
@@ -26,7 +27,7 @@ namespace W3ChampionsIdentificationService.Twitch
             if (result.StatusCode == HttpStatusCode.OK)
             {
                 var content = await result.Content.ReadAsStringAsync();
-                _cachedToken = JsonConvert.DeserializeObject<OAuthToken>(content);
+                _cachedToken = JsonSerializer.Deserialize<OAuthToken>(content);
                 _cachedToken.CreateDate = DateTime.Now;
                 Cache.TwitchToken = _cachedToken;
                 return _cachedToken;

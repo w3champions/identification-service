@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace W3ChampionsIdentificationService.Blizzard
 {
@@ -24,7 +24,7 @@ namespace W3ChampionsIdentificationService.Blizzard
             }
 
             var readAsStringAsync = await res.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<BlizzardUserInfo>(readAsStringAsync);
+            return  JsonSerializer.Deserialize<BlizzardUserInfo>(readAsStringAsync);
         }
 
         public async Task<OAuthToken> GetToken(string code, string redirectUri)
@@ -39,7 +39,7 @@ namespace W3ChampionsIdentificationService.Blizzard
             }
 
             var readAsStringAsync = await res.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<OAuthToken>(readAsStringAsync);
+            return JsonSerializer.Deserialize<OAuthToken>(readAsStringAsync);
         }
     }
 }
