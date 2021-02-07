@@ -11,7 +11,7 @@ namespace W3ChampionsIdentificationService.Blizzard
         private readonly string _bnetClientId = Environment.GetEnvironmentVariable("BNET_API_CLIENT_ID");
         private readonly string _bnetApiSecret = Environment.GetEnvironmentVariable("BNET_API_SECRET");
 
-        public async Task<BlizzardUserInfo> GetUser(string bearer, BnetRegion region = BnetRegion.eu)
+        public async Task<BlizzardUserInfo> GetUser(string bearer, BnetRegion region)
         {
             var httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}/oauth/userinfo");
@@ -27,7 +27,7 @@ namespace W3ChampionsIdentificationService.Blizzard
             return  JsonSerializer.Deserialize<BlizzardUserInfo>(readAsStringAsync);
         }
 
-        public async Task<OAuthToken> GetToken(string code, string redirectUri, BnetRegion region = BnetRegion.eu)
+        public async Task<OAuthToken> GetToken(string code, string redirectUri, BnetRegion region)
         {
             var httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}/oauth/token");

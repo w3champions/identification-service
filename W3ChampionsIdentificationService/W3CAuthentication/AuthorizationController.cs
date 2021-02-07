@@ -27,15 +27,18 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         }
 
         [HttpGet("token")]
-        public async Task<IActionResult> GetBlizzardToken([FromQuery] string code, [FromQuery] string redirectUri)
+        public async Task<IActionResult> GetBlizzardToken(
+            [FromQuery] string code,
+            [FromQuery] string redirectUri,
+            [FromQuery] BnetRegion region)
         {
-            var token = await _blizzardAuthenticationService.GetToken(code, redirectUri);
+            var token = await _blizzardAuthenticationService.GetToken(code, redirectUri, region);
             if (token == null)
             {
                 return Unauthorized("Sorry H4ckerb0i");
             }
 
-            var userInfo = await _blizzardAuthenticationService.GetUser(token.access_token);
+            var userInfo = await _blizzardAuthenticationService.GetUser(token.access_token, region);
             if (userInfo == null)
             {
                 return Unauthorized("Sorry H4ckerb0i");
