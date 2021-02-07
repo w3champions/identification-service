@@ -11,10 +11,10 @@ namespace W3ChampionsIdentificationService.Blizzard
         private readonly string _bnetClientId = Environment.GetEnvironmentVariable("BNET_API_CLIENT_ID");
         private readonly string _bnetApiSecret = Environment.GetEnvironmentVariable("BNET_API_SECRET");
 
-        public async Task<BlizzardUserInfo> GetUser(string bearer)
+        public async Task<BlizzardUserInfo> GetUser(string bearer, BnetRegion region = BnetRegion.eu)
         {
             var httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri("https://eu.battle.net/oauth/userinfo");
+            httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}/oauth/userinfo");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
 
             var res = await httpClient.GetAsync("");
@@ -27,12 +27,11 @@ namespace W3ChampionsIdentificationService.Blizzard
             return  JsonSerializer.Deserialize<BlizzardUserInfo>(readAsStringAsync);
         }
 
-        public async Task<OAuthToken> GetToken(string code, string redirectUri)
+        public async Task<OAuthToken> GetToken(string code, string redirectUri, BnetRegion region = BnetRegion.eu)
         {
             var httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri("https://eu.battle.net/oauth/token");
-            var res = await httpClient.GetAsync(
-                $"?region=eu&code={code}&grant_type=authorization_code&redirect_uri={redirectUri}&client_id={_bnetClientId}&client_secret={_bnetApiSecret}");
+            httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}/oauth/token");
+            var res = await httpClient.GetAsync($"?code={code}&grant_type=authorization_code&redirect_uri={redirectUri}&client_id={_bnetClientId}&client_secret={_bnetApiSecret}");
             if (!res.IsSuccessStatusCode)
             {
                 return null;
@@ -41,5 +40,23 @@ namespace W3ChampionsIdentificationService.Blizzard
             var readAsStringAsync = await res.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<OAuthToken>(readAsStringAsync);
         }
+
+        private static string GetAuthenticationUri(BnetRegion bnetRegion)
+        {
+            switch (bnetRegion)
+            {
+                case BnetRegion.eu:
+                    return "https://eu.battle.net";
+                case BnetRegion.cn:
+                    return "https://www.battlenet.com.cn";
+                default:
+                    return "https://eu.battle.net";
+            }
+        }
+    }
+
+    public enum BnetRegion
+    {
+        eu, cn
     }
 }
