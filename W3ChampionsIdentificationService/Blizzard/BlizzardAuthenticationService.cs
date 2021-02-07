@@ -57,6 +57,6 @@ namespace W3ChampionsIdentificationService.Blizzard
 
     public enum BnetRegion
     {
-        eu, cn
+        none, eu, cn
     }
 }
