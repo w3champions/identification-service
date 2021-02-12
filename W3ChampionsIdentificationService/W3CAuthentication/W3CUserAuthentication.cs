@@ -37,9 +37,9 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
             var jwt = new JwtSecurityToken(
                 claims: new Claim[] {
-                    new("BattleTag", battleTag),
-                    new("IsAdmin", isAdmin.ToString()),
-                    new("Name", name)
+                    new("battleTag", battleTag),
+                    new("isAdmin", isAdmin.ToString()),
+                    new("name", name)
                 },
                 signingCredentials: signingCredentials
             );
@@ -77,9 +77,9 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
                 var handler = new JwtSecurityTokenHandler();
                 var claims = handler.ValidateToken(jwt, validationParameters, out _);
-                var btag = claims.Claims.First(c => c.Type == "BattleTag").Value;
-                var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "IsAdmin").Value);
-                var name = claims.Claims.First(c => c.Type == "Name").Value;
+                var btag = claims.Claims.First(c => c.Type == "battleTag").Value;
+                var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isAdmin").Value);
+                var name = claims.Claims.First(c => c.Type == "name").Value;
 
                 return new W3CUserAuthentication
                 {
