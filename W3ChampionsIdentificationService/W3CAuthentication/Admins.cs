@@ -17,7 +17,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "modmoto#2809",
                 "cepheid#1467",
                 "helpstone#2919",
-                "schlüssel#2626" // D2P
+                "schlüssel#2626", // D2P
+                "ladyrisa#2765"
             };
 
         public static bool IsAdmin(string battleTag)
