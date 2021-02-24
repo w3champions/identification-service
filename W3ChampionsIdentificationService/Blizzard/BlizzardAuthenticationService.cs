@@ -31,7 +31,7 @@ namespace W3ChampionsIdentificationService.Blizzard
         {
             var httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}/oauth/token");
-            var res = await httpClient.GetAsync($"?code={code}&grant_type=authorization_code&redirect_uri={redirectUri}&client_id={_bnetClientId}&client_secret={_bnetApiSecret}");
+            var res = await httpClient.PostAsync($"?code={code}&grant_type=authorization_code&redirect_uri={redirectUri}&client_id={_bnetClientId}&client_secret={_bnetApiSecret}", null);
             if (!res.IsSuccessStatusCode)
             {
                 return null;
