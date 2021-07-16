@@ -20,7 +20,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "schlüssel#2626", // D2P
                 "ladyrisa#2765",
                 "fluxxu#1815",
-                "gdollaz#1832"
+                "gdollaz#1832",
+                "Faro#2494"
             };
 
         public static bool IsAdmin(string battleTag)
