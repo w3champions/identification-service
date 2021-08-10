@@ -22,6 +22,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "fluxxu#1815",
                 "gdollaz#1832",
                 "faro#2494",
+                "shear#11346",
             };
 
         public static bool IsAdmin(string battleTag)
