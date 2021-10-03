@@ -18,12 +18,12 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "cepheid#1467",
                 "helpstone#2919",
                 "schlüssel#2626", // D2P
-                "ladyrisa#2765",
                 "fluxxu#1815",
                 "gdollaz#1832",
                 "faro#2494",
                 "shear#11346",
                 "martin#2255",
+                "garinthegoat#1294",
             };
 
         public static bool IsAdmin(string battleTag)
