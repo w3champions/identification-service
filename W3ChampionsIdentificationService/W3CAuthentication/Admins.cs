@@ -26,6 +26,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "curt#1979",
                 "ipoop4u#1554",
                 "ghost#225156",
+                "kage#12302",
+                "neo#2529",
             };
 
         public static bool IsAdmin(string battleTag)
