@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
+using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.Twitch;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
@@ -14,16 +17,19 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
     {
         private readonly IBlizzardAuthenticationService _blizzardAuthenticationService;
         private readonly ITwitchAuthenticationService _twitchAuthenticationService;
+        private readonly IRolesRepository _rolesRepository;
 
         private static readonly string JwtPrivateKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY") ?? "");
         private static readonly string JwtPublicKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY") ?? "");
 
         public AuthorizationController(
             IBlizzardAuthenticationService blizzardAuthenticationService,
-            ITwitchAuthenticationService twitchAuthenticationService)
+            ITwitchAuthenticationService twitchAuthenticationService,
+            IRolesRepository rolesRepository)
         {
             _blizzardAuthenticationService = blizzardAuthenticationService;
             _twitchAuthenticationService = twitchAuthenticationService;
+            _rolesRepository = rolesRepository;
         }
 
         [HttpGet("token")]
@@ -44,7 +50,10 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 return Unauthorized("Sorry H4ckerb0i");
             }
 
-            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey);
+            var roles = await _rolesRepository.GetRolesForUser(userInfo.battletag);
+            var rolesList = roles.Select(x => x.Name).ToList();
+
+            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, rolesList);
 
             return Ok(w3User);
         }
