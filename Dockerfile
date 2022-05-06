@@ -11,7 +11,7 @@ RUN dotnet build ./W3ChampionsIdentificationService/W3ChampionsIdentificationSer
 
 RUN dotnet publish "./W3ChampionsIdentificationService/W3ChampionsIdentificationService.csproj" -c Release -o "../../app/out"
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
 COPY --from=build-env /app/out .
 
