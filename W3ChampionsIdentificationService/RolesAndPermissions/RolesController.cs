@@ -16,6 +16,8 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             rolesRepository = _rolesRepository;
         }
 
+        // Roles
+
         [HttpGet]
         [CheckIfSuperAdmin]
         public async Task<IActionResult> GetAllRoles()
@@ -24,23 +26,35 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             return Ok(roles);
         }
 
-        [HttpGet("{battleTag}")]
-        public async Task<IActionResult> GetUserInfo([FromRoute] string battleTag)
-        {
-            return Ok();
-        }
-
         [HttpPost]
+        [CheckIfSuperAdmin]
         public async Task<IActionResult> PostNewRole([FromBody] Role role)
         {
             await rolesRepository.CreateRole(role);
             return Ok();
         }
 
-        [HttpPut]
-        public IActionResult ChangeRoles([FromRoute] string battleTag, [FromBody] List<string> roles)
+        [HttpDelete("{roleName}")]
+        [CheckIfSuperAdmin]
+        public async Task<IActionResult> DeleteRoles([FromRoute] string roleName)
         {
+            await rolesRepository.DeleteRole(roleName);
             return Ok();
         }
+
+        // Users
+
+        [HttpGet("{battleTag}")]
+        [CheckIfSuperAdmin]
+        public async Task<IActionResult> GetUsersRoles([FromRoute] string battleTag)
+        {
+            var roles = await rolesRepository.GetRolesForUser(battleTag);
+            return Ok(roles);
+        }
+
+        // TODO
+        // POST AddUserWithRoles()
+        // PUT AddRolesToUser()
+        // DELETE RemoveRolesFromUser()
     }
 }
