@@ -56,6 +56,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 BattleTag = battleTag,
                 JWT = token,
                 IsAdmin = isAdmin,
+                IsSuperAdmin = isSuperAdmin,
                 Name = name,
                 Roles = roles,
             };
@@ -82,11 +83,15 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 var handler = new JwtSecurityTokenHandler();
                 var claims = handler.ValidateToken(jwt, validationParameters, out _);
                 
+
                 var btag = claims.Claims.First(c => c.Type == "battleTag").Value;
                 var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isAdmin").Value);
                 var name = claims.Claims.First(c => c.Type == "name").Value;
                 var isSuperAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isSuperAdmin").Value);
-                var roles = claims.Claims.First(c => c.Type == "roles").Value;
+                var roles = claims.Claims
+                    .Where(claim => claim.Type == "roles")
+                    .Select(x => x.Value)
+                    .ToList();
 
                 return new W3CUserAuthentication
                 {
@@ -95,7 +100,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     IsAdmin = isAdmin,
                     JWT = jwt,
                     IsSuperAdmin = isSuperAdmin,
-                    Roles = JsonSerializer.Deserialize<List<string>>(roles),
+                    Roles = roles,
                 };
             }
             catch (Exception)
