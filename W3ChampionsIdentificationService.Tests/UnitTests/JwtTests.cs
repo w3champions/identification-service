@@ -22,9 +22,9 @@ namespace W3ChampionsIdentificationService.UnitTests.JWT
             Assert.AreEqual("modmoto", userAuthentication.Name);
             Assert.AreEqual("modmoto#2809", userAuthentication.BattleTag);
             Assert.AreEqual(3, userAuthentication.Permissions.Count);
-            Assert.IsTrue(userAuthentication.Permissions.Contains(permissions[0]));
-            Assert.IsTrue(userAuthentication.Permissions.Contains(permissions[1]));
-            Assert.IsTrue(userAuthentication.Permissions.Contains(permissions[2]));
+            Assert.IsTrue(userAuthentication.Permissions.Contains("ban"));
+            Assert.IsTrue(userAuthentication.Permissions.Contains("mute"));
+            Assert.IsTrue(userAuthentication.Permissions.Contains("admin"));
             Assert.IsTrue(userAuthentication.IsSuperAdmin);
         }
 

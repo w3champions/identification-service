@@ -82,7 +82,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             var invalidPermissions = permissions.Except(validPermissions.Select(x => x.Name)).ToList();
             if (invalidPermissions.Count > 0)
             {
-                throw new HttpException(409, $"Permissions: '{string.Join("','", invalidPermissions)}' do not exist");
+                throw new HttpException(404, $"Permissions: '{string.Join("','", invalidPermissions)}' do not exist");
             }
         }
     }
