@@ -34,9 +34,9 @@ namespace W3ChampionsIdentificationService.UnitTests.JWT
             string[] roles = { "ban", "mute", "admin" };
             var userAuthentication = W3CUserAuthentication.Create("notsuperadmin#2809", _privateKey, roles.ToList());
 
-            var expectedJwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJiYXR0bGVUYWciOiJub3RzdXBlcmFkbWluIzI4MDkiLCJpc0FkbWluIjoiRmFsc2UiLCJuYW1lIjoibm90c3VwZXJhZG1pbiIsImlzU3VwZXJBZG1pbiI6IkZhbHNlIiwicm9sZXMiOlsiYmFuIiwibXV0ZSIsImFkbWluIl19.JKJ5Wy8Dk_ogrAXJzL_9MkXOn05Km_P-yI4RypOe_Jo5Kv1jnpdlJfQ4EnL9v88VUqaYZcnjjXdHsTXfHIKgU40c05eu4ppDUjeYhqQCn14GQWILq6ma5P23I5uD9DAB4QhowJcAz1Obn_UsVHIhFPtIlRoAdl-wojlgxp0NSvXzwx6Bl17uwFa5hkk-fAtD650qsg5QBWyJi7rhB_TpKACShHEyl8KT6q4ZDbIjaxL14HxE68sBtNG8Bm4rBLRa6vncTu9UJfBMWD88AQ1KI5WwrfQe-wDX78kUkYwQ5cQ19kQxr0zWjGwN5E_A7KOnAIREd9EQMmMcDr9sSFB77TsA2yk0yjrsDYekBJQ5QKmw7xFBEpuOaMTnIFHL-SMqX2i_lC9hXVjZSGXfiSPK7ZkZkruZR-i7e6gGXDZe0N3Q6sNVQVrEKx2-y93FzGjOftp04NSr0WvDZngm-ntAPw1BenUPtk512xqEZrPeMHQaDZG8pmGdzi10fj1ecL5B_MgQ_6j2wZh8P-pUTYy5KkmSho7XiX_ujS1F0hVg9F5pWAm99Oh-VdESkE9hdlMeiEar2cIDEU1aRf4EUYwWVoz5ulyEe0siGi2pXG11JoH9yCg5wCy_13OVQJ_zQAx8QaYDuh0b8XufdgV92BU4RM5S98LjKk5HZ2xRa73Vuf0";
-            Assert.AreEqual(expectedJwt, userAuthentication.JWT);
+            Assert.Greater(userAuthentication.JWT.Length, 800);
             Assert.IsFalse(userAuthentication.IsSuperAdmin);
+            Assert.AreEqual(3, userAuthentication.Permissions.Count);
         }
 
         [Test]
