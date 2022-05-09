@@ -40,12 +40,15 @@ namespace W3ChampionsIdentificationService
             return mongoCollection.InsertOneAsync(element);
         }
 
-        protected async Task<List<T>> LoadAll<T>(Expression<Func<T, bool>> expression = null, int? limit = null)
+        protected async Task<List<T>> LoadAll<T>(Expression<Func<T, bool>> expression = null, int? limit = null, int? offset = null)
         {
             if (expression == null) expression = l => true;
             var mongoCollection = CreateCollection<T>();
-            var elements = await mongoCollection.Find(expression).Limit(limit).ToListAsync();
-            return elements;
+            return await mongoCollection
+                .Find(expression)
+                .Skip(offset)
+                .Limit(limit)
+                .ToListAsync();
         }
 
         protected Task<List<T>> LoadSince<T>(DateTimeOffset since) where T : IVersionable

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
-using W3ChampionsIdentificationService;
 
 namespace W3ChampionsIdentificationService.Middleware
 {

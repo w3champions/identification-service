@@ -6,8 +6,9 @@ using MongoDB.Driver;
 using System;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.RolesAndPermissions;
+using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
+using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.Twitch;
-using W3ChampionsIdentificationService.W3CAuthentication;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
 using W3ChampionsIdentificationService.WebApi.ActionFilters;
 
@@ -18,14 +19,23 @@ namespace W3ChampionsIdentificationService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
             var mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING") ?? "mongodb://localhost:27017"; // "mongodb://157.90.1.251:3710"; 
             var mongoClient = new MongoClient(mongoConnectionString.Replace("'", ""));
             services.AddSingleton(mongoClient);
 
+            services.AddTransient<IPermissionsRepository, PermissionsRepository>();
             services.AddTransient<IRolesRepository, RolesRepository>();
+            services.AddTransient<IUsersRepository, UsersRepository>();
+
+            services.AddTransient<IRolesCommandHandler, RolesCommandHandler>();
+            services.AddTransient<IUsersCommandHandler, UsersCommandHandler>();
+
             services.AddTransient<IBlizzardAuthenticationService, BlizzardAuthenticationService>();
             services.AddTransient<ITwitchAuthenticationService, TwitchAuthenticationService>();
             services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
+
+            services.AddTransient<RolesAndPermissionsValidator, RolesAndPermissionsValidator>();
 
             services.AddTransient<CheckIfSuperAdminFilter>();
         }

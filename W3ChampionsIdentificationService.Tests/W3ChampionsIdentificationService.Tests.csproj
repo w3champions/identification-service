@@ -18,4 +18,8 @@
       <ProjectReference Include="..\W3ChampionsIdentificationService\W3ChampionsIdentificationService.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="IntegrationTests\" />
+    </ItemGroup>
+
 </Project>
