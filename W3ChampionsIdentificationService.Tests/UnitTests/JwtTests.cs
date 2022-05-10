@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System.Linq;
 using W3ChampionsIdentificationService.W3CAuthentication;
 
-namespace W3ChampionsIdentificationService.UnitTests.JWT
+namespace W3ChampionsIdentificationService.Tests.UnitTests
 {
     public class JWTTests
     {

@@ -50,7 +50,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             }
 
             var user = await _usersRepository.GetUserByTag(userInfo.battletag);
-            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, user.Roles);
+            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, user.Permissions);
 
             return Ok(w3User);
         }

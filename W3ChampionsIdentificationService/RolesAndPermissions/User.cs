@@ -8,6 +8,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         [BsonId]
         public string Id { get; set; }
         public string BattleTag { get; set; }
-        public List<string> Roles { get; set; }
+        public List<string> Permissions { get; set; }
     }
 }

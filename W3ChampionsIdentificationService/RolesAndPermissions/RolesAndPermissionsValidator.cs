@@ -69,7 +69,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
                 throw new HttpException(400, "Id cannot be null or empty");
             }
 
-            var battleTagPattern = "/^[a-zA-Z1-9]*#[1-9]{4,5}/g";
+            var battleTagPattern = "^[a-zA-Z1-9]*#[1-9]{4,5}";
             if (!Regex.Match(user.BattleTag, battleTagPattern).Success)
             {
                 throw new HttpException(400, "BattleTag is not valid");

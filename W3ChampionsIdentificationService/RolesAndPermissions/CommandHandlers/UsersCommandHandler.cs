@@ -29,14 +29,14 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
                 throw new HttpException(409, "User already exists");
             }
 
-            await _validator.ValidatePermissionListHttp(user.Roles);
+            await _validator.ValidatePermissionListHttp(user.Permissions);
             await _usersRepository.CreateUser(user);
         }
 
         public async Task UpdateUser(User user)
         {   
             _validator.ValidateUserHttp(user);
-            await _validator.ValidatePermissionListHttp(user.Roles);
+            await _validator.ValidatePermissionListHttp(user.Permissions);
             await _usersRepository.UpdateUser(user);
         }
 
