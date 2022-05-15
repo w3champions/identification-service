@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace W3ChampionsIdentificationService.Tests.UnitTests
 {
+    [TestFixture]
     public class ValidatorTests
     {
         public RolesAndPermissionsValidator _validator;

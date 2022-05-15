@@ -4,22 +4,24 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using W3ChampionsIdentificationService.Config;
 
 namespace W3ChampionsIdentificationService
 {
     public class MongoDbRepositoryBase
     {
         private readonly MongoClient _mongoClient;
-        private readonly string _databaseName = "W3Champions-Identification-Service";
+        private readonly IAppConfig _appConfig;
 
-        public MongoDbRepositoryBase(MongoClient mongoClient)
+        public MongoDbRepositoryBase(MongoClient mongoClient, IAppConfig appConfig)
         {
+            _appConfig = appConfig;
             _mongoClient = mongoClient;
         }
 
         protected IMongoDatabase CreateClient()
         {
-            var database = _mongoClient.GetDatabase(_databaseName);
+            var database = _mongoClient.GetDatabase(_appConfig.DatabaseName);
             return database;
         }
 

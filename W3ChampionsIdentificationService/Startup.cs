@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using System;
 using W3ChampionsIdentificationService.Blizzard;
+using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
@@ -20,9 +21,12 @@ namespace W3ChampionsIdentificationService
         {
             services.AddControllers();
 
-            var mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING") ?? "mongodb://localhost:27017"; // "mongodb://157.90.1.251:3710"; 
-            var mongoClient = new MongoClient(mongoConnectionString.Replace("'", ""));
-            services.AddSingleton(mongoClient);
+            services.AddSingleton<IAppConfig, AppConfig>();
+            
+            services.AddSingleton((x) => {
+                var appConfig = x.GetService<IAppConfig>();
+                return new MongoClient(appConfig.MongoConnectionString);
+            });
 
             services.AddTransient<IPermissionsRepository, PermissionsRepository>();
             services.AddTransient<IRolesRepository, RolesRepository>();

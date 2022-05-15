@@ -1,13 +1,14 @@
 ﻿using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions
 {
     public class PermissionsRepository : MongoDbRepositoryBase, IPermissionsRepository
     {
-        public PermissionsRepository(MongoClient mongoClient) : base(mongoClient)
+        public PermissionsRepository(MongoClient mongoClient, IAppConfig appConfig) : base(mongoClient, appConfig)
         {
         }
 

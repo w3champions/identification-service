@@ -3,12 +3,13 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+using W3ChampionsIdentificationService.Config;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions
 {
     public class UsersRepository : MongoDbRepositoryBase, IUsersRepository
     {
-        public UsersRepository(MongoClient mongoClient) : base(mongoClient)
+        public UsersRepository(MongoClient mongoClient, IAppConfig appConfig) : base(mongoClient, appConfig)
         {
         }
 
