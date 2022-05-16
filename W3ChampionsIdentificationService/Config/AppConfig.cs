@@ -12,7 +12,9 @@ namespace W3ChampionsIdentificationService.Config
 
         public string DatabaseName
         {
-            get => "W3Champions-Identification-Service";
+            get => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Tests"
+                ? "W3Champions-Identification-Service-Tests"
+                : "W3champions-Identification-Service";
         }
 
         public string TestsMongoConnectionString

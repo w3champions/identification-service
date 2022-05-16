@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using NUnit.Framework;
+using System;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.Config;
 
@@ -8,16 +9,14 @@ namespace W3ChampionsIdentificationService.Tests.Integration
     public class IntegrationTestBase
     {
         protected readonly IAppConfig _appConfig;
-        protected readonly MongoClient MongoClient;
+        protected readonly MongoClient _mongoClient;
 
         public IntegrationTestBase()
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Tests");
             _appConfig = new AppConfig();
-             MongoClient = new MongoClient(_appConfig.TestsMongoConnectionString);
+            _mongoClient = new MongoClient(_appConfig.TestsMongoConnectionString);
         }
-
-        private string DatabaseName = "W3Champions-Update-Service-Tests";
-        private MongoClient _mongoClient; 
 
         [SetUp]
         public async Task Setup()
