@@ -12,7 +12,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         {
         }
 
-        public async Task<List<Role>> GetAllRoles(int? limit, int? offset)
+        public async Task<List<Role>> GetAllRoles(int? limit = null, int? offset = null)
         {
             return await LoadAll<Role>(null, limit, offset);
         }
