@@ -3,9 +3,8 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
-using W3ChampionsIdentificationService.Tests.Integration;
 
-namespace W3ChampionsIdentificationService.Tests.IntegrationTests
+namespace W3ChampionsIdentificationService.Tests.Integration.Repositories
 {
     public class PermissionsRepoTests : IntegrationTestBase
     {

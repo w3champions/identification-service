@@ -3,7 +3,7 @@ using W3ChampionsIdentificationService.Middleware;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using System.Collections.Generic;
 
-namespace W3ChampionsIdentificationService.Tests.UnitTests
+namespace W3ChampionsIdentificationService.Tests.Unit
 {
     [TestFixture]
     public class ValidatorTests
