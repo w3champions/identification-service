@@ -14,7 +14,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         private Fixture _fixture;
         private IPermissionsRepository _permissionsRepository;
         private RolesAndPermissionsValidator _validator;
-        
+
         [SetUp]
         public void PermissionsCommandHandlerTestsSetup()
         {
@@ -53,8 +53,8 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var result = await _permissionsRepository.GetAllPermissions();
 
             // assert
-            var ex = Assert.ThrowsAsync<HttpException>(async () => { 
-                await permissionsCommandHandler.CreatePermission(permission); 
+            var ex = Assert.ThrowsAsync<HttpException>(async () => {
+                await permissionsCommandHandler.CreatePermission(permission);
             }, "Does not throw a HttpException");
             Assert.AreEqual(ex.Message, $"Permission with id: {permission.Id} already exists", "Exception message was not correct");
             Assert.AreEqual(ex.StatusCode, 409, "Did not return correct status code");
@@ -74,7 +74,8 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             permission.Id = "differentId";
 
             // assert
-            var ex = Assert.ThrowsAsync<HttpException>(async () => {
+            var ex = Assert.ThrowsAsync<HttpException>(async () => 
+            {
                 await permissionsCommandHandler.CreatePermission(permission);
             }, "Does not throw a HttpException");
             Assert.AreEqual(ex.Message, $"Permission with name: '{permission.Name}' already exists", "Exception message was not correct");
@@ -83,9 +84,9 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [TestCase(null, "b", "c")]
-        [TestCase("a", null, "c")]
-        [TestCase("a", "b", null)]
+        [TestCase(null, "b", "c", TestName = "CreatePermission_WithInvalidProperties_IdIsNull_Throws400")]
+        [TestCase("a", null, "c", TestName = "CreatePermission_WithInvalidProperties_NameIsNull_Throws400")]
+        [TestCase("a", "b", null, TestName = "CreatePermission_WithInvalidProperties_DescriptionIsNull_Throws400")]
         public void CreatePermission_WithInvalidProperties_ThrowsValidationHttpException(string id, string name, string description)
         {
             // arrange
@@ -98,7 +99,8 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             };
 
             // act
-            var ex = Assert.ThrowsAsync<HttpException>(async () => {
+            var ex = Assert.ThrowsAsync<HttpException>(async () => 
+            {
                 await permissionsCommandHandler.CreatePermission(permission);
             }, "Does not throw a HttpException");
 
@@ -107,17 +109,76 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             Assert.AreEqual(ex.StatusCode, 400, "Did not return correct status code");
         }
 
-        // create permission tests:
-        // test that it calls the repo CreatePermission() when valid
-        // test that it doesnt call the repo CreatePermission() when invalid
+        [Test]
+        public async Task DeletePermission_ExistsInDatabase_Success()
+        {
+            // arrange
+            var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
+            var permission = _fixture.Create<Permission>();
 
-        // delete permission tests:
-        // check that it returns 404 when the permission doesnt exist
-        // check that it deletes it when it is valid
+            // act
+            await permissionsCommandHandler.CreatePermission(permission);
+            var createdPermission = await _permissionsRepository.GetPermission(permission.Id);
+            await permissionsCommandHandler.DeletePermission(permission.Id);
+            var deletedPermission = await _permissionsRepository.GetPermission(permission.Id);
 
-        // update permission tests:
-        // check it calls UpdatePermission() when valid
-        // check it doesnt call UpdatePermission() when invalid
+            // assert
+            Assert.IsNotNull(createdPermission, "Created permission does not exist in the database");
+            Assert.IsNull(deletedPermission, "Deleted permission still exists in the database");
+        }
 
+        [Test]
+        public async Task DeletePermission_DoesNotExist_ThrowsCorrectException()
+        {
+            // arrange
+            var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
+            var id = "1";
+
+            // act
+            var ex = Assert.ThrowsAsync<HttpException>(async () =>
+            {
+                await permissionsCommandHandler.DeletePermission(id);
+            }, "Does not throw HttpException");
+
+            // assert
+            StringAssert.Contains($"Permission with id: ${id} not found", ex.Message, "Did not give the correct validation error");
+            Assert.AreEqual(ex.StatusCode, 404, "Did not return correct status code");
+        }
+
+        [Test]
+        [TestCase(null, "b", "c", TestName = "UpdatePermission_InvalidFormats_IdIsNull_Throws400")]
+        [TestCase("a", null, "c", TestName = "UpdatePermission_InvalidFormats_NameIsNull_Throws400")]
+        [TestCase("a", "b", null, TestName = "UpdatePermission_InvalidFormats_DescriptionIsNull_Throws400")]
+        public async Task UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string id, string name, string description)
+        {
+            // arrange
+            var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
+            var startingPermission = _fixture.Create<Permission>();
+
+            if (id != null) startingPermission.Id = id;
+
+            var permission = new Permission()
+            {
+                Id = id,
+                Name = name,
+                Description = description,
+            };
+
+            // act
+            var ex = Assert.ThrowsAsync<HttpException>(async () =>
+            {
+                await permissionsCommandHandler.UpdatePermission(permission);
+            }, "Does not throw a HttpException");
+
+            // assert
+            StringAssert.Contains("cannot be null or empty", ex.Message, "Did not give the correct validation error");
+            Assert.AreEqual(ex.StatusCode, 400, "Did not return correct status code");
+        }
+
+        [Test]
+        public async Task UpdatePermission_CorrectRequest_Success()
+        {
+            Assert.Pass();
+        }
     }
 }
