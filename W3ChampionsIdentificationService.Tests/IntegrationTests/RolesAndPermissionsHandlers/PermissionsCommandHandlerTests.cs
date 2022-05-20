@@ -5,7 +5,6 @@ using W3ChampionsIdentificationService.Middleware;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
-using W3ChampionsIdentificationService.Tests.Integration;
 
 namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissionsHandlers
 {
@@ -178,7 +177,25 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         [Test]
         public async Task UpdatePermission_CorrectRequest_Success()
         {
-            Assert.Pass();
+            // arrange
+            var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
+
+            var permission = _fixture.Create<Permission>();
+            var permission2 = _fixture.Create<Permission>();
+            permission2.Id = permission.Id;
+
+            // act
+            await permissionsCommandHandler.CreatePermission(permission);
+            await permissionsCommandHandler.UpdatePermission(permission2);
+            var result = await _permissionsRepository.GetPermission(permission.Id);
+            var all = await _permissionsRepository.GetAllPermissions();
+
+            // assert
+            Assert.IsNotNull(result, "Entry is null");
+            Assert.AreEqual(permission2.Name, result.Name, "Name was not modified");
+            Assert.AreEqual(permission2.Description, result.Description, "Description was not modified");
+            Assert.AreEqual(1, all.Count, "More than one record was created");
+
         }
     }
 }
