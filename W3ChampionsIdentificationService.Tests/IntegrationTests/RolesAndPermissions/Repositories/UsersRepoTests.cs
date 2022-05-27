@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 
-namespace W3ChampionsIdentificationService.Tests.Integration.Repositories
+namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Repositories
 {
     public class UsersRepoTests : IntegrationTestBase
     {

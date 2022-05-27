@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 
-namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissionsHandlers
+namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Handlers
 {
     public class UsersCommandHandlerTests
     {
