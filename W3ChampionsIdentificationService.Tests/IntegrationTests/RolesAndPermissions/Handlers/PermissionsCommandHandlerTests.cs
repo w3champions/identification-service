@@ -10,11 +10,11 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
 {
     public class PermissionsCommandHandlerTests : IntegrationTestBase
     {
-        private Fixture _fixture;
+        Fixture _fixture;
         IPermissionsRepository _permissionsRepository;
         IRolesRepository _rolesRepository;
         IUsersRepository _usersRepository;
-        private RolesAndPermissionsValidator _validator;
+        RolesAndPermissionsValidator _validator;
 
         [SetUp]
         public void PermissionsCommandHandlerTestsSetup()
@@ -106,7 +106,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        public async Task DeletePermission_DoesNotExist_ThrowsCorrectException()
+        public void DeletePermission_DoesNotExist_ThrowsCorrectException()
         {
             // arrange
             var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
@@ -126,7 +126,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         [Test]
         [TestCase(null, "b", TestName = "UpdatePermission_InvalidFormats_IdIsNull_Throws400")]
         [TestCase("a", null, TestName = "UpdatePermission_InvalidFormats_DescriptionIsNull_Throws400")]
-        public async Task UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string id, string description)
+        public void UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string id, string description)
         {
             // arrange
             var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);

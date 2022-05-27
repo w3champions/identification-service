@@ -23,8 +23,8 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
 
         public async Task CreateRole(Role role)
         {
-            var allRoles = await _rolesRepository.GetAllRoles();
-            if (allRoles.Select(x => x.Id).Contains(role.Id))
+            var existingRole = await _rolesRepository.GetRole(role.Id);
+            if (existingRole != null)
             {
                 throw new HttpException(409, $"Role with id: {role.Id} already exists");
             }

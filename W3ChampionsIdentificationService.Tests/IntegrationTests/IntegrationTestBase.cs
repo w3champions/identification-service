@@ -13,7 +13,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration
 
         public IntegrationTestBase()
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Tests");
             _appConfig = new AppConfig();
             _mongoClient = new MongoClient(_appConfig.TestsMongoConnectionString);
         }

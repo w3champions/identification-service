@@ -46,7 +46,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration
         }
 
         [Test]
-        public async Task ValidatePermissionList_PermissionsDoNotExist_Success()
+        public async Task ValidatePermissionList_OnePermissionDoesNotExist_ThrowsHttpException()
         {
             // arrange
             var permissions = new List<Permission>();
@@ -60,15 +60,12 @@ namespace W3ChampionsIdentificationService.Tests.Integration
                 }
             }
 
-            // act
-            /*var ex = Assert.ThrowsAsync<HttpException>(async () => {
-                await validator.ValidatePermissionListHttp(permissions.Select(p => p.Name).ToList());
-            }, "Does not throw a HttpException");*/
+            // act & assert
+            var ex = Assert.ThrowsAsync<HttpException>(async () => await _validator.ValidatePermissionListHttp(permissions.Select(x => x.Id).ToList()));
 
-            // assert
-            /*StringAssert.Contains(ex.Message, "Permissions: ", "Exception message was not correct");
-            StringAssert.Contains(ex.Message, "do not exist", "Exception message was not correct");*/
-            Assert.Pass();
+            Assert.AreEqual(404, ex.StatusCode);
+            StringAssert.Contains("Permissions: ", ex.Message);
+            StringAssert.Contains("do not exist", ex.Message);
         }
 
         [Test]
