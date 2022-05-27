@@ -38,14 +38,14 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
 
         [HttpPost]
         [CheckIfSuperAdmin]
-        public async Task<IActionResult> Create([FromBody] User user)
+        public async Task<IActionResult> Create([FromBody] UserDTO user)
         {
             await _usersCommandHandler.CreateUser(user);
             return Ok();
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] User user)
+        public async Task<IActionResult> Update([FromBody] UserDTO user)
         {
             await _usersCommandHandler.UpdateUser(user);
             return Ok();

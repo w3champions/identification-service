@@ -24,7 +24,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         [CheckIfSuperAdmin]
         public async Task<IActionResult> Get([FromQuery] int? limit, [FromQuery] int? offset)
         {
-            var roles = await _rolesRepository.GetAllRoles(limit, offset);
+            var roles = await _rolesRepository.GetAllRoles(null, limit, offset);
             return Ok(roles);
         }
 

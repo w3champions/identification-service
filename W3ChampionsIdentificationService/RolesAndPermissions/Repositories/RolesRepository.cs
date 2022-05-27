@@ -1,5 +1,7 @@
 ﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
@@ -12,9 +14,9 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         {
         }
 
-        public async Task<List<Role>> GetAllRoles(int? limit = null, int? offset = null)
+        public async Task<List<Role>> GetAllRoles(Expression<Func<Role, bool>> expression = null, int ? limit = null, int? offset = null)
         {
-            return await LoadAll<Role>(null, limit, offset);
+            return await LoadAll(expression, limit, offset);
         }
 
         public async Task<Role> GetRole(string id)

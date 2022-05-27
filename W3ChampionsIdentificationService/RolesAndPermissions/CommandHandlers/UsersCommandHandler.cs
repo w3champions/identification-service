@@ -21,23 +21,50 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
             _validator = validator;
         }
 
-        public async Task CreateUser(User user)
+        public async Task CreateUser(UserDTO user)
         {
+            await _validator.ValidateRoleListHttp(user.Roles);
+            await _validator.ValidateUserDtoHttp(user);
             var allUsers = await _usersRepository.GetAllUsers();
-            if (allUsers.Where(x => x.BattleTag == user.BattleTag || x.Id == user.Id).Any())
+            var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
+
+            if (allUsers.Where(x => x.Id == user.BattleTag).Any())
             {
                 throw new HttpException(409, "User already exists");
             }
 
-            await _validator.ValidatePermissionListHttp(user.Permissions);
-            await _usersRepository.CreateUser(user);
+            var distinctPermissions = roles
+                .Select(x => x.Permissions)
+                .SelectMany(y => y)
+                .Distinct()
+                .ToList();
+
+            await _usersRepository.CreateUser(new User()
+            {
+                Id = user.BattleTag,
+                Permissions = roles
+                    .Select(x => x.Permissions)
+                    .SelectMany(y => y)
+                    .Distinct()
+                    .ToList(),
+            });
         }
 
-        public async Task UpdateUser(User user)
+        public async Task UpdateUser(UserDTO user)
         {   
-            _validator.ValidateUserHttp(user);
-            await _validator.ValidatePermissionListHttp(user.Permissions);
-            await _usersRepository.UpdateUser(user);
+            await _validator.ValidateUserDtoHttp(user, false);
+            await _validator.ValidateRoleListHttp(user.Roles);
+            var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
+
+            await _usersRepository.UpdateUser(new User()
+            {
+                Id = user.BattleTag,
+                Permissions = roles
+                    .Select(x => x.Permissions)
+                    .SelectMany(y => y)
+                    .Distinct()
+                    .ToList(),
+            });
         }
 
         public async Task DeleteUser(string id)

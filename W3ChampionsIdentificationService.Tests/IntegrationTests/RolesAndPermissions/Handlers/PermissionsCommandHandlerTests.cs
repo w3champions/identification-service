@@ -6,12 +6,14 @@ using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
-namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissionsHandlers
+namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Handlers
 {
     public class PermissionsCommandHandlerTests : IntegrationTestBase
     {
         private Fixture _fixture;
-        private IPermissionsRepository _permissionsRepository;
+        IPermissionsRepository _permissionsRepository;
+        IRolesRepository _rolesRepository;
+        IUsersRepository _usersRepository;
         private RolesAndPermissionsValidator _validator;
 
         [SetUp]
@@ -19,7 +21,9 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         {
             _fixture = new Fixture();
             _permissionsRepository = new PermissionsRepository(_mongoClient, _appConfig);
-            _validator = new RolesAndPermissionsValidator(_permissionsRepository);
+            _rolesRepository = new RolesRepository(_mongoClient, _appConfig);
+            _usersRepository = new UsersRepository(_mongoClient, _appConfig);
+            _validator = new RolesAndPermissionsValidator(_permissionsRepository, _rolesRepository, _usersRepository);
         }
 
         [Test]
@@ -36,7 +40,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             // assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Id);
-            Assert.IsNotNull(result.Name);
             Assert.IsNotNull(result.Description);
         }
 
@@ -61,39 +64,15 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        public async Task CreatePermission_WithName_AlreadyExists_ThrowsException()
-        {
-            // arrange
-            var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
-            var permission = _fixture.Create<Permission>();
-
-            // act
-            await permissionsCommandHandler.CreatePermission(permission);
-            var result = await _permissionsRepository.GetAllPermissions();
-            permission.Id = "differentId";
-
-            // assert
-            var ex = Assert.ThrowsAsync<HttpException>(async () => 
-            {
-                await permissionsCommandHandler.CreatePermission(permission);
-            }, "Does not throw a HttpException");
-            Assert.AreEqual(ex.Message, $"Permission with name: '{permission.Name}' already exists", "Exception message was not correct");
-            Assert.AreEqual(ex.StatusCode, 409, "Did not return correct status code");
-            Assert.AreEqual(1, result.Count, "Should only have one record");
-        }
-
-        [Test]
-        [TestCase(null, "b", "c", TestName = "CreatePermission_WithInvalidProperties_IdIsNull_Throws400")]
-        [TestCase("a", null, "c", TestName = "CreatePermission_WithInvalidProperties_NameIsNull_Throws400")]
-        [TestCase("a", "b", null, TestName = "CreatePermission_WithInvalidProperties_DescriptionIsNull_Throws400")]
-        public void CreatePermission_WithInvalidProperties_ThrowsValidationHttpException(string id, string name, string description)
+        [TestCase(null, "b", TestName = "CreatePermission_WithInvalidProperties_IdIsNull_Throws400")]
+        [TestCase("a", null, TestName = "CreatePermission_WithInvalidProperties_DescriptionIsNull_Throws400")]
+        public void CreatePermission_WithInvalidProperties_ThrowsValidationHttpException(string id, string description)
         {
             // arrange
             var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
             var permission = new Permission()
             {
                 Id = id,
-                Name = name,
                 Description = description,
             };
 
@@ -145,10 +124,9 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [TestCase(null, "b", "c", TestName = "UpdatePermission_InvalidFormats_IdIsNull_Throws400")]
-        [TestCase("a", null, "c", TestName = "UpdatePermission_InvalidFormats_NameIsNull_Throws400")]
-        [TestCase("a", "b", null, TestName = "UpdatePermission_InvalidFormats_DescriptionIsNull_Throws400")]
-        public async Task UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string id, string name, string description)
+        [TestCase(null, "b", TestName = "UpdatePermission_InvalidFormats_IdIsNull_Throws400")]
+        [TestCase("a", null, TestName = "UpdatePermission_InvalidFormats_DescriptionIsNull_Throws400")]
+        public async Task UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string id, string description)
         {
             // arrange
             var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
@@ -159,7 +137,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var permission = new Permission()
             {
                 Id = id,
-                Name = name,
                 Description = description,
             };
 
@@ -192,7 +169,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
 
             // assert
             Assert.IsNotNull(result, "Entry is null");
-            Assert.AreEqual(permission2.Name, result.Name, "Name was not modified");
             Assert.AreEqual(permission2.Description, result.Description, "Description was not modified");
             Assert.AreEqual(1, all.Count, "More than one record was created");
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 
-namespace W3ChampionsIdentificationService.Tests.Integration.Repositories
+namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Repositories
 {
     public class PermissionsRepoTests : IntegrationTestBase
     {
@@ -39,11 +39,9 @@ namespace W3ChampionsIdentificationService.Tests.Integration.Repositories
             // assert
             Assert.IsNotNull(document);
             Assert.AreEqual(permission.Id, document.Id);
-            Assert.AreEqual(permission.Name, document.Name);
             Assert.AreEqual(permission.Description, document.Description);
             Assert.IsNotNull(document2);
             Assert.AreEqual(permission.Id, document2.Id);
-            Assert.AreEqual(permission2.Name, document2.Name);
             Assert.AreEqual(permission2.Description, document2.Description);
             Assert.IsNull(document3);
         }

@@ -38,12 +38,10 @@ namespace W3ChampionsIdentificationService.Tests.Integration.Repositories
             // assert
             Assert.IsNotNull(doc1);
             Assert.AreEqual(role.Id, doc1.Id);
-            Assert.AreEqual(role.Name, doc1.Name);
             Assert.AreEqual(role.Description, doc1.Description);
             Assert.AreEqual(role.Permissions, doc1.Permissions);
             Assert.IsNotNull(doc2);
             Assert.AreEqual(role.Id, doc2.Id);
-            Assert.AreEqual(role2.Name, doc2.Name);
             Assert.AreEqual(role2.Description, doc2.Description);
             Assert.AreEqual(role2.Permissions, doc2.Permissions);
             Assert.IsNull(doc3);
@@ -64,7 +62,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration.Repositories
             }
 
             // act
-            var roles = await roleRepo.GetAllRoles(3, 3);
+            var roles = await roleRepo.GetAllRoles(null, 3, 3);
             var allRoles = await roleRepo.GetAllRoles();
 
             // assert

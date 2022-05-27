@@ -17,7 +17,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         {
             var maps = CreateCollection<User>();
             return await maps
-                .Find(x => x.BattleTag == battleTag)
+                .Find(x => x.Id == battleTag)
                 .SingleOrDefaultAsync();
         }
 

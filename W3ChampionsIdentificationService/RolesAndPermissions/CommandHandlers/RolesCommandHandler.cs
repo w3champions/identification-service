@@ -29,11 +29,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
                 throw new HttpException(409, $"Role with id: {role.Id} already exists");
             }
 
-            if (allRoles.Select(x => x.Name).Contains(role.Name))
-            {
-                throw new HttpException(409, $"Role with name: '{role.Name}' already exists");
-            }
-
             _validator.ValidateRoleHttp(role);
             await _validator.ValidatePermissionListHttp(role.Permissions);
             await _rolesRepository.CreateRole(role);

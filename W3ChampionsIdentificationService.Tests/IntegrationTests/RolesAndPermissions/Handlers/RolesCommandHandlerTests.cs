@@ -18,5 +18,8 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         {
             Assert.Pass();
         }
+
+        // role creation tests:
+        // 
     }
 }

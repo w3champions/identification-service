@@ -25,11 +25,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
                 throw new HttpException(409, $"Permission with id: {permission.Id} already exists");
             }
 
-            if (allPermissions.Select(x => x.Name).Contains(permission.Name))
-            {
-                throw new HttpException(409, $"Permission with name: '{permission.Name}' already exists");
-            }
-
             _validator.ValidatePermissionHttp(permission);
             await _permissionsRepository.CreatePermission(permission);
         }
