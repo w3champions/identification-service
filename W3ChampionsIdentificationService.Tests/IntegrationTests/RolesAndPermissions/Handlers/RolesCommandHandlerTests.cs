@@ -111,6 +111,85 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             StringAssert.Contains("cannot be null or empty", ex.Message);
         }
 
+        [Test]
+        public async Task UpdateRole_Success()
+        {
+
+            // arrange
+            var role = _fixture.Create<Role>();
+            role.Id = "moderator";
+            await AddPermissionsForRole(role);
+            await _rolesCommandHandler.CreateRole(role);
+
+            var updateRole = _fixture.Create<Role>();
+            await AddPermissionsForRole(updateRole);
+            updateRole.Id = role.Id;
+
+            // act
+            await _rolesCommandHandler.UpdateRole(updateRole);
+            var roleNow = await _rolesRepository.GetRole(updateRole.Id);
+
+            // assert
+            Assert.IsNotNull(roleNow);
+            Assert.AreEqual(roleNow.Id, updateRole.Id);
+            Assert.AreEqual(roleNow.Description, updateRole.Description);
+            Assert.AreEqual(roleNow.Permissions, updateRole.Permissions);
+        }
+
+        [Test]
+        public async Task UpdateRole_PermissionsDontExist_ThrowsException()
+        {
+
+            // arrange
+            var role = _fixture.Create<Role>();
+            role.Id = "moderator";
+            await AddPermissionsForRole(role);
+            await _rolesCommandHandler.CreateRole(role);
+
+            var updateRole = _fixture.Create<Role>();
+            updateRole.Id = role.Id;
+
+            // act
+            var ex = Assert.ThrowsAsync<HttpException>(async () =>
+            {
+                await _rolesCommandHandler.UpdateRole(updateRole);
+            });
+
+            // assert
+            Assert.AreEqual(404, ex.StatusCode);
+            StringAssert.Contains("Permissions: ", ex.Message);
+            StringAssert.Contains("do not exist", ex.Message);
+        }
+
+        [Test]
+        [TestCase(null, "moderators the ladder", TestName = "UpdateRoleIdIsNull")]
+        [TestCase("", "moderates the ladder", TestName = "UpdateRoleIdIsEmpty")]
+        [TestCase("moderator", null, TestName = "UpdateRoleDescriptionIsNull")]
+        [TestCase("moderator", "", TestName = "UpdateRoleDescriptionIsEmpty")]
+        public async Task UpdateRole_RoleIdDoesNotExist_ThrowsException(string id, string description)
+        {
+
+            // arrange
+            var role = _fixture.Create<Role>();
+            role.Id = "moderator";
+            await AddPermissionsForRole(role);
+            await _rolesCommandHandler.CreateRole(role);
+
+            var updateRole = _fixture.Create<Role>();
+            updateRole.Id = id;
+            updateRole.Description = description;
+
+            // act
+            var ex = Assert.ThrowsAsync<HttpException>(async () =>
+            {
+                await _rolesCommandHandler.UpdateRole(updateRole);
+            });
+
+            // assert
+            Assert.AreEqual(400, ex.StatusCode);
+            StringAssert.Contains("cannot be null or empty", ex.Message);
+        }
+
         private async Task AddPermissionsForRole(Role role)
         {
             foreach(var permission in role.Permissions)
