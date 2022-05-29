@@ -20,12 +20,12 @@ namespace W3ChampionsIdentificationService.Tests.Integration
         [SetUp]
         public async Task Setup()
         {
-            await _mongoClient.DropDatabaseAsync(_appConfig.TestsDatabaseName);
+            await _mongoClient.DropDatabaseAsync(_appConfig.DatabaseName);
         }
 
         protected IMongoDatabase CreateClient()
         {
-            var database = _mongoClient.GetDatabase(_appConfig.TestsDatabaseName);
+            var database = _mongoClient.GetDatabase(_appConfig.DatabaseName);
             return database;
         }
 
