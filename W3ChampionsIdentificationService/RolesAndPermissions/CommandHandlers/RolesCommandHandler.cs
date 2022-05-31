@@ -39,7 +39,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
             var role = await _rolesRepository.GetRole(id);
             if (role == null)
             {
-                throw new HttpException(404, $"Role with id: ${id} not found");
+                throw new HttpException(404, $"Role with id: '{id}' not found");
             }
 
             await _rolesRepository.DeleteRole(id);

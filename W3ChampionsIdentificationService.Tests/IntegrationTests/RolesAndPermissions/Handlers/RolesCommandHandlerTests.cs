@@ -190,6 +190,41 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             StringAssert.Contains("cannot be null or empty", ex.Message);
         }
 
+        [Test]
+        public async Task DeleteRole_Success()
+        {
+            // arrange
+            var role = _fixture.Create<Role>();
+            role.Id = "moderator";
+            await AddPermissionsForRole(role);
+            await _rolesCommandHandler.CreateRole(role);
+
+            // act
+            await _rolesCommandHandler.DeleteRole(role.Id);
+            var deletedRole = await _rolesRepository.GetRole(role.Id);
+
+            // assert
+            Assert.IsNull(deletedRole);
+        }
+        
+        [Test]
+        public async Task DeleteRole_RoleDoesntExist_ThrowsException()
+        {
+            // arrange
+            var role = _fixture.Create<Role>();
+            role.Id = "moderator";
+
+            // act
+            var ex = Assert.ThrowsAsync<HttpException>(async () =>
+            {
+                await _rolesCommandHandler.DeleteRole(role.Id);
+            });
+
+            // assert
+            Assert.AreEqual(404, ex.StatusCode);
+            Assert.AreEqual($"Role with id: '{role.Id}' not found", ex.Message);
+        }
+
         private async Task AddPermissionsForRole(Role role)
         {
             foreach(var permission in role.Permissions)
