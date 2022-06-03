@@ -28,11 +28,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
             var allUsers = await _usersRepository.GetAllUsers();
             var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
 
-            if (allUsers.Where(x => x.Id == user.BattleTag).Any())
-            {
-                throw new HttpException(409, "User already exists");
-            }
-
             var distinctPermissions = roles
                 .Select(x => x.Permissions)
                 .SelectMany(y => y)
@@ -42,11 +37,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
             await _usersRepository.CreateUser(new User()
             {
                 Id = user.BattleTag,
-                Permissions = roles
-                    .Select(x => x.Permissions)
-                    .SelectMany(y => y)
-                    .Distinct()
-                    .ToList(),
+                Permissions = distinctPermissions,
             });
         }
 

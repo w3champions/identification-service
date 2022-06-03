@@ -67,7 +67,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
                 var existingUser = await _usersrepostiory.GetUser(user.BattleTag);
                 if (existingUser != null)
                 {
-                    throw new HttpException(400, "User already exists");
+                    throw new HttpException(409, $"User: {user.BattleTag} already exists");
                 }
             }
         }
@@ -84,7 +84,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
 
         public async Task ValidateRoleListHttp(List<string> roles)
         {
-            if (roles.Count > 0)
+            if (roles == null || roles.Count == 0)
             {
                 throw new HttpException(400, "A user cannot have no Roles");
             }

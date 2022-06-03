@@ -208,7 +208,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
         
         [Test]
-        public async Task DeleteRole_RoleDoesntExist_ThrowsException()
+        public void DeleteRole_RoleDoesntExist_ThrowsException()
         {
             // arrange
             var role = _fixture.Create<Role>();
