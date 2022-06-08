@@ -4,7 +4,5 @@
     {
         string MongoConnectionString { get; }
         string DatabaseName { get; }
-        string TestsMongoConnectionString { get; }
-        string TestsDatabaseName { get; }
     }
 }

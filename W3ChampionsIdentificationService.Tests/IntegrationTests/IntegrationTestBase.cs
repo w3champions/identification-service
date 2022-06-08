@@ -1,6 +1,5 @@
 ﻿using MongoDB.Driver;
 using NUnit.Framework;
-using System;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.Config;
 
@@ -13,8 +12,8 @@ namespace W3ChampionsIdentificationService.Tests.Integration
 
         public IntegrationTestBase()
         {
-            _appConfig = new AppConfig();
-            _mongoClient = new MongoClient(_appConfig.TestsMongoConnectionString);
+            _appConfig = new TestsAppConfig();
+            _mongoClient = new MongoClient(_appConfig.MongoConnectionString);
         }
 
         [SetUp]
