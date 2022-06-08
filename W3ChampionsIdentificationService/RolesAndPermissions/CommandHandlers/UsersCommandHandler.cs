@@ -9,15 +9,12 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
     public class UsersCommandHandler : IUsersCommandHandler
     {
         private readonly IUsersRepository _usersRepository;
-        private readonly IRolesRepository _rolesRepository;
         private readonly RolesAndPermissionsValidator _validator;
         public UsersCommandHandler(
             IUsersRepository usersRepository,
-            IRolesRepository rolesRepository,
             RolesAndPermissionsValidator validator)
         {
             _usersRepository = usersRepository;
-            _rolesRepository = rolesRepository;
             _validator = validator;
         }
 
@@ -35,8 +32,8 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
 
         public async Task UpdateUser(User user)
         {   
-            await _validator.ValidateUpdateUser(user);
             await _validator.ValidateRoleList(user.Roles);
+            await _validator.ValidateUpdateUser(user);
 
             await _usersRepository.UpdateUser(new User()
             {

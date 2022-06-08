@@ -45,6 +45,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpPut]
+        [CheckIfSuperAdmin]
         public async Task<IActionResult> Update([FromBody] User user)
         {
             await _usersCommandHandler.UpdateUser(user);
@@ -55,7 +56,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         [CheckIfSuperAdmin]
         public async Task<IActionResult> Delete([FromQuery] string userId)
         {
-            await _usersRepository.DeleteUser(userId);
+            await _usersCommandHandler.DeleteUser(userId);
             return Ok();
         }
     }

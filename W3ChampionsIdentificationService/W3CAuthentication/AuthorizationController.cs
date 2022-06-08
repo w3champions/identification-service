@@ -17,6 +17,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         private readonly IBlizzardAuthenticationService _blizzardAuthenticationService;
         private readonly ITwitchAuthenticationService _twitchAuthenticationService;
         private readonly IUsersRepository _usersRepository;
+        private readonly IRolesRepository _rolesRepository;
 
         private static readonly string JwtPrivateKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY") ?? "");
         private static readonly string JwtPublicKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY") ?? "");
@@ -24,11 +25,13 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public AuthorizationController(
             IBlizzardAuthenticationService blizzardAuthenticationService,
             ITwitchAuthenticationService twitchAuthenticationService,
-            IUsersRepository rolesRepository)
+            IUsersRepository usersRepository,
+            IRolesRepository rolesRepository)
         {
             _blizzardAuthenticationService = blizzardAuthenticationService;
             _twitchAuthenticationService = twitchAuthenticationService;
-            _usersRepository = rolesRepository;
+            _usersRepository = usersRepository;
+            _rolesRepository = rolesRepository;
         }
 
         [HttpGet("token")]
@@ -50,7 +53,10 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             }
 
             var user = await _usersRepository.GetUser(userInfo.battletag);
-            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, user.Roles);
+            var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
+            var permissions = roles.SelectMany(x => x.Permissions).Distinct().ToList();
+
+            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, permissions);
 
             return Ok(w3User);
         }

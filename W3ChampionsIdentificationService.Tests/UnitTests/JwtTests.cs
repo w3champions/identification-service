@@ -16,28 +16,28 @@ namespace W3ChampionsIdentificationService.Tests.Unit
         [Test]
         public void TestPropertyMapping()
         {
-            string[] roles = { "ban", "mute", "admin" };
-            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, roles.ToList());
+            string[] permissions = { "ban", "mute", "admin" };
+            var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, permissions.ToList());
 
             Assert.IsTrue(userAuthentication.IsAdmin);
             Assert.AreEqual("modmoto", userAuthentication.Name);
             Assert.AreEqual("modmoto#2809", userAuthentication.BattleTag);
-            Assert.AreEqual(3, userAuthentication.Roles.Count);
-            Assert.IsTrue(userAuthentication.Roles.Contains("ban"));
-            Assert.IsTrue(userAuthentication.Roles.Contains("mute"));
-            Assert.IsTrue(userAuthentication.Roles.Contains("admin"));
+            Assert.AreEqual(3, userAuthentication.Permissions.Count);
+            Assert.IsTrue(userAuthentication.Permissions.Contains("ban"));
+            Assert.IsTrue(userAuthentication.Permissions.Contains("mute"));
+            Assert.IsTrue(userAuthentication.Permissions.Contains("admin"));
             Assert.IsTrue(userAuthentication.IsSuperAdmin);
         }
 
         [Test]
         public void TestJwtTokenGeneration()
         {
-            string[] roles = { "ban", "mute", "admin" };
-            var userAuthentication = W3CUserAuthentication.Create("notsuperadmin#2809", _privateKey, roles.ToList());
+            string[] permissions = { "ban", "mute", "admin" };
+            var userAuthentication = W3CUserAuthentication.Create("notsuperadmin#2809", _privateKey, permissions.ToList());
 
             Assert.Greater(userAuthentication.JWT.Length, 800);
             Assert.IsFalse(userAuthentication.IsSuperAdmin);
-            Assert.AreEqual(3, userAuthentication.Roles.Count);
+            Assert.AreEqual(3, userAuthentication.Permissions.Count);
         }
 
         [Test]
