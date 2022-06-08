@@ -6,18 +6,18 @@ namespace W3ChampionsIdentificationService.Middleware
 {
     internal class HttpExceptionMiddleware
     {
-        private readonly RequestDelegate next;
+        private readonly RequestDelegate _next;
 
-        public HttpExceptionMiddleware(RequestDelegate _next)
+        public HttpExceptionMiddleware(RequestDelegate next)
         {
-            next = _next;
+            _next = next;
         }
 
         public async Task Invoke(HttpContext context)
         {
             try
             {
-                await next.Invoke(context);
+                await _next.Invoke(context);
             }
             catch (HttpException httpException)
             {

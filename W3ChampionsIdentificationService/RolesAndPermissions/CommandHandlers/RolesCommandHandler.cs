@@ -9,15 +9,12 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
     public class RolesCommandHandler : IRolesCommandHandler
     {
         private readonly IRolesRepository _rolesRepository;
-        private readonly IPermissionsRepository _permissionsRepository;
         private readonly RolesAndPermissionsValidator _validator;
         public RolesCommandHandler(
             IRolesRepository rolesRepository,
-            IPermissionsRepository permissionsRepository,
             RolesAndPermissionsValidator validator)
         {
             _rolesRepository = rolesRepository;
-            _permissionsRepository = permissionsRepository;
             _validator = validator;
         }
 
@@ -29,8 +26,8 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
                 throw new HttpException(409, $"Role with id: {role.Id} already exists");
             }
 
-            _validator.ValidateRoleHttp(role);
-            await _validator.ValidatePermissionListHttp(role.Permissions);
+            _validator.ValidateRole(role);
+            await _validator.ValidatePermissionList(role.Permissions);
             await _rolesRepository.CreateRole(role);
         }
 
@@ -47,8 +44,8 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
 
         public async Task UpdateRole(Role role)
         {
-            _validator.ValidateRoleHttp(role);
-            await _validator.ValidatePermissionListHttp(role.Permissions);
+            _validator.ValidateRole(role);
+            await _validator.ValidatePermissionList(role.Permissions);
             await _rolesRepository.UpdateRole(role);
         }
     }

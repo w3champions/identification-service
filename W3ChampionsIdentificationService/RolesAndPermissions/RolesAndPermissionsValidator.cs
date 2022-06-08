@@ -22,7 +22,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             _usersrepostiory = usersRepository;
         }
 
-        public void ValidatePermissionHttp(Permission permission)
+        public void ValidatePermission(Permission permission)
         {
             if (string.IsNullOrEmpty(permission.Id))
             {
@@ -35,7 +35,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             }
         }
 
-        public void ValidateRoleHttp(Role role)
+        public void ValidateRole(Role role)
         {
 
             if (string.IsNullOrEmpty(role.Id))
@@ -49,30 +49,29 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             }
         }
 
-        public async Task ValidateUserDtoHttp(UserDTO user, bool isCreating = true)
+        public async Task ValidateCreateUser(User user)
         {
-            if (string.IsNullOrEmpty(user.BattleTag))
-            {
-                throw new HttpException(400, "BattleTag cannot be null or empty");
-            }
+            ValidateBattleTag(user.Id);
 
-            var battleTagPattern = "^[a-zA-Z1-9]*#[1-9]{4,5}";
-            if (!Regex.Match(user.BattleTag, battleTagPattern).Success)
+            var existingUser = await _usersrepostiory.GetUser(user.Id);
+            if (existingUser != null)
             {
-                throw new HttpException(400, "BattleTag is not valid");
-            }
-
-            if (isCreating)
-            {
-                var existingUser = await _usersrepostiory.GetUser(user.BattleTag);
-                if (existingUser != null)
-                {
-                    throw new HttpException(409, $"User: {user.BattleTag} already exists");
-                }
+                throw new HttpException(409, $"User: {user.Id} already exists");
             }
         }
 
-        public async Task ValidatePermissionListHttp(List<string> permissions)
+        public async Task ValidateUpdateUser(User user)
+        {
+            ValidateBattleTag(user.Id);
+
+            var existingUser = await _usersrepostiory.GetUser(user.Id);
+            if (existingUser == null)
+            {
+                throw new HttpException(409, $"User: {user.Id} does not exist");
+            }
+        }
+
+        public async Task ValidatePermissionList(List<string> permissions)
         {
             var validPermissions = await _permissionsRepository.GetAllPermissions();
             var invalidPermissions = permissions.Except(validPermissions.Select(x => x.Id)).ToList();
@@ -82,11 +81,30 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             }
         }
 
-        public async Task ValidateRoleListHttp(List<string> roles)
+        public void ValidateBattleTag(string tag)
+        {
+            if (string.IsNullOrEmpty(tag))
+            {
+                throw new HttpException(400, "BattleTag cannot be null or empty");
+            }
+
+            var battleTagPattern = "^[a-zA-Z1-9]*#[1-9]{4,5}";
+            if (!Regex.Match(tag, battleTagPattern).Success)
+            {
+                throw new HttpException(400, "BattleTag is not valid");
+            }
+        }
+
+        public async Task ValidateRoleList(List<string> roles)
         {
             if (roles == null || roles.Count == 0)
             {
                 throw new HttpException(400, "A user cannot have no Roles");
+            }
+
+            if (roles.GroupBy(x => x).Any(y => y.Count() > 1))
+            {
+                throw new HttpException(400, "Cannot have duplicate Roles");
             }
 
             var validRoles = await _rolesRepository.GetAllRoles(x => roles.Contains(x.Id));

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
@@ -24,7 +25,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             return new Tuple<string, string>(privText, pubText);
         }
 
-        public static W3CUserAuthentication Create(string battleTag, string privateKey, List<string> permissions)
+        public static W3CUserAuthentication Create(string battleTag, string privateKey, List<string> roles)
         {
             var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey);
@@ -44,7 +45,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     new("isAdmin", isAdmin.ToString()),
                     new("name", name),
                     new("isSuperAdmin", isSuperAdmin.ToString()),
-                    new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : string.Empty,JsonClaimValueTypes.JsonArray)
+                    new("roles", roles != null ? JsonSerializer.Serialize(roles) : string.Empty,JsonClaimValueTypes.JsonArray)
                 },
                 signingCredentials: signingCredentials
             );
@@ -58,7 +59,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 IsAdmin = isAdmin,
                 IsSuperAdmin = isSuperAdmin,
                 Name = name,
-                Permissions = permissions,
+                Roles = roles,
             };
         }
 
@@ -88,8 +89,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isAdmin").Value);
                 var name = claims.Claims.First(c => c.Type == "name").Value;
                 var isSuperAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isSuperAdmin").Value);
-                var permissions = claims.Claims
-                    .Where(claim => claim.Type == "permissions")
+                var roles = claims.Claims
+                    .Where(claim => claim.Type == "roles")
                     .Select(x => x.Value)
                     .ToList();
 
@@ -100,7 +101,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     IsAdmin = isAdmin,
                     JWT = jwt,
                     IsSuperAdmin = isSuperAdmin,
-                    Permissions = permissions,
+                    Roles = roles,
                 };
             }
             catch (Exception)
@@ -114,6 +115,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public string Name { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
-        public List<string> Permissions { get; set; }
+        public List<string> Roles { get; set; }
     }
 }

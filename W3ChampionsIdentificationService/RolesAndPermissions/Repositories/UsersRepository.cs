@@ -13,14 +13,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         {
         }
 
-        public async Task<User> GetUserByTag(string battleTag)
-        {
-            var maps = CreateCollection<User>();
-            return await maps
-                .Find(x => x.Id == battleTag)
-                .SingleOrDefaultAsync();
-        }
-
         public async Task<User> GetUser(string id)
         {
             return await LoadFirst<User>(id);

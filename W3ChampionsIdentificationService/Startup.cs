@@ -32,14 +32,16 @@ namespace W3ChampionsIdentificationService
             services.AddTransient<IRolesRepository, RolesRepository>();
             services.AddTransient<IUsersRepository, UsersRepository>();
 
+            services.AddTransient<IPermissionsCommandHandler, PermissionsCommandHandler>();
             services.AddTransient<IRolesCommandHandler, RolesCommandHandler>();
             services.AddTransient<IUsersCommandHandler, UsersCommandHandler>();
+
+            services.AddTransient<RolesAndPermissionsValidator, RolesAndPermissionsValidator>();
 
             services.AddTransient<IBlizzardAuthenticationService, BlizzardAuthenticationService>();
             services.AddTransient<ITwitchAuthenticationService, TwitchAuthenticationService>();
             services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
 
-            services.AddTransient<RolesAndPermissionsValidator, RolesAndPermissionsValidator>();
 
             services.AddTransient<CheckIfSuperAdminFilter>();
         }

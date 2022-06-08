@@ -34,24 +34,26 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         {
             // arrange
             var role = await CreateFixtureRoleInDb();
+            var role2 = await CreateFixtureRoleInDb();
 
             var roleList = new List<string>();
             roleList.Add(role.Id);
+            roleList.Add(role2.Id);
 
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList,
             };
 
             // act
-            await _usersCommandHandler.CreateUser(userdto);
-            var result = await _usersRepository.GetUser(userdto.BattleTag);
+            await _usersCommandHandler.CreateUser(user);
+            var result = await _usersRepository.GetUser(user.Id);
 
             // assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(userdto.BattleTag, result.Id);
-            Assert.AreEqual(role.Permissions.Count, result.Permissions.Count);
+            Assert.AreEqual(user.Id, result.Id);
+            Assert.AreEqual(user.Roles.Count, result.Roles.Count);
         }
 
         [Test]
@@ -61,16 +63,16 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var roleList = new List<string>();
             roleList.Add("nonExistentRole");
 
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList,
             };
 
             // act
             var ex = Assert.ThrowsAsync<HttpException>(async () =>
             {
-                await _usersCommandHandler.CreateUser(userdto);
+                await _usersCommandHandler.CreateUser(user);
             });
 
             // assert
@@ -82,16 +84,16 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         public void CreateUser_InvalidRequest_ThrowsException()
         {
             // arrange
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = null,
             };
 
             // act
             var ex = Assert.ThrowsAsync<HttpException>(async () =>
             {
-                await _usersCommandHandler.CreateUser(userdto);
+                await _usersCommandHandler.CreateUser(user);
             });
 
             // assert
@@ -108,22 +110,22 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var roleList = new List<string>();
             roleList.Add(role.Id);
 
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList,
             };
 
             // act
-            await _usersCommandHandler.CreateUser(userdto);
+            await _usersCommandHandler.CreateUser(user);
             var ex = Assert.ThrowsAsync<HttpException>(async () =>
             {
-                await _usersCommandHandler.CreateUser(userdto);
+                await _usersCommandHandler.CreateUser(user);
             });
 
             // assert
             Assert.AreEqual(409, ex.StatusCode);
-            Assert.AreEqual($"User: {userdto.BattleTag} already exists", ex.Message);
+            Assert.AreEqual($"User: {user.Id} already exists", ex.Message);
         }
 
         [Test]
@@ -135,16 +137,16 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var roleList = new List<string>();
             roleList.Add(role.Id);
 
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "notabattletagformat#14",
+                Id = "notabattletagformat#14",
                 Roles = roleList,
             };
 
             // act
             var ex = Assert.ThrowsAsync<HttpException>(async () =>
             {
-                await _usersCommandHandler.CreateUser(userdto);
+                await _usersCommandHandler.CreateUser(user);
             });
 
             // assert
@@ -158,27 +160,30 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             // arrange
             var role = await CreateFixtureRoleInDb();
             var role2 = await CreateFixtureRoleInDb();
+            var role3 = await CreateFixtureRoleInDb();
 
             var roleList = new List<string>();
             roleList.Add(role.Id);
             roleList.Add(role2.Id);
+            roleList.Add(role3.Id);
 
-            var userdto = new UserDTO()
+
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList,
             };
-            await _usersCommandHandler.CreateUser(userdto);
+            await _usersCommandHandler.CreateUser(user);
 
             // act
-            var result = await _usersRepository.GetUser(userdto.BattleTag);
-            userdto.Roles.RemoveAt(userdto.Roles.Count -1);
-            await _usersCommandHandler.UpdateUser(userdto);
-            var resultAfterUpdate = await _usersRepository.GetUser(userdto.BattleTag);
+            var result = await _usersRepository.GetUser(user.Id);
+            user.Roles.RemoveAt(user.Roles.Count -1);
+            await _usersCommandHandler.UpdateUser(user);
+            var resultAfterUpdate = await _usersRepository.GetUser(user.Id);
 
             // assert
             Assert.NotNull(resultAfterUpdate);
-            Assert.AreEqual(role.Permissions.Count, resultAfterUpdate.Permissions.Count);
+            Assert.AreEqual(user.Roles.Count, resultAfterUpdate.Roles.Count);
         }
 
         [Test]
@@ -190,27 +195,27 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var roleList = new List<string>();
             roleList.Add(role.Id);
 
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList,
             };
-            await _usersCommandHandler.CreateUser(userdto);
+            await _usersCommandHandler.CreateUser(user);
 
             var role2 = _fixture.Create<Role>();
             var roleList2 = new List<string>();
             roleList2.Add(role2.Id);
 
-            var userdto2 = new UserDTO()
+            var user2 = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList2,
             };
 
             // act
             var ex = Assert.ThrowsAsync<HttpException>(async () =>
             {
-                await _usersCommandHandler.UpdateUser(userdto2);
+                await _usersCommandHandler.UpdateUser(user2);
             });
 
             // assert
@@ -227,23 +232,23 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var roleList = new List<string>();
             roleList.Add(role.Id);
 
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList,
             };
-            await _usersCommandHandler.CreateUser(userdto);
+            await _usersCommandHandler.CreateUser(user);
 
-            var userdto2 = new UserDTO()
+            var user2 = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = null,
             };
 
             // act
             var ex = Assert.ThrowsAsync<HttpException>(async () =>
             {
-                await _usersCommandHandler.UpdateUser(userdto2);
+                await _usersCommandHandler.UpdateUser(user2);
             });
 
             // assert
@@ -260,19 +265,33 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             var roleList = new List<string>();
             roleList.Add(role.Id);
 
-            var userdto = new UserDTO()
+            var user = new User()
             {
-                BattleTag = "cepheid#1467",
+                Id = "cepheid#1467",
                 Roles = roleList,
             };
-            await _usersCommandHandler.CreateUser(userdto);
+            await _usersCommandHandler.CreateUser(user);
 
             // act
-            await _usersCommandHandler.DeleteUser(userdto.BattleTag);
-            var result = await _usersRepository.GetUser(userdto.BattleTag);
+            await _usersCommandHandler.DeleteUser(user.Id);
+            var result = await _usersRepository.GetUser(user.Id);
 
             // assert
             Assert.IsNull(result);
+        }
+
+        [Test]
+        public void DeleteUser_IdDoesntExist_ThrowsException()
+        {
+            // act
+            var ex = Assert.ThrowsAsync<HttpException>(async () =>
+            {
+                await _usersCommandHandler.DeleteUser("idThatDoesntExist#1234");
+            });
+
+            // assert
+            Assert.AreEqual(404, ex.StatusCode);
+            Assert.AreEqual($"Role with id: 'idThatDoesntExist#1234' not found", ex.Message);
         }
 
 

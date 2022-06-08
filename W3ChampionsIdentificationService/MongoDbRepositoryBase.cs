@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using W3ChampionsIdentificationService.Config;
+using W3ChampionsIdentificationService.DatabaseModels;
 
 namespace W3ChampionsIdentificationService
 {
@@ -119,15 +120,5 @@ namespace W3ChampionsIdentificationService
             var updateDefinition = Builders<T>.Update.Unset(fieldName);
             await mongoCollection.UpdateOneAsync(x => x.Id == id, updateDefinition);
         }
-    }
-
-    public interface IIdentifiable
-    {
-        public string Id { get; }
-    }
-
-    public interface IVersionable
-    {
-        public DateTimeOffset LastUpdated { get; set; }
     }
 }

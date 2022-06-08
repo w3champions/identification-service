@@ -41,7 +41,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration
 
             // act & assert
             Assert.DoesNotThrowAsync(async () => {
-                await _validator.ValidatePermissionListHttp(permissions.Select(p => p.Id).ToList());
+                await _validator.ValidatePermissionList(permissions.Select(p => p.Id).ToList());
             }, "Unexpected HttpException");
         }
 
@@ -61,7 +61,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration
             }
 
             // act & assert
-            var ex = Assert.ThrowsAsync<HttpException>(async () => await _validator.ValidatePermissionListHttp(permissions.Select(x => x.Id).ToList()));
+            var ex = Assert.ThrowsAsync<HttpException>(async () => await _validator.ValidatePermissionList(permissions.Select(x => x.Id).ToList()));
 
             Assert.AreEqual(404, ex.StatusCode);
             StringAssert.Contains("Permissions: ", ex.Message);
@@ -74,7 +74,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration
         [TestCase(null, "Can mute a player", TestName = "PermissionValidationHttp_IdIsNull_Throws400")]
         [TestCase("canMute", "", TestName = "PermissionValidationHttp_DescriptionIsEmptyString_Throws400")]
         [TestCase("canMute", null, TestName = "PermissionValidationHttp_DescriptionIsNull_Throws400")]
-        public void PermissionsValidationHttp_ThrowsCorrectErrors(string id, string description)
+        public void PermissionsValidation_ThrowsCorrectErrors(string id, string description)
         {
             var permission = new Permission()
             {
@@ -85,11 +85,11 @@ namespace W3ChampionsIdentificationService.Tests.Integration
             if (!string.IsNullOrEmpty(permission.Id) &&
                 !string.IsNullOrEmpty(permission.Description))
             {
-                Assert.DoesNotThrow(() => _validator.ValidatePermissionHttp(permission));
+                Assert.DoesNotThrow(() => _validator.ValidatePermission(permission));
                 Assert.Pass();
             }
 
-            var exception = Assert.Throws<HttpException>(() => _validator.ValidatePermissionHttp(permission));
+            var exception = Assert.Throws<HttpException>(() => _validator.ValidatePermission(permission));
             Assert.AreEqual(400, exception.StatusCode);
             StringAssert.Contains("cannot be null or empty", exception.Message);
         }
@@ -100,7 +100,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration
         [TestCase(null, "access to moderation tools", TestName = "RoleValidationHttp_IdIsNull_Throws400")]
         [TestCase("moderator", "", TestName = "RoleValidationHttp_DescriptionIsEmptyString_Throws400")]
         [TestCase("moderator", null, TestName = "RoleValidationHttp_DescriptionIsNull_Throws400")]
-        public void RoleValidationHttp_ThrowsCorrectErrors(string id, string description)
+        public void RoleValidation_ThrowsCorrectErrors(string id, string description)
         {
             var role = new Role()
             {
@@ -111,13 +111,35 @@ namespace W3ChampionsIdentificationService.Tests.Integration
             if (!string.IsNullOrEmpty(role.Id) &&
                 !string.IsNullOrEmpty(role.Description))
             {
-                Assert.DoesNotThrow(() => _validator.ValidateRoleHttp(role));
+                Assert.DoesNotThrow(() => _validator.ValidateRole(role));
                 Assert.Pass();
             }
 
-            var exception = Assert.Throws<HttpException>(() => _validator.ValidateRoleHttp(role));
+            var exception = Assert.Throws<HttpException>(() => _validator.ValidateRole(role));
             Assert.AreEqual(400, exception.StatusCode);
             StringAssert.Contains("cannot be null or empty", exception.Message);
+        }
+
+        public void RoleListValidation_WhenDuplicates_ThrowsError()
+        {
+            // arrange
+            var role1 = _fixture.Create<Role>();
+            var role2 = _fixture.Create<Role>();
+
+            var roleList = new List<Role>();
+
+            roleList.Add(role1);
+            roleList.Add(role2);
+            roleList.Add(role1);
+
+            // act
+            var ex = Assert.ThrowsAsync<HttpException>(async () =>
+            {
+                await _validator.ValidateRoleList(roleList.Select(x => x.Id).ToList());
+            });
+
+            Assert.AreEqual(400, ex.StatusCode);
+            Assert.AreEqual("Cannot have duplicate Roles", ex.Message);
         }
 
         [Test]
@@ -125,30 +147,30 @@ namespace W3ChampionsIdentificationService.Tests.Integration
         [TestCase("", TestName = "UserValidationHttp_BattleTagIsEmptyString_Throws400")]
         [TestCase(null, TestName = "UserValidationHttp_BattleTagIsNull_Throws400")]
         [TestCase("incorrectlyFormattedBattletag#1", TestName = "UserValidationHttp_BattleTagIsIncorrectFormat_Throws400")]
-        public async Task UserValidationHttp_ThrowsCorrectErrors(string tag)
+        public void UserValidation_ThrowsCorrectErrors(string tag)
         {
-            var user = new UserDTO()
+            var user = new User()
             {
-                BattleTag = tag,
+                Id = tag,
                 Roles = new List<string>()
             };
 
-            if (!string.IsNullOrEmpty(user.BattleTag) &&
-                user.BattleTag == "Cepheid#1467")
+            if (!string.IsNullOrEmpty(user.Id) &&
+                user.Id == "Cepheid#1467")
             {
-                Assert.DoesNotThrowAsync(async () => await _validator.ValidateUserDtoHttp(user));
+                Assert.DoesNotThrowAsync(async () => await _validator.ValidateCreateUser(user));
                 Assert.Pass();
             }
 
-            if (user.BattleTag == "incorrectlyFormattedBattletag#1")
+            if (user.Id == "incorrectlyFormattedBattletag#1")
             {
-                var ex = Assert.ThrowsAsync<HttpException>(async () => await _validator.ValidateUserDtoHttp(user));
+                var ex = Assert.ThrowsAsync<HttpException>(async () => await _validator.ValidateCreateUser(user));
                 Assert.AreEqual("BattleTag is not valid", ex.Message);
                 Assert.AreEqual(400, ex.StatusCode);
                 Assert.Pass();
             }
 
-            var exception = Assert.ThrowsAsync<HttpException>(async () => await _validator.ValidateUserDtoHttp(user));
+            var exception = Assert.ThrowsAsync<HttpException>(async () => await _validator.ValidateCreateUser(user));
             Assert.AreEqual(400, exception.StatusCode);
             StringAssert.Contains("cannot be null or empty", exception.Message);
         }

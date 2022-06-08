@@ -5,38 +5,38 @@ namespace W3ChampionsIdentificationService.Middleware
 {
     public class HttpException : Exception
     {
-        private readonly int httpStatusCode;
+        private readonly int _httpStatusCode;
 
-        public HttpException(int _httpStatusCode)
+        public HttpException(int httpStatusCode)
         {
-            httpStatusCode = _httpStatusCode;
+            _httpStatusCode = httpStatusCode;
         }
 
-        public HttpException(HttpStatusCode _httpStatusCode)
+        public HttpException(HttpStatusCode httpStatusCode)
         {
-            httpStatusCode = (int)_httpStatusCode;
+            _httpStatusCode = (int)httpStatusCode;
         }
 
-        public HttpException(int _httpStatusCode, string message) : base(message)
+        public HttpException(int httpStatusCode, string message) : base(message)
         {
-            httpStatusCode = _httpStatusCode;
+            _httpStatusCode = httpStatusCode;
         }
 
-        public HttpException(HttpStatusCode _httpStatusCode, string message) : base(message)
+        public HttpException(HttpStatusCode httpStatusCode, string message) : base(message)
         {
-            httpStatusCode = (int)_httpStatusCode;
+            _httpStatusCode = (int)httpStatusCode;
         }
 
-        public HttpException(int _httpStatusCode, string message, Exception inner) : base(message, inner)
+        public HttpException(int httpStatusCode, string message, Exception inner) : base(message, inner)
         {
-            httpStatusCode = _httpStatusCode;
+            _httpStatusCode = httpStatusCode;
         }
 
-        public HttpException(HttpStatusCode _httpStatusCode, string message, Exception inner) : base(message, inner)
+        public HttpException(HttpStatusCode httpStatusCode, string message, Exception inner) : base(message, inner)
         {
-            httpStatusCode = (int)_httpStatusCode;
+            _httpStatusCode = (int)httpStatusCode;
         }
 
-        public int StatusCode { get { return httpStatusCode; } }
+        public int StatusCode { get { return _httpStatusCode; } }
     }
 }

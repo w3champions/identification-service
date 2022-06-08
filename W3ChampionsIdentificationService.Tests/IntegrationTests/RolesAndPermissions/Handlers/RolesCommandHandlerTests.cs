@@ -25,7 +25,7 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             _rolesRepository = new RolesRepository(_mongoClient, _appConfig);
             _usersRepository = new UsersRepository(_mongoClient, _appConfig);
             _validator = new RolesAndPermissionsValidator(_permissionsRepository, _rolesRepository, _usersRepository);
-            _rolesCommandHandler = new RolesCommandHandler(_rolesRepository, _permissionsRepository, _validator);
+            _rolesCommandHandler = new RolesCommandHandler(_rolesRepository, _validator);
         }
 
         [Test]

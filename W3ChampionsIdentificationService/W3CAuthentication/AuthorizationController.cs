@@ -49,8 +49,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 return Unauthorized("Sorry H4ckerb0i");
             }
 
-            var user = await _usersRepository.GetUserByTag(userInfo.battletag);
-            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, user.Permissions);
+            var user = await _usersRepository.GetUser(userInfo.battletag);
+            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, user.Roles);
 
             return Ok(w3User);
         }

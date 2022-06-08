@@ -37,10 +37,10 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             // assert
             Assert.IsNotNull(doc1, "User is null after creation");
             Assert.AreEqual(user.Id, doc1.Id, "User's ID is not correct after creation");
-            Assert.AreEqual(user.Permissions, doc1.Permissions, "User's Permissions are not correct after creation");
+            Assert.AreEqual(user.Roles, doc1.Roles, "User's Permissions are not correct after creation");
             Assert.IsNotNull(doc2, "User is null after update");
             Assert.AreEqual(user.Id, doc2.Id, "User's ID is not correct after update");
-            Assert.AreEqual(user2.Permissions, doc2.Permissions, "User's permissions are not correct after update");
+            Assert.AreEqual(user2.Roles, doc2.Roles, "User's permissions are not correct after update");
             Assert.IsNull(doc3, "User was not null after deletion");
         }
 

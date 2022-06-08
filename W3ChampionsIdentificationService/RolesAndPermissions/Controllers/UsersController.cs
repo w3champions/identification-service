@@ -32,20 +32,20 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         [CheckIfSuperAdmin]
         public async Task<IActionResult> Get([FromRoute] string tag)
         {
-            var user = await _usersRepository.GetUserByTag(tag);
+            var user = await _usersRepository.GetUser(tag);
             return Ok(user);
         }
 
         [HttpPost]
         [CheckIfSuperAdmin]
-        public async Task<IActionResult> Create([FromBody] UserDTO user)
+        public async Task<IActionResult> Create([FromBody] User user)
         {
             await _usersCommandHandler.CreateUser(user);
             return Ok();
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UserDTO user)
+        public async Task<IActionResult> Update([FromBody] User user)
         {
             await _usersCommandHandler.UpdateUser(user);
             return Ok();

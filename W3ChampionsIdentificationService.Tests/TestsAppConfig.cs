@@ -6,6 +6,6 @@ namespace W3ChampionsIdentificationService.Tests
     {
         public string MongoConnectionString => "mongodb://localhost:27017";
 
-        public string DatabaseName => "W3champions-Identification-ServiceTests";
+        public string DatabaseName => "W3champions-Identification-Service-Tests";
     }
 }

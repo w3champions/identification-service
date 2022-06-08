@@ -25,7 +25,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
                 throw new HttpException(409, $"Permission with id: {permission.Id} already exists");
             }
 
-            _validator.ValidatePermissionHttp(permission);
+            _validator.ValidatePermission(permission);
             await _permissionsRepository.CreatePermission(permission);
         }
 
@@ -42,7 +42,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
 
         public async Task UpdatePermission(Permission permission)
         {
-            _validator.ValidatePermissionHttp(permission);
+            _validator.ValidatePermission(permission);
             await _permissionsRepository.UpdatePermission(permission);
         }
     }

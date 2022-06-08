@@ -21,40 +21,27 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
             _validator = validator;
         }
 
-        public async Task CreateUser(UserDTO user)
+        public async Task CreateUser(User user)
         {
-            await _validator.ValidateRoleListHttp(user.Roles);
-            await _validator.ValidateUserDtoHttp(user);
-            var allUsers = await _usersRepository.GetAllUsers();
-            var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
-
-            var distinctPermissions = roles
-                .Select(x => x.Permissions)
-                .SelectMany(y => y)
-                .Distinct()
-                .ToList();
+            await _validator.ValidateRoleList(user.Roles);
+            await _validator.ValidateCreateUser(user);
 
             await _usersRepository.CreateUser(new User()
             {
-                Id = user.BattleTag,
-                Permissions = distinctPermissions,
+                Id = user.Id,
+                Roles = user.Roles,
             });
         }
 
-        public async Task UpdateUser(UserDTO user)
+        public async Task UpdateUser(User user)
         {   
-            await _validator.ValidateUserDtoHttp(user, false);
-            await _validator.ValidateRoleListHttp(user.Roles);
-            var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
+            await _validator.ValidateUpdateUser(user);
+            await _validator.ValidateRoleList(user.Roles);
 
             await _usersRepository.UpdateUser(new User()
             {
-                Id = user.BattleTag,
-                Permissions = roles
-                    .Select(x => x.Permissions)
-                    .SelectMany(y => y)
-                    .Distinct()
-                    .ToList(),
+                Id = user.Id,
+                Roles = user.Roles,
             });
         }
 
@@ -63,10 +50,10 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers
             var user = await _usersRepository.GetUser(id);
             if (user == null)
             {
-                throw new HttpException(404, $"Role with id: ${id} not found");
+                throw new HttpException(404, $"Role with id: '{id}' not found");
             }
 
-            await _rolesRepository.DeleteRole(id);
+            await _usersRepository.DeleteUser(id);
         }
     }
 }
