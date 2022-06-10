@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
+using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.Twitch;
 
@@ -54,7 +55,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             }
 
             var user = await _usersRepository.GetUser(userInfo.battletag);
-            var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
+            var roles = user != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
             var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
 
             var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, permissions);
