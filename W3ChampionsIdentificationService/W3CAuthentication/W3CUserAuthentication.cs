@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
@@ -22,12 +25,13 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             return new Tuple<string, string>(privText, pubText);
         }
 
-        public static W3CUserAuthentication Create(string battleTag, string privateKey)
+        public static W3CUserAuthentication Create(string battleTag, string privateKey, List<string> permissions)
         {
             var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey);
 
             var isAdmin = Admins.IsAdmin(battleTag);
+            var isSuperAdmin = SuperAdmins.IsSuperAdmin(battleTag);
             var name = battleTag.Split("#")[0];
 
             var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256)
@@ -39,7 +43,9 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 claims: new Claim[] {
                     new("battleTag", battleTag),
                     new("isAdmin", isAdmin.ToString()),
-                    new("name", name)
+                    new("name", name),
+                    new("isSuperAdmin", isSuperAdmin.ToString()),
+                    new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : string.Empty,JsonClaimValueTypes.JsonArray)
                 },
                 signingCredentials: signingCredentials
             );
@@ -51,11 +57,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 BattleTag = battleTag,
                 JWT = token,
                 IsAdmin = isAdmin,
-                Name = name
+                IsSuperAdmin = isSuperAdmin,
+                Name = name,
+                Permissions = permissions,
             };
         }
-
-        public string JWT { get; set; }
 
         public static W3CUserAuthentication FromJWT(string jwt, string publicKey)
         {
@@ -77,16 +83,25 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
                 var handler = new JwtSecurityTokenHandler();
                 var claims = handler.ValidateToken(jwt, validationParameters, out _);
+                
+
                 var btag = claims.Claims.First(c => c.Type == "battleTag").Value;
                 var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isAdmin").Value);
                 var name = claims.Claims.First(c => c.Type == "name").Value;
+                var isSuperAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isSuperAdmin").Value);
+                var permissions = claims.Claims
+                    .Where(claim => claim.Type == "permissions")
+                    .Select(x => x.Value)
+                    .ToList();
 
                 return new W3CUserAuthentication
                 {
                     Name = name,
                     BattleTag = btag,
                     IsAdmin = isAdmin,
-                    JWT = jwt
+                    JWT = jwt,
+                    IsSuperAdmin = isSuperAdmin,
+                    Permissions = permissions,
                 };
             }
             catch (Exception)
@@ -95,8 +110,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             }
         }
 
+        public string JWT { get; set; }
         public string BattleTag { get; set; }
         public string Name { get; set; }
         public bool IsAdmin { get; set; }
+        public bool IsSuperAdmin { get; set; }
+        public List<string> Permissions { get; set; }
     }
 }

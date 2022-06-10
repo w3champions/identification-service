@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
+using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.Twitch;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
@@ -14,16 +16,22 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
     {
         private readonly IBlizzardAuthenticationService _blizzardAuthenticationService;
         private readonly ITwitchAuthenticationService _twitchAuthenticationService;
+        private readonly IUsersRepository _usersRepository;
+        private readonly IRolesRepository _rolesRepository;
 
         private static readonly string JwtPrivateKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY") ?? "");
         private static readonly string JwtPublicKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY") ?? "");
 
         public AuthorizationController(
             IBlizzardAuthenticationService blizzardAuthenticationService,
-            ITwitchAuthenticationService twitchAuthenticationService)
+            ITwitchAuthenticationService twitchAuthenticationService,
+            IUsersRepository usersRepository,
+            IRolesRepository rolesRepository)
         {
             _blizzardAuthenticationService = blizzardAuthenticationService;
             _twitchAuthenticationService = twitchAuthenticationService;
+            _usersRepository = usersRepository;
+            _rolesRepository = rolesRepository;
         }
 
         [HttpGet("token")]
@@ -44,7 +52,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 return Unauthorized("Sorry H4ckerb0i");
             }
 
-            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey);
+            var user = await _usersRepository.GetUser(userInfo.battletag);
+            var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
+            var permissions = roles.SelectMany(x => x.Permissions).Distinct().ToList();
+
+            var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, permissions);
 
             return Ok(w3User);
         }
