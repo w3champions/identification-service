@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -54,7 +55,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
             var user = await _usersRepository.GetUser(userInfo.battletag);
             var roles = await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id));
-            var permissions = roles.SelectMany(x => x.Permissions).Distinct().ToList();
+            var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
 
             var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, permissions);
 
