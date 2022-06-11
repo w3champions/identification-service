@@ -21,7 +21,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpGet]
-        [CheckIfSuperAdmin]
         public async Task<IActionResult> Get([FromQuery] int? limit, [FromQuery] int? offset)
         {
             var roles = await _rolesRepository.GetAllRoles(null, limit, offset);
@@ -29,7 +28,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpGet("{roleId}")]
-        [CheckIfSuperAdmin]
         public async Task<IActionResult> GetOne([FromRoute] string roleId)
         {
             return Ok(await _rolesRepository.GetRole(roleId));

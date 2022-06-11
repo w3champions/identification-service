@@ -21,7 +21,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpGet]
-        [CheckIfSuperAdmin]
         public async Task<IActionResult> GetAll([FromQuery] int? limit, [FromQuery] int? offset)
         {
             var permissions = await _permissionsRepository.GetAllPermissions(limit, offset);
@@ -38,7 +37,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
 
         [HttpDelete]
         [CheckIfSuperAdmin]
-        public async Task<IActionResult> Delete([FromBody] string id)
+        public async Task<IActionResult> Delete([FromQuery] string id)
         {
             await _permissionsCommandHandler.DeletePermission(id);
             return Ok();
