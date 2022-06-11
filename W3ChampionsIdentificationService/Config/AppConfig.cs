@@ -11,7 +11,7 @@ namespace W3ChampionsIdentificationService.Config
 
         public string DatabaseName
         {
-            get => "W3champions-Identification-Service";
+            get => "W3Champions-Identification-Service";
         }
     }
 }
