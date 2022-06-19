@@ -29,6 +29,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "neo#2529",
                 "teufel#2371",
                 "trillz#1834",
+                "blue#17562", // air
             };
 
         public static bool IsAdmin(string battleTag)
