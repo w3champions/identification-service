@@ -29,7 +29,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "neo#2529",
                 "trillz#1834",
                 "blue#17562", // air
-                "marco9f#1535",
+                "marco93f#1535",
                 "cloud9#21941",
             };
 
