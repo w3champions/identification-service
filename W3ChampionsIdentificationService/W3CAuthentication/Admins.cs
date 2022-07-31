@@ -31,6 +31,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "blue#17562", // air
                 "marco93f#1535",
                 "cloud9#21941",
+                "bogdanw3#1673",
             };
 
         public static bool IsAdmin(string battleTag)
