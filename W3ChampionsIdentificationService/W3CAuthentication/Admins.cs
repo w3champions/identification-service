@@ -32,7 +32,9 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "marco93f#1535",
                 "cloud9#21941",
                 "bogdanw3#1673",
-                 "wontu#1218",
+                "wontu#1218",
+                "bentan#11502", // shorty
+                "debaser#1788",
             };
 
         public static bool IsAdmin(string battleTag)
