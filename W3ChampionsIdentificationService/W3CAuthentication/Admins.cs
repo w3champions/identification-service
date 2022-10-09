@@ -36,6 +36,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "bentan#11502", // shorty
                 "debaser#1788",
                 "fewa418#1895", // 418
+                "yolo#24961", // LTD mod
             };
 
         public static bool IsAdmin(string battleTag)
