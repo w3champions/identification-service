@@ -37,6 +37,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "debaser#1788",
                 "fewa418#1895", // 418
                 "yolo#24961", // LTD mod
+                "brekkie#21685", // Kovax
             };
 
         public static bool IsAdmin(string battleTag)
