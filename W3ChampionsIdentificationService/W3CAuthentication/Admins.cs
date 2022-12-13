@@ -40,7 +40,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "brekkie#21685", // Kovax
                 "mgeorge#2268", // PlayLikeNeverB4
                 "compre#2362",
-                "Dieseldog#21384",
+                "dieseldog#21384",
             };
 
         public static bool IsAdmin(string battleTag)
