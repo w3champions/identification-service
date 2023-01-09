@@ -41,6 +41,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "mgeorge#2268", // PlayLikeNeverB4
                 "compre#2362",
                 "dieseldog#21384",
+                "kenshin#2209",
             };
 
         public static bool IsAdmin(string battleTag)
