@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace W3ChampionsIdentificationService.Microsoft
 {
@@ -25,14 +26,16 @@ namespace W3ChampionsIdentificationService.Microsoft
         public async Task<string> GetIdToken(string code, string redirectUri)
         {
             var httpClient = new HttpClient();
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["client_id"] = _clientId;
-            query["scope"] = "openid";
-            query["code"] = code;
-            query["redirect_uri"] = redirectUri;
-            query["grant_type"] = "authorization_code";
-            query["client_secret"] = _clientSecret;
-            var res = await httpClient.PostAsync($"https://login.microsoftonline.com/consumers/oauth2/v2.0/token?${query.ToString()}", null);
+            var form = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("client_id", _clientId),
+                new KeyValuePair<string, string>("scope", "openid"),
+                new KeyValuePair<string, string>("code", code),
+                new KeyValuePair<string, string>("redirect_uri", redirectUri),
+                new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                new KeyValuePair<string, string>("client_secret", _clientSecret),
+            });
+            var res = await httpClient.PostAsync("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", form);
             if (!res.IsSuccessStatusCode)
             {
                 return null;
