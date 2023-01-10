@@ -81,11 +81,12 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             {
                 return Unauthorized("Sorry H4ckerb0i");
             }
+            var u = await _microsoftAuthenticationService.GetUser(token);
 
-            var userInfo = await _microsoftIdentityRepository.GetIdentity(token);
+            var userInfo = await _microsoftIdentityRepository.GetIdentity(u.sub);
             if (userInfo == null)
             {
-                return Unauthorized("Sorry H4ckerb0i");
+                return Unauthorized("Not Linked");
             }
 
             var user = await _usersRepository.GetUser(userInfo.battleTag);

@@ -51,7 +51,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public async Task<IActionResult> LinkMicrosoftIdentity(
             [FromQuery] string jwt,
             [FromQuery] string code,
-            [FromQuery] string redirectUrl
+            [FromQuery] string redirectUri
             )
         {
             var user = W3CUserAuthentication.FromJWT(jwt, JwtPublicKey);
@@ -59,7 +59,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             {
                 return Unauthorized("Sorry Hackerboi");
             }
-            var token = await _microsoftAuthenticationService.GetIdToken(code, redirectUrl);
+            var token = await _microsoftAuthenticationService.GetIdToken(code, redirectUri);
             var u = await _microsoftAuthenticationService.GetUser(token);
             await _microsoftIdentityRepository.LinkBattleTag(u.sub, user.BattleTag);
             return Ok();
