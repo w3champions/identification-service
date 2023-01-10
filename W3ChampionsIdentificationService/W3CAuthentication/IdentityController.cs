@@ -36,14 +36,14 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         }
 
         [HttpGet("microsoft-identity-linked")]
-        public IActionResult GetMicrosoftIdentity([FromQuery] string jwt)
+        public async Task<IActionResult> GetMicrosoftIdentity([FromQuery] string jwt)
         {
             var user = W3CUserAuthentication.FromJWT(jwt, JwtPublicKey);
             if (user == null)
             {
                 return Unauthorized("Sorry Hackerboi");
             }
-            var identity = _microsoftIdentityRepository.GetIdentityByBattleTag(user.BattleTag);
+            var identity = await _microsoftIdentityRepository.GetIdentityByBattleTag(user.BattleTag);
             return (IActionResult)Ok(identity != null);
         }
 
