@@ -29,7 +29,7 @@ namespace W3ChampionsIdentificationService
         protected Task<T> LoadFirst<T>(Expression<Func<T, bool>> expression)
         {
             var mongoCollection = CreateCollection<T>();
-            return mongoCollection.FindSync(expression).FirstOrDefaultAsync();
+            return mongoCollection.Find(expression).FirstOrDefaultAsync();
         }
 
         protected Task<T> LoadFirst<T>(string id) where T : IIdentifiable
