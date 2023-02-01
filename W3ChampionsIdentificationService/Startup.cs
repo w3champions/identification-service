@@ -6,6 +6,9 @@ using MongoDB.Driver;
 using System;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Config;
+using W3ChampionsIdentificationService.Identity;
+using W3ChampionsIdentificationService.Identity.Contracts;
+using W3ChampionsIdentificationService.Microsoft;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
@@ -31,6 +34,7 @@ namespace W3ChampionsIdentificationService
             services.AddTransient<IPermissionsRepository, PermissionsRepository>();
             services.AddTransient<IRolesRepository, RolesRepository>();
             services.AddTransient<IUsersRepository, UsersRepository>();
+            services.AddTransient<IMicrosoftIdentityRepository, MicrosoftIdentityRepository>();
 
             services.AddTransient<IPermissionsCommandHandler, PermissionsCommandHandler>();
             services.AddTransient<IRolesCommandHandler, RolesCommandHandler>();
@@ -40,10 +44,13 @@ namespace W3ChampionsIdentificationService
 
             services.AddTransient<IBlizzardAuthenticationService, BlizzardAuthenticationService>();
             services.AddTransient<ITwitchAuthenticationService, TwitchAuthenticationService>();
+            services.AddTransient<IMicrosoftAuthenticationService, MicrosoftAuthenticationService>();
             services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
 
 
             services.AddTransient<CheckIfSuperAdminFilter>();
+
+            services.AddHostedService<MigratorHostedService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
