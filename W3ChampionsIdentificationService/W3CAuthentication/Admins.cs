@@ -43,6 +43,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "dieseldog#21384",
                 "kenshin#2209",
                 "fuetti#2605",
+                "d4rk#21770",
             };
 
         public static bool IsAdmin(string battleTag)
