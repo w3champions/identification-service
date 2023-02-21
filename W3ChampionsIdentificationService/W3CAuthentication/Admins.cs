@@ -44,6 +44,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "kenshin#2209",
                 "fuetti#2605",
                 "d4rk#21770",
+                "janovi#21973",
+                "frankenstein#21344",
             };
 
         public static bool IsAdmin(string battleTag)
