@@ -46,6 +46,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "d4rk#21770",
                 "janovi#21973",
                 "frankenstein#21344",
+                "voku#2274",
+                "hodor#2653",
             };
 
         public static bool IsAdmin(string battleTag)
