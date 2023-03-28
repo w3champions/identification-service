@@ -44,10 +44,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "kenshin#2209",
                 "fuetti#2605",
                 "d4rk#21770",
-                "janovi#21973",
-                "frankenstein#21344",
-                "voku#2274",
-                "hodor#2653",
+                "janovi#21973", // SC mod
+                "frankenstein#21344", // SC mod
+                "voku#2274", // LTD mod
+                "hodor#2653", // LTD mod
+                "artimenius#2503", // LTD mod
             };
 
         public static bool IsAdmin(string battleTag)
