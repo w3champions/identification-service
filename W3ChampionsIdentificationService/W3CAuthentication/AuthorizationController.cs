@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +12,7 @@ using W3ChampionsIdentificationService.Microsoft;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.Twitch;
+using System.Text.Json;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
 {
@@ -50,17 +53,18 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             [FromQuery] string redirectUri,
             [FromQuery] BnetRegion region)
         {
-            var token = await _blizzardAuthenticationService.GetToken(code, redirectUri, region);
-            if (token == null)
+            var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri($"http://89.43.107.239/api/oauth/token?code={code}&redirectUri={redirectUri}&region={region}");
+
+            var res = await httpClient.GetAsync("");
+
+            if (!res.IsSuccessStatusCode)
             {
                 return Unauthorized("Sorry H4ckerb0i");
             }
 
-            var userInfo = await _blizzardAuthenticationService.GetUser(token.access_token, region);
-            if (userInfo == null)
-            {
-                return Unauthorized("Sorry H4ckerb0i");
-            }
+            var readAsStringAsync = await res.Content.ReadAsStringAsync();
+            var userInfo = JsonSerializer.Deserialize<BlizzardUserInfo>(readAsStringAsync);
 
             var user = await _usersRepository.GetUser(userInfo.battletag);
             var roles = user != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
