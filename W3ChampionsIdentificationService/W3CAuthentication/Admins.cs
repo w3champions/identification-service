@@ -44,6 +44,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "kenshin#2209",
                 "fuetti#2605",
                 "d4rk#21770",
+                "lynx#24118", // D4rk alt account
                 "janovi#21973", // SC mod
                 "frankenstein#21344", // SC mod
                 "voku#2274", // LTD mod
