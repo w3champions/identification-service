@@ -20,11 +20,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "schlüssel#2626", // D2P
                 "fluxxu#1815",
                 "gdollaz#1832",
-                "shear#11346",
                 "martin#2255",
-                "garinthegoat#1294",
                 "curt#1979",
-                "ipoop4u#1554",
                 "kage#12302",
                 "neo#2529",
                 "trillz#1834",
