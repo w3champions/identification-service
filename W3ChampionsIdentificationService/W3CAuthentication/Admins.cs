@@ -22,7 +22,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "gdollaz#1832",
                 "martin#2255",
                 "curt#1979",
-                "kage#12302",
+                "kageman#1160",
                 "neo#2529",
                 "trillz#1834",
                 "blue#17562", // air
