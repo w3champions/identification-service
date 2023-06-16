@@ -24,7 +24,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "curt#1979",
                 "kageman#1160",
                 "neo#2529",
-                "trillz#1834",
                 "blue#17562", // air
                 "marco93f#1535",
                 "cloud9#21941",
@@ -46,7 +45,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "frankenstein#21344", // SC mod
                 "voku#2274", // LTD mod
                 "hodor#2653", // LTD mod
-                "artimenius#2503", // LTD mod
+                "artimenius#2503", // SC mod
+                "jasonek#21443", // LTD mod
             };
 
         public static bool IsAdmin(string battleTag)
