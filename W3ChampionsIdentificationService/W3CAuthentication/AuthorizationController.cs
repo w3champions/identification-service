@@ -67,10 +67,12 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
 
             // Save user's Battle.net account id to the database
-            if (string.IsNullOrEmpty(user.BnetId))
+            if (string.IsNullOrEmpty(user?.BnetId))
             {
-                user.BnetId = userInfo.id.ToString();
-                await _usersRepository.UpdateUser(user);
+                await _usersRepository.UpdateUser(new User { 
+                    Id = userInfo.battletag,
+                    BnetId = userInfo.id.ToString(),
+                });
             }
 
             var w3User = W3CUserAuthentication.Create(userInfo.battletag, JwtPrivateKey, permissions, userInfo.id);
