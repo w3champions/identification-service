@@ -45,15 +45,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     new("isAdmin", isAdmin.ToString()),
                     new("name", name),
                     new("isSuperAdmin", isSuperAdmin.ToString()),
-                    new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : string.Empty,JsonClaimValueTypes.JsonArray)
+                    new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : string.Empty,JsonClaimValueTypes.JsonArray),
+                    new("bnetId", bnetId?.ToString() ?? "")
                 },
                 signingCredentials: signingCredentials
             );
-
-            if (bnetId.HasValue)
-            {
-                jwt.Claims.Append(new Claim("bnetId", bnetId.ToString()));
-            }
 
             var token = new JwtSecurityTokenHandler().WriteToken(jwt);
 

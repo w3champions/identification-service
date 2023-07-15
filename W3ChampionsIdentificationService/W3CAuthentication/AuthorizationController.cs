@@ -63,7 +63,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             }
 
             var user = await _usersRepository.GetUser(userInfo.battletag);
-            var roles = user != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
+            var roles = user?.Roles != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
             var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
 
             // Save user's Battle.net account id to the database
