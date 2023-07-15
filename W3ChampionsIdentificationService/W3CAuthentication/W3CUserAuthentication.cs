@@ -25,7 +25,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             return new Tuple<string, string>(privText, pubText);
         }
 
-        public static W3CUserAuthentication Create(string battleTag, string privateKey, List<string> permissions)
+        public static W3CUserAuthentication Create(string battleTag, string privateKey, List<string> permissions, long? bnetId = null)
         {
             var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey);
@@ -50,6 +50,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 signingCredentials: signingCredentials
             );
 
+            if (bnetId.HasValue)
+            {
+                jwt.Claims.Append(new Claim("bnetId", bnetId.ToString()));
+            }
+
             var token = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             return new W3CUserAuthentication
@@ -60,6 +65,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 IsSuperAdmin = isSuperAdmin,
                 Name = name,
                 Permissions = permissions,
+                BnetID = bnetId?.ToString(),
             };
         }
 
@@ -102,7 +108,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     JWT = jwt,
                     IsSuperAdmin = isSuperAdmin,
                     Permissions = permissions,
-                };
+                    BnetID = claims.Claims
+                        .Where(claim => claim.Type == "bnetId")
+                        .Select(x => x.Value)
+                        .FirstOrDefault()
+            };
             }
             catch (Exception)
             {
@@ -116,5 +126,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
         public List<string> Permissions { get; set; }
+        public string BnetID {  get; set; }
     }
 }
