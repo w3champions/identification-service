@@ -20,14 +20,10 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "schlüssel#2626", // D2P
                 "fluxxu#1815",
                 "gdollaz#1832",
-                "shear#11346",
                 "martin#2255",
-                "garinthegoat#1294",
                 "curt#1979",
-                "ipoop4u#1554",
-                "kage#12302",
+                "kageman#1160",
                 "neo#2529",
-                "trillz#1834",
                 "blue#17562", // air
                 "marco93f#1535",
                 "cloud9#21941",
@@ -42,6 +38,15 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "compre#2362",
                 "dieseldog#21384",
                 "kenshin#2209",
+                "fuetti#2605",
+                "d4rk#21770",
+                "lynx#24118", // D4rk alt account
+                "janovi#21973", // SC mod
+                "frankenstein#21344", // SC mod
+                "voku#2274", // LTD mod
+                "hodor#2653", // LTD mod
+                "artimenius#2503", // SC mod
+                "jasonek#21443", // LTD mod
             };
 
         public static bool IsAdmin(string battleTag)
