@@ -48,7 +48,8 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : string.Empty,JsonClaimValueTypes.JsonArray),
                     new("bnetId", bnetId?.ToString() ?? "")
                 },
-                signingCredentials: signingCredentials
+                signingCredentials: signingCredentials,
+                expires: DateTime.UtcNow.AddDays(7)
             );
 
             var token = new JwtSecurityTokenHandler().WriteToken(jwt);
@@ -85,7 +86,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
 
                 var handler = new JwtSecurityTokenHandler();
                 var claims = handler.ValidateToken(jwt, validationParameters, out _);
-                
 
                 var btag = claims.Claims.First(c => c.Type == "battleTag").Value;
                 var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isAdmin").Value);
