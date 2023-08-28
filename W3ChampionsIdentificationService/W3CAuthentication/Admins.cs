@@ -48,6 +48,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "artimenius#2503", // SC mod
                 "jasonek#21443", // LTD mod,
                 "trillz#1834", // LTD mod
+                "ipoop4u#1554", // Robbie(Rob)
             };
 
         public static bool IsAdmin(string battleTag)
