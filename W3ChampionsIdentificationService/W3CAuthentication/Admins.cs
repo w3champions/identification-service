@@ -46,7 +46,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "voku#2274", // LTD mod
                 "hodor#2653", // LTD mod
                 "artimenius#2503", // SC mod
-                "jasonek#21443", // LTD mod,
+                "neosc#2938", // LTD mod,
                 "trillz#1834", // LTD mod
                 "ipoop4u#1554", // Robbie(Rob)
             };
