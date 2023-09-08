@@ -26,13 +26,13 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "neo#2529",
                 "blue#17562", // air
                 "marco93f#1535",
-                "cloud9#21941",
+                "cloud9#21941", // DS: 272094310927826944 @thecloud9
                 "bogdanw3#1673",
                 "wontu#1218",
                 "bentan#11502", // shorty
                 "debaser#1788",
                 "fewa418#1895", // 418
-                "yolo#24961", // LTD mod
+                "yolo#24961", // LTD mod, DS: 1135303647253778615 @skarking1
                 "brekkie#21685", // Kovax
                 "mgeorge#2268", // PlayLikeNeverB4
                 "compre#2362",
@@ -43,11 +43,11 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 "lynx#24118", // D4rk alt account
                 "janovi#21973", // SC mod
                 "frankenstein#21344", // SC mod
-                "voku#2274", // LTD mod
-                "hodor#2653", // LTD mod
+                "voku#2274", // LTD mod, DS: 139191916288933889 @v0ku
+                "hodor#2653", // LTD mod, DS: 309432927668928513 @hodor7170
                 "artimenius#2503", // SC mod
-                "jasonek#21443", // LTD mod,
-                "trillz#1834", // LTD mod
+                "neosc#2938", // LTD mod, DS: 194590058207117312 @mazem1994
+                "trillz#1834", // LTD mod, DS: 38824074624897024 @trillz_
                 "ipoop4u#1554", // Robbie(Rob)
             };
 
