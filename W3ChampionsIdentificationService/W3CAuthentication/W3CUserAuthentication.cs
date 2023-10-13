@@ -29,7 +29,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey);
 
-            // var isAdmin = Admins.IsAdmin(battleTag);
             var isAdmin = permissions.Count > 0;
             var name = battleTag.Split("#")[0];
 
