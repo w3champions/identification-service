@@ -42,7 +42,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     new("battleTag", battleTag),
                     new("isAdmin", isAdmin.ToString()),
                     new("name", name),
-                    new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : string.Empty,JsonClaimValueTypes.JsonArray),
+                    new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : "[]",JsonClaimValueTypes.JsonArray),
                     new("bnetId", bnetId?.ToString() ?? "")
                 },
                 signingCredentials: signingCredentials,
