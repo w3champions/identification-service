@@ -29,7 +29,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey);
 
-            var isAdmin = permissions.Count > 0;
+            var isAdmin = permissions == null ? false : permissions.Count > 0;
             var name = battleTag.Split("#")[0];
 
             var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256)
