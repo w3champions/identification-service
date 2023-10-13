@@ -41,7 +41,10 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         public async Task<List<string>> GetPermissionsForAdmin(string id)
         {
             var permission = await LoadFirst<Permission>(x => x.Id == id);
-            return permission.Permissions.Select(permission => permission.ToString()).ToList();
+            if (permission != null) {
+                return permission.Permissions.Select(permission => permission.ToString()).ToList();
+            }
+            return null;
         }
     }
 }
