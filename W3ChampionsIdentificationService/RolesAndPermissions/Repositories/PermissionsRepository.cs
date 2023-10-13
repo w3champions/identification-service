@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
@@ -35,6 +36,12 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         public async Task DeletePermission(string id)
         {
             await Delete<Permission>(id);
+        }
+
+        public async Task<List<string>> GetPermissionsForAdmin(string id)
+        {
+            var permission = await LoadFirst<Permission>(x => x.Id == id);
+            return permission.Permissions.Select(permission => permission.ToString()).ToList();
         }
     }
 }

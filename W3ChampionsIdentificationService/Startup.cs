@@ -47,8 +47,7 @@ namespace W3ChampionsIdentificationService
             services.AddTransient<IMicrosoftAuthenticationService, MicrosoftAuthenticationService>();
             services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
 
-
-            services.AddTransient<CheckIfSuperAdminFilter>();
+            services.AddTransient<HasPermissionsPermissionFilter>();
 
             services.AddHostedService<MigratorHostedService>();
         }

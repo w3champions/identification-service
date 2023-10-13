@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsStatisticService.WebApi.ActionFilters;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+using W3ChampionsIdentificationService.Middleware;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions
 {
@@ -21,6 +22,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpGet]
+        [HasPermissionsPermission]
         public async Task<IActionResult> GetAll([FromQuery] int? limit, [FromQuery] int? offset)
         {
             var permissions = await _permissionsRepository.GetAllPermissions(limit, offset);
@@ -28,26 +30,38 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpPost]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Create([FromBody] Permission permission)
         {
-            await _permissionsCommandHandler.CreatePermission(permission);
+            try {
+                await _permissionsCommandHandler.CreatePermission(permission);
+            } catch (HttpException ex) {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
             return Ok();
         }
 
         [HttpDelete]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Delete([FromQuery] string id)
         {
-            await _permissionsCommandHandler.DeletePermission(id);
+            try {
+                await _permissionsCommandHandler.DeletePermission(id);
+            } catch (HttpException ex) {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
             return Ok();
         }
 
         [HttpPut]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Update([FromBody] Permission permission)
         {
-            await _permissionsCommandHandler.UpdatePermission(permission);
+            try {
+                await _permissionsCommandHandler.UpdatePermission(permission);
+            } catch (HttpException ex) {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
             return Ok();
         }
     }
