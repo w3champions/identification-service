@@ -10,5 +10,6 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.Contracts
         public Task CreatePermission(Permission permission);
         public Task UpdatePermission(Permission permission);
         public Task DeletePermission(string id);
+        public Task<List<string>> GetPermissionsForAdmin(string id);
     }
 }

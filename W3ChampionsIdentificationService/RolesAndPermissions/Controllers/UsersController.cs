@@ -21,7 +21,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpGet]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> GetAll([FromQuery] int? limit, [FromQuery] int? offset)
         {
             var roles = await _usersRepository.GetAllUsers(limit, offset);
@@ -29,7 +29,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpGet("{tag}")]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Get([FromRoute] string tag)
         {
             var user = await _usersRepository.GetUser(tag);
@@ -37,7 +37,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpPost]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Create([FromBody] User user)
         {
             await _usersCommandHandler.CreateUser(user);
@@ -45,7 +45,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpPut]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Update([FromBody] User user)
         {
             await _usersCommandHandler.UpdateUser(user);
@@ -53,7 +53,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpDelete]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Delete([FromQuery] string userId)
         {
             await _usersCommandHandler.DeleteUser(userId);

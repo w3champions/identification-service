@@ -23,6 +23,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         private readonly IMicrosoftAuthenticationService _microsoftAuthenticationService;
         private readonly IUsersRepository _usersRepository;
         private readonly IRolesRepository _rolesRepository;
+        private readonly IPermissionsRepository _permissionsRepository;
         private readonly IMicrosoftIdentityRepository _microsoftIdentityRepository;
 
         private static readonly string JwtPrivateKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY") ?? "");
@@ -34,6 +35,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             IMicrosoftAuthenticationService microsoftAuthenticationService,
             IUsersRepository usersRepository,
             IRolesRepository rolesRepository,
+            IPermissionsRepository permissionsRepository,
             IMicrosoftIdentityRepository microsoftIdentityRepository)
         {
             _blizzardAuthenticationService = blizzardAuthenticationService;
@@ -41,6 +43,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             _microsoftAuthenticationService = microsoftAuthenticationService;
             _usersRepository = usersRepository;
             _rolesRepository = rolesRepository;
+            _permissionsRepository = permissionsRepository;
             _microsoftIdentityRepository = microsoftIdentityRepository;
         }
 
@@ -63,8 +66,9 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             }
 
             var user = await _usersRepository.GetUser(userInfo.battletag);
-            var roles = user?.Roles != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
-            var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
+            // var roles = user?.Roles != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
+            // var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
+            var permissions = await _permissionsRepository.GetPermissionsForAdmin(userInfo.battletag);
 
             // Save user's Battle.net account id to the database
             if (string.IsNullOrEmpty(user?.BnetId))
@@ -98,9 +102,10 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 return Unauthorized("Not Linked");
             }
 
-            var user = await _usersRepository.GetUser(userInfo.battleTag);
-            var roles = user != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
-            var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
+            // var user = await _usersRepository.GetUser(userInfo.battleTag);
+            // var roles = user != null ? await _rolesRepository.GetAllRoles(x => user.Roles.Contains(x.Id)) : new List<Role>();
+            // var permissions = roles.Count > 0 ? roles.SelectMany(x => x.Permissions).Distinct().ToList() : new List<string>();
+            var permissions = await _permissionsRepository.GetPermissionsForAdmin(userInfo.battleTag);
 
             var w3User = W3CUserAuthentication.Create(userInfo.battleTag, JwtPrivateKey, permissions);
 

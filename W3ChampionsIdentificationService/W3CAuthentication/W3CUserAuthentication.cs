@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication
@@ -30,8 +29,7 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
             var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey);
 
-            var isAdmin = Admins.IsAdmin(battleTag);
-            var isSuperAdmin = SuperAdmins.IsSuperAdmin(battleTag);
+            var isAdmin = permissions.Count > 0;
             var name = battleTag.Split("#")[0];
 
             var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256)
@@ -44,7 +42,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     new("battleTag", battleTag),
                     new("isAdmin", isAdmin.ToString()),
                     new("name", name),
-                    new("isSuperAdmin", isSuperAdmin.ToString()),
                     new("permissions", permissions != null ? JsonSerializer.Serialize(permissions) : string.Empty,JsonClaimValueTypes.JsonArray),
                     new("bnetId", bnetId?.ToString() ?? "")
                 },
@@ -59,7 +56,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 BattleTag = battleTag,
                 JWT = token,
                 IsAdmin = isAdmin,
-                IsSuperAdmin = isSuperAdmin,
                 Name = name,
                 Permissions = permissions,
                 BnetID = bnetId?.ToString(),
@@ -90,7 +86,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                 var btag = claims.Claims.First(c => c.Type == "battleTag").Value;
                 var isAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isAdmin").Value);
                 var name = claims.Claims.First(c => c.Type == "name").Value;
-                var isSuperAdmin = Boolean.Parse(claims.Claims.First(c => c.Type == "isSuperAdmin").Value);
                 var permissions = claims.Claims
                     .Where(claim => claim.Type == "permissions")
                     .Select(x => x.Value)
@@ -102,7 +97,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
                     BattleTag = btag,
                     IsAdmin = isAdmin,
                     JWT = jwt,
-                    IsSuperAdmin = isSuperAdmin,
                     Permissions = permissions,
                     BnetID = claims.Claims
                         .Where(claim => claim.Type == "bnetId")
@@ -120,7 +114,6 @@ namespace W3ChampionsIdentificationService.W3CAuthentication
         public string BattleTag { get; set; }
         public string Name { get; set; }
         public bool IsAdmin { get; set; }
-        public bool IsSuperAdmin { get; set; }
         public List<string> Permissions { get; set; }
         public string BnetID {  get; set; }
     }

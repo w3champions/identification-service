@@ -34,7 +34,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpPost]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Create([FromBody] Role role)
         {
             await _rolesCommandHandler.CreateRole(role);
@@ -42,7 +42,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpDelete]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Delete([FromQuery] string roleId)
         {
             await _rolesCommandHandler.DeleteRole(roleId);
@@ -50,7 +50,7 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
         }
 
         [HttpPut]
-        [CheckIfSuperAdmin]
+        [HasPermissionsPermission]
         public async Task<IActionResult> Update([FromBody] Role role)
         {
             await _rolesCommandHandler.UpdateRole(role);
