@@ -40,7 +40,7 @@ namespace W3ChampionsIdentificationService.WebApi.ActionFilters
                 }
             }
 
-            var unauthorizedResult = new UnauthorizedObjectResult(new ErrorResult("SuperAdmins only!"));
+            var unauthorizedResult = new UnauthorizedObjectResult(new ErrorResult("Permissing missing."));
             context.Result = unauthorizedResult;
         }
     }

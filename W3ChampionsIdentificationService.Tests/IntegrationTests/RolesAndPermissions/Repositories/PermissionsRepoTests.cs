@@ -17,7 +17,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public async Task CreatePermission_ReadPermission_UpdatePermission_DeletePermission()
         {
             // arrange
@@ -42,12 +41,11 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             Assert.AreEqual(permission.Description, document.Description);
             Assert.IsNotNull(document2);
             Assert.AreEqual(permission.Id, document2.Id);
-            Assert.AreEqual(permission2.Description, document2.Description);
+            Assert.AreEqual(permission.Description, document2.Description);
             Assert.IsNull(document3);
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public async Task GetPermissions_SkipAndOffset_Success()
         {
             // arrange
