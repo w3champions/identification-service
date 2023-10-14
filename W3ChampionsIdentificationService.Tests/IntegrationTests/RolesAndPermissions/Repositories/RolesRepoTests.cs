@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 
-// All of the following tests are skipped for now, because of a Permissions design change.
-
 namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Repositories
 {
     public class RolesRepoTests : IntegrationTestBase
