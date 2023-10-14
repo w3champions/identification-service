@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 
+// All of the following tests are skipped for now, because of a Permissions design change.
+
 namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Repositories
 {
     public class RolesRepoTests : IntegrationTestBase
@@ -17,7 +19,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public async Task CreateRole_ReadRole_UpdateRole_DeleteRole()
         {
             // arrange
@@ -49,7 +50,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public async Task GetRoles_SkipAndOffset_Success()
         {
             // arrange

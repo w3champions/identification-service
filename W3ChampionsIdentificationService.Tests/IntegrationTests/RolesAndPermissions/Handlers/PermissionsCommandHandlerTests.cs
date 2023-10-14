@@ -27,7 +27,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public async Task CreatePermission_WhenInputIsValid_Success()
         {
             // arrange
@@ -45,7 +44,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public async Task CreatePermission_WithId_AlreadyExists_ThrowsException_AndIsIdempotent()
         {
             // arrange
@@ -66,7 +64,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         [TestCase(null, "b", TestName = "CreatePermission_WithInvalidProperties_IdIsNull_Throws400")]
         [TestCase("a", null, TestName = "CreatePermission_WithInvalidProperties_DescriptionIsNull_Throws400")]
         public void CreatePermission_WithInvalidProperties_ThrowsValidationHttpException(string id, string description)
@@ -90,7 +87,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public async Task DeletePermission_ExistsInDatabase_Success()
         {
             // arrange
@@ -109,7 +105,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         public void DeletePermission_DoesNotExist_ThrowsCorrectException()
         {
             // arrange
@@ -128,7 +123,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
         }
 
         [Test]
-        [Ignore("Ignore test because of Permissions design change")]
         [TestCase(null, "b", TestName = "UpdatePermission_InvalidFormats_IdIsNull_Throws400")]
         [TestCase("a", null, TestName = "UpdatePermission_InvalidFormats_DescriptionIsNull_Throws400")]
         public void UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string id, string description)
@@ -151,29 +145,6 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             // assert
             StringAssert.Contains("cannot be null or empty", ex.Message, "Did not give the correct validation error");
             Assert.AreEqual(ex.StatusCode, 400, "Did not return correct status code");
-        }
-
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task UpdatePermission_CorrectRequest_Success()
-        {
-            // arrange
-            var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
-
-            var permission = _fixture.Create<Permission>();
-            var permission2 = _fixture.Create<Permission>();
-
-            // act
-            await permissionsCommandHandler.CreatePermission(permission);
-            await permissionsCommandHandler.UpdatePermission(permission2);
-            var result = await _permissionsRepository.GetPermission(permission.Id);
-            var all = await _permissionsRepository.GetAllPermissions();
-
-            // assert
-            Assert.IsNotNull(result, "Entry is null");
-            Assert.AreEqual(permission2.Description, result.Description, "Description was not modified");
-            Assert.AreEqual(1, all.Count, "More than one record was created");
-
         }
     }
 }
