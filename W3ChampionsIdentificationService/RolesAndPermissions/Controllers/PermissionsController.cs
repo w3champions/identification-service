@@ -64,5 +64,13 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             }
             return Ok();
         }
+        /// Check if the user has requested permission
+        [HttpPost("checkPermission")]
+        [HasPermissionsPermission]
+        public async Task<IActionResult> CheckPermission([FromBody] string permission, string battleTag)
+        {
+            var result = new { hasPermission = await _permissionsRepository.CheckPermission(battleTag, permission)};
+            return Ok(result);
+        }
     }
 }

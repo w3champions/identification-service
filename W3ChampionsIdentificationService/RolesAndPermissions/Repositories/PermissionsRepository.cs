@@ -46,5 +46,16 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
             }
             return null;
         }
+
+        public async Task<bool> CheckPermission(string id, string ePermission)
+        {
+            var permission = await LoadFirst<Permission>(x => x.Id == id);
+            if (permission == null)
+            {
+                return false;
+            }
+            var permissions = permission.Permissions.Select(p => p.ToString()).ToList();
+            return permissions.Contains(ePermission);
+        }
     }
 }

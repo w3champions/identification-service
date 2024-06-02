@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 
@@ -67,6 +68,19 @@ namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions
             Assert.AreEqual(listOfPermissions[2].Id, permissions[0].Id);
             Assert.AreEqual(listOfPermissions[3].Id, permissions[1].Id);
             Assert.AreEqual(10, allPermissions.Count);
+        }
+
+        [Test]
+        public async Task TestHasPermission()
+        {
+            var permRepo = new PermissionsRepository(_mongoClient, _appConfig);
+            var permission = _fixture.Create<Permission>();
+            permission.Permissions = permission.Permissions.Append(EPermission.Content).ToArray();
+            await permRepo.CreatePermission(permission);
+            var result = await permRepo.CheckPermission(permission.BattleTag, EPermission.Content.ToString());
+            Assert.AreEqual(true, result);
+            result = await permRepo.CheckPermission(permission.BattleTag, EPermission.Proxies.ToString());
+            Assert.AreEqual(false, result);
         }
     }
 }
