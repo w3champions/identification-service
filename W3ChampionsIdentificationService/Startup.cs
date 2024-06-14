@@ -12,6 +12,7 @@ using W3ChampionsIdentificationService.Microsoft;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+using W3ChampionsIdentificationService.ServiceVerification;
 using W3ChampionsIdentificationService.Twitch;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
 using W3ChampionsIdentificationService.WebApi.ActionFilters;
@@ -29,6 +30,10 @@ namespace W3ChampionsIdentificationService
             services.AddSingleton((x) => {
                 var appConfig = x.GetService<IAppConfig>();
                 return new MongoClient(appConfig.MongoConnectionString);
+            });
+            services.AddSingleton((x) => {
+                var appConfig = x.GetService<IAppConfig>();
+                return new B2BVerificationService(appConfig.WebSiteBackendSecret, "w3c-website-backend");
             });
 
             services.AddTransient<IPermissionsRepository, PermissionsRepository>();
@@ -48,6 +53,7 @@ namespace W3ChampionsIdentificationService
             services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
 
             services.AddTransient<HasPermissionsPermissionFilter>();
+            services.AddTransient<B2BVerificationFilter>();
 
             services.AddHostedService<MigratorHostedService>();
         }

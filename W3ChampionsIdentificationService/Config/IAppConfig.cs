@@ -4,5 +4,6 @@
     {
         string MongoConnectionString { get; }
         string DatabaseName { get; }
+        string WebSiteBackendSecret { get; }
     }
 }
