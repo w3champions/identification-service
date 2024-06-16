@@ -8,7 +8,6 @@ ProjectSection(SolutionItems) = preProject
 	Dockerfile = Dockerfile
 	README.md = README.md
 	.gitignore = .gitignore
-	docker-compose-env.yaml = docker-compose-env.yaml
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "W3ChampionsIdentificationService.Tests", "W3ChampionsIdentificationService.Tests\W3ChampionsIdentificationService.Tests.csproj", "{F94BF2A2-324F-44BD-857D-D235BA21BE63}"

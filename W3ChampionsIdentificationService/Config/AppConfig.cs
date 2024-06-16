@@ -16,7 +16,7 @@ namespace W3ChampionsIdentificationService.Config
 
         public string WebSiteBackendSecret
         {
-            get => Environment.GetEnvironmentVariable("WEBSITE_BACKEND_SECRET") ?? "testFOO123";
+            get => Environment.GetEnvironmentVariable("WEBSITE_BACKEND_TO_ID_SERVICE_SECRET");
         }
     }
 }
