@@ -12,7 +12,7 @@ public class B2BVerificationService
     public B2BVerificationService(string secret, string issuer)
     {
         _issuer = issuer;
-        _key = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secret));;
+        _key = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secret));
         _audience = "w3c-identification-service";
     }
 
