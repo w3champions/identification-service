@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using W3ChampionsStatisticService.WebApi.ActionFilters;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.Middleware;
+using W3ChampionsIdentificationService.WebApi.ActionFilters;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions
 {
@@ -63,6 +64,13 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions
                 return StatusCode(ex.StatusCode, ex.Message);
             }
             return Ok();
+        }
+        [HttpPost("checkPermission")]
+        [B2BVerification]
+        public async Task<IActionResult> CheckPermission([FromBody] string permission, string battleTag)
+        {
+            var result = new { hasPermission = await _permissionsRepository.CheckPermission(battleTag, permission)};
+            return Ok(result);
         }
     }
 }
