@@ -16,7 +16,7 @@ public class B2BVerificationService
         _audience = "w3c-identification-service";
     }
 
-    public bool ValidateToken(string token)
+    public bool Verify(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters

@@ -22,7 +22,7 @@ namespace W3ChampionsIdentificationService.WebApi.ActionFilters
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var token = GetToken(context.HttpContext.Request.Headers[HeaderNames.Authorization]);
-            if (token != null && _service.ValidateToken(token))
+            if (token != null && _service.Verify(token))
             {
                 await next.Invoke();
             }
