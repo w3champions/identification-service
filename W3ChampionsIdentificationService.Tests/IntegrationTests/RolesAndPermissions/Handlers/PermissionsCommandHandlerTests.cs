@@ -55,7 +55,8 @@ public class PermissionsCommandHandlerTests : IntegrationTestBase
         var result = await _permissionsRepository.GetAllPermissions();
 
         // assert
-        var ex = Assert.ThrowsAsync<HttpException>(async () => {
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
+        {
             await permissionsCommandHandler.CreatePermission(permission);
         }, "Does not throw a HttpException");
         Assert.AreEqual(ex.Message, $"Permission with id: {permission.Id} already exists", "Exception message was not correct");
@@ -76,7 +77,7 @@ public class PermissionsCommandHandlerTests : IntegrationTestBase
         };
 
         // act
-        var ex = Assert.ThrowsAsync<HttpException>(async () => 
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
         {
             await permissionsCommandHandler.CreatePermission(permission);
         }, "Does not throw a HttpException");

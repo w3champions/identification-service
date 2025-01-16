@@ -41,7 +41,8 @@ public class RolesAndPermissionsValidatorIntegrationTests : IntegrationTestBase
         }
 
         // act & assert
-        Assert.DoesNotThrowAsync(async () => {
+        Assert.DoesNotThrowAsync(async () =>
+        {
             await _validator.ValidatePermissionList(permissions.Select(p => p.Id).ToList());
         }, "Unexpected HttpException");
     }

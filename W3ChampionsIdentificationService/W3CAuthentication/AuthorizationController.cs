@@ -70,7 +70,8 @@ public class AuthorizationController : ControllerBase
         // Save user's Battle.net account id to the database
         if (string.IsNullOrEmpty(user?.BnetId))
         {
-            await _usersRepository.UpdateUser(new User { 
+            await _usersRepository.UpdateUser(new User
+            {
                 Id = userInfo.battletag,
                 BnetId = userInfo.id.ToString(),
             });
@@ -110,7 +111,7 @@ public class AuthorizationController : ControllerBase
     public IActionResult GetUserInfo([FromQuery] string jwt)
     {
         var user = W3CUserAuthentication.FromJWT(jwt, JwtPublicKey);
-        return user != null ? (IActionResult) Ok(user) : Unauthorized("Sorry Hackerboi");
+        return user != null ? Ok(user) : Unauthorized("Sorry Hackerboi");
     }
 
     [HttpGet("twitch")]

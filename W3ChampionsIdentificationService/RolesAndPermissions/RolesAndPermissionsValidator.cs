@@ -13,8 +13,8 @@ public class RolesAndPermissionsValidator
     private readonly IRolesRepository _rolesRepository;
     private readonly IUsersRepository _usersrepostiory;
     public RolesAndPermissionsValidator(
-        IPermissionsRepository permissionsRepository, 
-        IRolesRepository rolesRepository, 
+        IPermissionsRepository permissionsRepository,
+        IRolesRepository rolesRepository,
         IUsersRepository usersRepository)
     {
         _permissionsRepository = permissionsRepository;

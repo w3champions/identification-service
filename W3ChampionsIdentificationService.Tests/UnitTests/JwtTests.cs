@@ -18,7 +18,7 @@ public class JWTTests
     [Test]
     public void TestPropertyMapping()
     {
-        List<string> permissions = new List<string> {nameof(EPermission.Permissions), nameof(EPermission.Moderation), nameof(EPermission.Tournaments)};
+        List<string> permissions = new List<string> { nameof(EPermission.Permissions), nameof(EPermission.Moderation), nameof(EPermission.Tournaments) };
         var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, permissions);
 
         Assert.IsTrue(userAuthentication.IsAdmin);
@@ -33,7 +33,7 @@ public class JWTTests
     [Test]
     public void TestJwtTokenGeneration()
     {
-        List<string> permissions = new List<string> {"Permissions", "Moderation", "Tournaments"};
+        List<string> permissions = new List<string> { "Permissions", "Moderation", "Tournaments" };
         var userAuthentication = W3CUserAuthentication.Create("notsuperadmin#2809", _privateKey, permissions);
 
         Assert.Greater(userAuthentication.JWT.Length, 800);
@@ -43,7 +43,7 @@ public class JWTTests
     [Test]
     public void JwtCanBeValidated()
     {
-        List<string> permissions = new List<string> {"Permissions", "Moderation", "Tournaments"};
+        List<string> permissions = new List<string> { "Permissions", "Moderation", "Tournaments" };
         var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, permissions);
 
         var decode = W3CUserAuthentication.FromJWT(userAuthentication.JWT, _publicKey);
@@ -57,7 +57,7 @@ public class JWTTests
     [Test]
     public void InvalidSecretThrows()
     {
-        List<string> permissions = new List<string> {"Permissions", "Moderation", "Tournaments"};
+        List<string> permissions = new List<string> { "Permissions", "Moderation", "Tournaments" };
         var userAuthentication = W3CUserAuthentication.Create("modmoto#2809", _privateKey, permissions);
 
         Assert.IsNull(W3CUserAuthentication.FromJWT(userAuthentication.JWT, _wrongPublicKey));

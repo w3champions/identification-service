@@ -41,7 +41,8 @@ public class PermissionsRepository : MongoDbRepositoryBase, IPermissionsReposito
     public async Task<List<string>> GetPermissionsForAdmin(string id)
     {
         var permission = await LoadFirst<Permission>(x => x.Id == id);
-        if (permission != null) {
+        if (permission != null)
+        {
             return permission.Permissions.Select(permission => permission.ToString()).ToList();
         }
         return null;

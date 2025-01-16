@@ -185,7 +185,7 @@ public class UsersCommandHandlerTests : IntegrationTestBase
 
         // act
         var result = await _usersRepository.GetUser(user.Id);
-        user.Roles.RemoveAt(user.Roles.Count -1);
+        user.Roles.RemoveAt(user.Roles.Count - 1);
         await _usersCommandHandler.UpdateUser(user);
         var resultAfterUpdate = await _usersRepository.GetUser(user.Id);
 
@@ -316,7 +316,7 @@ public class UsersCommandHandlerTests : IntegrationTestBase
             });
         }
     }
-    
+
     private async Task<Role> CreateFixtureRoleInDb()
     {
         Role role = _fixture.Create<Role>();

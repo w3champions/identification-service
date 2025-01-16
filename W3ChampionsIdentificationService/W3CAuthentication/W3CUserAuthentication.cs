@@ -102,7 +102,7 @@ public class W3CUserAuthentication
                     .Where(claim => claim.Type == "bnetId")
                     .Select(x => x.Value)
                     .FirstOrDefault()
-        };
+            };
         }
         catch (Exception)
         {
@@ -115,5 +115,5 @@ public class W3CUserAuthentication
     public string Name { get; set; }
     public bool IsAdmin { get; set; }
     public List<string> Permissions { get; set; }
-    public string BnetID {  get; set; }
+    public string BnetID { get; set; }
 }

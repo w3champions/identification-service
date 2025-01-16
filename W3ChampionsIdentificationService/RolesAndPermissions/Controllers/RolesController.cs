@@ -12,7 +12,7 @@ public class RolesController : ControllerBase
     private readonly IRolesRepository _rolesRepository;
     private readonly IRolesCommandHandler _rolesCommandHandler;
     public RolesController(
-        IRolesRepository rolesRepository, 
+        IRolesRepository rolesRepository,
         IRolesCommandHandler rolesCommandHandler)
     {
         _rolesRepository = rolesRepository;

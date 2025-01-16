@@ -216,7 +216,7 @@ public class RolesCommandHandlerTests : IntegrationTestBase
         // assert
         Assert.IsNull(deletedRole);
     }
-    
+
     [Test]
     [Ignore("Ignore test because of Permissions design change")]
     public void DeleteRole_RoleDoesntExist_ThrowsException()
@@ -238,7 +238,7 @@ public class RolesCommandHandlerTests : IntegrationTestBase
 
     private async Task AddPermissionsForRole(Role role)
     {
-        foreach(var permission in role.Permissions)
+        foreach (var permission in role.Permissions)
         {
             await _permissionsRepository.CreatePermission(new Permission()
             {

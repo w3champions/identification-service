@@ -25,8 +25,9 @@ public class Startup
         services.AddControllers();
 
         services.AddSingleton<IAppConfig, AppConfig>();
-        
-        services.AddSingleton((x) => {
+
+        services.AddSingleton((x) =>
+        {
             var appConfig = x.GetService<IAppConfig>();
             return new MongoClient(appConfig.MongoConnectionString);
         });

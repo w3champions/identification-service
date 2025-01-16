@@ -32,9 +32,12 @@ public class PermissionsController : ControllerBase
     [HasPermissionsPermission]
     public async Task<IActionResult> Create([FromBody] Permission permission)
     {
-        try {
+        try
+        {
             await _permissionsCommandHandler.CreatePermission(permission);
-        } catch (HttpException ex) {
+        }
+        catch (HttpException ex)
+        {
             return StatusCode(ex.StatusCode, ex.Message);
         }
         return Ok();
@@ -44,9 +47,12 @@ public class PermissionsController : ControllerBase
     [HasPermissionsPermission]
     public async Task<IActionResult> Delete([FromQuery] string id)
     {
-        try {
+        try
+        {
             await _permissionsCommandHandler.DeletePermission(id);
-        } catch (HttpException ex) {
+        }
+        catch (HttpException ex)
+        {
             return StatusCode(ex.StatusCode, ex.Message);
         }
         return Ok();
@@ -56,9 +62,12 @@ public class PermissionsController : ControllerBase
     [HasPermissionsPermission]
     public async Task<IActionResult> Update([FromBody] Permission permission)
     {
-        try {
+        try
+        {
             await _permissionsCommandHandler.UpdatePermission(permission);
-        } catch (HttpException ex) {
+        }
+        catch (HttpException ex)
+        {
             return StatusCode(ex.StatusCode, ex.Message);
         }
         return Ok();

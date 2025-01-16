@@ -24,7 +24,7 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         }
 
         var readAsStringAsync = await res.Content.ReadAsStringAsync();
-        return  JsonSerializer.Deserialize<BlizzardUserInfo>(readAsStringAsync);
+        return JsonSerializer.Deserialize<BlizzardUserInfo>(readAsStringAsync);
     }
 
     public async Task<OAuthToken> GetToken(string code, string redirectUri, BnetRegion region)

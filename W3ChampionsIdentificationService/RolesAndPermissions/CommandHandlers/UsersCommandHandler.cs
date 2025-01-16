@@ -31,7 +31,7 @@ public class UsersCommandHandler : IUsersCommandHandler
     }
 
     public async Task UpdateUser(User user)
-    {   
+    {
         await _validator.ValidateRoleList(user.Roles);
         await _validator.ValidateUpdateUser(user);
 
