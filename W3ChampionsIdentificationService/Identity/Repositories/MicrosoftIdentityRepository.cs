@@ -5,12 +5,8 @@ using W3ChampionsIdentificationService.Identity.Contracts;
 
 namespace W3ChampionsIdentificationService.Identity.Repositories;
 
-public class MicrosoftIdentityRepository : MongoDbRepositoryBase, IMicrosoftIdentityRepository
+public class MicrosoftIdentityRepository(MongoClient mongoClient, IAppConfig appConfig) : MongoDbRepositoryBase(mongoClient, appConfig), IMicrosoftIdentityRepository
 {
-    public MicrosoftIdentityRepository(MongoClient mongoClient, IAppConfig appConfig) : base(mongoClient, appConfig)
-    {
-    }
-
     public async Task CreateIndex()
     {
         var mongoCollection = CreateCollection<MicrosoftIdentity>();

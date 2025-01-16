@@ -4,17 +4,12 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 
-public class RolesCommandHandler : IRolesCommandHandler
+public class RolesCommandHandler(
+    IRolesRepository rolesRepository,
+    RolesAndPermissionsValidator validator) : IRolesCommandHandler
 {
-    private readonly IRolesRepository _rolesRepository;
-    private readonly RolesAndPermissionsValidator _validator;
-    public RolesCommandHandler(
-        IRolesRepository rolesRepository,
-        RolesAndPermissionsValidator validator)
-    {
-        _rolesRepository = rolesRepository;
-        _validator = validator;
-    }
+    private readonly IRolesRepository _rolesRepository = rolesRepository;
+    private readonly RolesAndPermissionsValidator _validator = validator;
 
     public async Task CreateRole(Role role)
     {

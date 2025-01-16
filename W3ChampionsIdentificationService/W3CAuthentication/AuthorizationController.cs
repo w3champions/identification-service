@@ -13,36 +13,25 @@ namespace W3ChampionsIdentificationService.W3CAuthentication;
 
 [ApiController]
 [Route("api/oauth")]
-public class AuthorizationController : ControllerBase
+public class AuthorizationController(
+    IBlizzardAuthenticationService blizzardAuthenticationService,
+    ITwitchAuthenticationService twitchAuthenticationService,
+    IMicrosoftAuthenticationService microsoftAuthenticationService,
+    IUsersRepository usersRepository,
+    IRolesRepository rolesRepository,
+    IPermissionsRepository permissionsRepository,
+    IMicrosoftIdentityRepository microsoftIdentityRepository) : ControllerBase
 {
-    private readonly IBlizzardAuthenticationService _blizzardAuthenticationService;
-    private readonly ITwitchAuthenticationService _twitchAuthenticationService;
-    private readonly IMicrosoftAuthenticationService _microsoftAuthenticationService;
-    private readonly IUsersRepository _usersRepository;
-    private readonly IRolesRepository _rolesRepository;
-    private readonly IPermissionsRepository _permissionsRepository;
-    private readonly IMicrosoftIdentityRepository _microsoftIdentityRepository;
+    private readonly IBlizzardAuthenticationService _blizzardAuthenticationService = blizzardAuthenticationService;
+    private readonly ITwitchAuthenticationService _twitchAuthenticationService = twitchAuthenticationService;
+    private readonly IMicrosoftAuthenticationService _microsoftAuthenticationService = microsoftAuthenticationService;
+    private readonly IUsersRepository _usersRepository = usersRepository;
+    private readonly IRolesRepository _rolesRepository = rolesRepository;
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
+    private readonly IMicrosoftIdentityRepository _microsoftIdentityRepository = microsoftIdentityRepository;
 
     private static readonly string JwtPrivateKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY") ?? "");
     private static readonly string JwtPublicKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY") ?? "");
-
-    public AuthorizationController(
-        IBlizzardAuthenticationService blizzardAuthenticationService,
-        ITwitchAuthenticationService twitchAuthenticationService,
-        IMicrosoftAuthenticationService microsoftAuthenticationService,
-        IUsersRepository usersRepository,
-        IRolesRepository rolesRepository,
-        IPermissionsRepository permissionsRepository,
-        IMicrosoftIdentityRepository microsoftIdentityRepository)
-    {
-        _blizzardAuthenticationService = blizzardAuthenticationService;
-        _twitchAuthenticationService = twitchAuthenticationService;
-        _microsoftAuthenticationService = microsoftAuthenticationService;
-        _usersRepository = usersRepository;
-        _rolesRepository = rolesRepository;
-        _permissionsRepository = permissionsRepository;
-        _microsoftIdentityRepository = microsoftIdentityRepository;
-    }
 
     [HttpGet("token")]
     public async Task<IActionResult> GetBlizzardToken(

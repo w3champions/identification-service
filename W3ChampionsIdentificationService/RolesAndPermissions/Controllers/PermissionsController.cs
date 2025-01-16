@@ -8,17 +8,12 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.Controllers;
 
 [ApiController]
 [Route("api/permissions")]
-public class PermissionsController : ControllerBase
+public class PermissionsController(
+    IPermissionsRepository permissionsRepository,
+    IPermissionsCommandHandler permissionsCommandHandler) : ControllerBase
 {
-    private readonly IPermissionsRepository _permissionsRepository;
-    private readonly IPermissionsCommandHandler _permissionsCommandHandler;
-    public PermissionsController(
-        IPermissionsRepository permissionsRepository,
-        IPermissionsCommandHandler permissionsCommandHandler)
-    {
-        _permissionsRepository = permissionsRepository;
-        _permissionsCommandHandler = permissionsCommandHandler;
-    }
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
+    private readonly IPermissionsCommandHandler _permissionsCommandHandler = permissionsCommandHandler;
 
     [HttpGet]
     [HasPermissionsPermission]

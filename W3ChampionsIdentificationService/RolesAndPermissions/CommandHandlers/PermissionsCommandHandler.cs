@@ -5,17 +5,12 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 
-public class PermissionsCommandHandler : IPermissionsCommandHandler
+public class PermissionsCommandHandler(
+    IPermissionsRepository permissionsRepository,
+    RolesAndPermissionsValidator validator) : IPermissionsCommandHandler
 {
-    private readonly IPermissionsRepository _permissionsRepository;
-    private readonly RolesAndPermissionsValidator _validator;
-    public PermissionsCommandHandler(
-        IPermissionsRepository permissionsRepository,
-        RolesAndPermissionsValidator validator)
-    {
-        _permissionsRepository = permissionsRepository;
-        _validator = validator;
-    }
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
+    private readonly RolesAndPermissionsValidator _validator = validator;
 
     public async Task CreatePermission(Permission permission)
     {

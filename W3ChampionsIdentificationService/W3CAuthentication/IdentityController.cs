@@ -10,23 +10,16 @@ namespace W3ChampionsIdentificationService.W3CAuthentication;
 
 [ApiController]
 [Route("api/identity")]
-public class IdentityController : ControllerBase
+public class IdentityController(
+    IBlizzardAuthenticationService blizzardAuthenticationService,
+    IMicrosoftAuthenticationService microsoftAuthenticationService,
+    IMicrosoftIdentityRepository microsoftIdentityRepository) : ControllerBase
 {
-    private readonly IBlizzardAuthenticationService _blizzardAuthenticationService;
-    private readonly IMicrosoftAuthenticationService _microsoftAuthenticationService;
-    private readonly IMicrosoftIdentityRepository _microsoftIdentityRepository;
+    private readonly IBlizzardAuthenticationService _blizzardAuthenticationService = blizzardAuthenticationService;
+    private readonly IMicrosoftAuthenticationService _microsoftAuthenticationService = microsoftAuthenticationService;
+    private readonly IMicrosoftIdentityRepository _microsoftIdentityRepository = microsoftIdentityRepository;
 
     private static readonly string JwtPublicKey = Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY") ?? "");
-
-    public IdentityController(
-        IBlizzardAuthenticationService blizzardAuthenticationService,
-        IMicrosoftAuthenticationService microsoftAuthenticationService,
-        IMicrosoftIdentityRepository microsoftIdentityRepository)
-    {
-        _blizzardAuthenticationService = blizzardAuthenticationService;
-        _microsoftAuthenticationService = microsoftAuthenticationService;
-        _microsoftIdentityRepository = microsoftIdentityRepository;
-    }
 
     [HttpGet("microsoft-identity-linked")]
     public async Task<IActionResult> GetMicrosoftIdentity([FromQuery] string jwt)

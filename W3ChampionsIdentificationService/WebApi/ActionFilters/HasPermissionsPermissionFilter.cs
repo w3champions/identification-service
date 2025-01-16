@@ -10,17 +10,12 @@ using W3ChampionsIdentificationService.WebApi.ExceptionFilters;
 
 namespace W3ChampionsIdentificationService.WebApi.ActionFilters;
 
-public class HasPermissionsPermissionFilter : IAsyncActionFilter
+public class HasPermissionsPermissionFilter(
+    IW3CAuthenticationService authService,
+    IPermissionsRepository permissionsRepository) : IAsyncActionFilter
 {
-    private readonly IW3CAuthenticationService _authService;
-    private readonly IPermissionsRepository _permissionsRepository;
-    public HasPermissionsPermissionFilter(
-        IW3CAuthenticationService authService,
-        IPermissionsRepository permissionsRepository)
-    {
-        _authService = authService;
-        _permissionsRepository = permissionsRepository;
-    }
+    private readonly IW3CAuthenticationService _authService = authService;
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {

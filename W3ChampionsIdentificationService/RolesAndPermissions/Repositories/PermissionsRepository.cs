@@ -7,12 +7,8 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 
-public class PermissionsRepository : MongoDbRepositoryBase, IPermissionsRepository
+public class PermissionsRepository(MongoClient mongoClient, IAppConfig appConfig) : MongoDbRepositoryBase(mongoClient, appConfig), IPermissionsRepository
 {
-    public PermissionsRepository(MongoClient mongoClient, IAppConfig appConfig) : base(mongoClient, appConfig)
-    {
-    }
-
     public async Task<List<Permission>> GetAllPermissions(int? limit = null, int? offset = null)
     {
         return await LoadAll<Permission>(null, limit, offset);

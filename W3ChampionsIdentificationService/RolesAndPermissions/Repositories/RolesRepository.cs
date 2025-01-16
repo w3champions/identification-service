@@ -8,12 +8,8 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 
-public class RolesRepository : MongoDbRepositoryBase, IRolesRepository
+public class RolesRepository(MongoClient mongoClient, IAppConfig appConfig) : MongoDbRepositoryBase(mongoClient, appConfig), IRolesRepository
 {
-    public RolesRepository(MongoClient mongoClient, IAppConfig appConfig) : base(mongoClient, appConfig)
-    {
-    }
-
     public async Task<List<Role>> GetAllRoles(Expression<Func<Role, bool>> expression = null, int? limit = null, int? offset = null)
     {
         return await LoadAll(expression, limit, offset);

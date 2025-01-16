@@ -7,13 +7,9 @@ using W3ChampionsIdentificationService.Identity.Contracts;
 
 namespace W3ChampionsIdentificationService;
 
-public class MigratorHostedService : IHostedService
+public class MigratorHostedService(IServiceProvider serviceProvider) : IHostedService
 {
-    private readonly IServiceProvider _serviceProvider;
-    public MigratorHostedService(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

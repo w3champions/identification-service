@@ -7,17 +7,12 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.Controllers;
 
 [ApiController]
 [Route("api/roles")]
-public class RolesController : ControllerBase
+public class RolesController(
+    IRolesRepository rolesRepository,
+    IRolesCommandHandler rolesCommandHandler) : ControllerBase
 {
-    private readonly IRolesRepository _rolesRepository;
-    private readonly IRolesCommandHandler _rolesCommandHandler;
-    public RolesController(
-        IRolesRepository rolesRepository,
-        IRolesCommandHandler rolesCommandHandler)
-    {
-        _rolesRepository = rolesRepository;
-        _rolesCommandHandler = rolesCommandHandler;
-    }
+    private readonly IRolesRepository _rolesRepository = rolesRepository;
+    private readonly IRolesCommandHandler _rolesCommandHandler = rolesCommandHandler;
 
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] int? limit, [FromQuery] int? offset)

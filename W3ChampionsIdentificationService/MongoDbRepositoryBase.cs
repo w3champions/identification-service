@@ -9,16 +9,10 @@ using W3ChampionsIdentificationService.DatabaseModels;
 
 namespace W3ChampionsIdentificationService;
 
-public class MongoDbRepositoryBase
+public class MongoDbRepositoryBase(MongoClient mongoClient, IAppConfig appConfig)
 {
-    private readonly MongoClient _mongoClient;
-    private readonly IAppConfig _appConfig;
-
-    public MongoDbRepositoryBase(MongoClient mongoClient, IAppConfig appConfig)
-    {
-        _appConfig = appConfig;
-        _mongoClient = mongoClient;
-    }
+    private readonly MongoClient _mongoClient = mongoClient;
+    private readonly IAppConfig _appConfig = appConfig;
 
     protected IMongoDatabase CreateClient()
     {

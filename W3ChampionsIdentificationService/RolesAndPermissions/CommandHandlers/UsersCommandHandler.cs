@@ -4,17 +4,12 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 
-public class UsersCommandHandler : IUsersCommandHandler
+public class UsersCommandHandler(
+    IUsersRepository usersRepository,
+    RolesAndPermissionsValidator validator) : IUsersCommandHandler
 {
-    private readonly IUsersRepository _usersRepository;
-    private readonly RolesAndPermissionsValidator _validator;
-    public UsersCommandHandler(
-        IUsersRepository usersRepository,
-        RolesAndPermissionsValidator validator)
-    {
-        _usersRepository = usersRepository;
-        _validator = validator;
-    }
+    private readonly IUsersRepository _usersRepository = usersRepository;
+    private readonly RolesAndPermissionsValidator _validator = validator;
 
     public async Task CreateUser(User user)
     {

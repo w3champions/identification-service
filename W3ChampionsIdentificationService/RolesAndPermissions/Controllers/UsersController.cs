@@ -7,17 +7,12 @@ namespace W3ChampionsIdentificationService.RolesAndPermissions.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UsersController : ControllerBase
+public class UsersController(
+    IUsersRepository usersRepository,
+    IUsersCommandHandler usersCommandHandler) : ControllerBase
 {
-    private readonly IUsersRepository _usersRepository;
-    private readonly IUsersCommandHandler _usersCommandHandler;
-    public UsersController(
-        IUsersRepository usersRepository,
-        IUsersCommandHandler usersCommandHandler)
-    {
-        _usersRepository = usersRepository;
-        _usersCommandHandler = usersCommandHandler;
-    }
+    private readonly IUsersRepository _usersRepository = usersRepository;
+    private readonly IUsersCommandHandler _usersCommandHandler = usersCommandHandler;
 
     [HttpGet]
     [HasPermissionsPermission]

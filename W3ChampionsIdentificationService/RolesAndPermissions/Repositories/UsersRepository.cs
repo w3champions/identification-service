@@ -6,12 +6,8 @@ using W3ChampionsIdentificationService.Config;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 
-public class UsersRepository : MongoDbRepositoryBase, IUsersRepository
+public class UsersRepository(MongoClient mongoClient, IAppConfig appConfig) : MongoDbRepositoryBase(mongoClient, appConfig), IUsersRepository
 {
-    public UsersRepository(MongoClient mongoClient, IAppConfig appConfig) : base(mongoClient, appConfig)
-    {
-    }
-
     public async Task<User> GetUser(string id)
     {
         return await LoadFirst<User>(id);

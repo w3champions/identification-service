@@ -7,20 +7,14 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService.RolesAndPermissions;
 
-public class RolesAndPermissionsValidator
+public class RolesAndPermissionsValidator(
+    IPermissionsRepository permissionsRepository,
+    IRolesRepository rolesRepository,
+    IUsersRepository usersRepository)
 {
-    private readonly IPermissionsRepository _permissionsRepository;
-    private readonly IRolesRepository _rolesRepository;
-    private readonly IUsersRepository _usersrepostiory;
-    public RolesAndPermissionsValidator(
-        IPermissionsRepository permissionsRepository,
-        IRolesRepository rolesRepository,
-        IUsersRepository usersRepository)
-    {
-        _permissionsRepository = permissionsRepository;
-        _rolesRepository = rolesRepository;
-        _usersrepostiory = usersRepository;
-    }
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
+    private readonly IRolesRepository _rolesRepository = rolesRepository;
+    private readonly IUsersRepository _usersrepostiory = usersRepository;
 
     public void ValidatePermission(Permission permission)
     {
