@@ -1,5 +1,4 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
 using W3ChampionsIdentificationService.DatabaseModels;
 
 namespace W3ChampionsIdentificationService.Identity;

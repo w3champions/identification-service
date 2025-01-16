@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using W3ChampionsIdentificationService.Identity;
+﻿using System.Threading.Tasks;
 
 namespace W3ChampionsIdentificationService.Identity.Contracts;
 

@@ -1,5 +1,4 @@
 ﻿using MongoDB.Driver;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;

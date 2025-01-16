@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 using W3ChampionsIdentificationService.Identity.Contracts;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace W3ChampionsIdentificationService;
 

@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using W3ChampionsIdentificationService.Blizzard;
-using W3ChampionsIdentificationService.Identity;
 using W3ChampionsIdentificationService.Identity.Contracts;
 using W3ChampionsIdentificationService.Microsoft;
-using W3ChampionsIdentificationService.RolesAndPermissions;
-using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
-using W3ChampionsIdentificationService.Twitch;
 
 namespace W3ChampionsIdentificationService.W3CAuthentication;
 

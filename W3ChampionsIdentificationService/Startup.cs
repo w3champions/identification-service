@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using System;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.Identity;

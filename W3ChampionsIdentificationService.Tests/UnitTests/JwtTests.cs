@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using System.Linq;
 using W3ChampionsIdentificationService.W3CAuthentication;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using System.Collections.Generic;
