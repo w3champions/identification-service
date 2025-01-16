@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using W3ChampionsIdentificationService.W3CAuthentication;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
+
+namespace W3ChampionsIdentificationService.W3CAuthentication;
 
 public class W3CAuthenticationService : IW3CAuthenticationService
 {

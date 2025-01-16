@@ -1,7 +1,6 @@
-﻿namespace W3ChampionsIdentificationService.W3CAuthentication.Contracts
+﻿namespace W3ChampionsIdentificationService.W3CAuthentication.Contracts;
+
+public interface IW3CAuthenticationService
 {
-    public interface IW3CAuthenticationService
-    {
-        public W3CUserAuthentication GetUserByToken(string jwt);
-    }
+    public W3CUserAuthentication GetUserByToken(string jwt);
 }

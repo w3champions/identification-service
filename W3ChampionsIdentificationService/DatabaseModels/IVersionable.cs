@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace W3ChampionsIdentificationService.DatabaseModels
+namespace W3ChampionsIdentificationService.DatabaseModels;
+
+public interface IVersionable
 {
-    public interface IVersionable
-    {
-        public DateTimeOffset LastUpdated { get; set; }
-    }
+    public DateTimeOffset LastUpdated { get; set; }
 }

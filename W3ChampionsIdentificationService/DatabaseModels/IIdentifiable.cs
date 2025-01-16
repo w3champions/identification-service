@@ -1,7 +1,6 @@
-﻿namespace W3ChampionsIdentificationService.DatabaseModels
+﻿namespace W3ChampionsIdentificationService.DatabaseModels;
+
+public interface IIdentifiable
 {
-    public interface IIdentifiable
-    {
-        public string Id { get; }
-    }
+    public string Id { get; }
 }

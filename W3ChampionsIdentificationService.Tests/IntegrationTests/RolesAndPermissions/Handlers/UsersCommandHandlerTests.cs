@@ -6,323 +6,323 @@ using W3ChampionsIdentificationService.Middleware;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 
 // All of the following tests are skipped for now, because of a Permissions design change.
 
-namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Handlers
+namespace W3ChampionsIdentificationService.Tests.IntegrationTests.RolesAndPermissions.Handlers;
+
+public class UsersCommandHandlerTests : IntegrationTestBase
 {
-    public class UsersCommandHandlerTests : IntegrationTestBase
+    Fixture _fixture;
+    IPermissionsRepository _permissionsRepository;
+    IRolesRepository _rolesRepository;
+    IUsersRepository _usersRepository;
+    RolesAndPermissionsValidator _validator;
+    IUsersCommandHandler _usersCommandHandler;
+
+    [SetUp]
+    public void RolesCommandHandlerTestsSetup()
     {
-        Fixture _fixture;
-        IPermissionsRepository _permissionsRepository;
-        IRolesRepository _rolesRepository;
-        IUsersRepository _usersRepository;
-        RolesAndPermissionsValidator _validator;
-        IUsersCommandHandler _usersCommandHandler;
+        _fixture = new Fixture();
+        _permissionsRepository = new PermissionsRepository(_mongoClient, _appConfig);
+        _rolesRepository = new RolesRepository(_mongoClient, _appConfig);
+        _usersRepository = new UsersRepository(_mongoClient, _appConfig);
+        _validator = new RolesAndPermissionsValidator(_permissionsRepository, _rolesRepository, _usersRepository);
+        _usersCommandHandler = new UsersCommandHandler(_usersRepository, _validator);
+    }
 
-        [SetUp]
-        public void RolesCommandHandlerTestsSetup()
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public async Task CreateUser_Success()
+    {
+        // arrange
+        var role = await CreateFixtureRoleInDb();
+        var role2 = await CreateFixtureRoleInDb();
+
+        var roleList = new List<string>();
+        roleList.Add(role.Id);
+        roleList.Add(role2.Id);
+
+        var user = new User()
         {
-            _fixture = new Fixture();
-            _permissionsRepository = new PermissionsRepository(_mongoClient, _appConfig);
-            _rolesRepository = new RolesRepository(_mongoClient, _appConfig);
-            _usersRepository = new UsersRepository(_mongoClient, _appConfig);
-            _validator = new RolesAndPermissionsValidator(_permissionsRepository, _rolesRepository, _usersRepository);
-            _usersCommandHandler = new UsersCommandHandler(_usersRepository, _validator);
-        }
+            Id = "cepheid#1467",
+            Roles = roleList,
+        };
 
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task CreateUser_Success()
+        // act
+        await _usersCommandHandler.CreateUser(user);
+        var result = await _usersRepository.GetUser(user.Id);
+
+        // assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(user.Id, result.Id);
+        Assert.AreEqual(user.Roles.Count, result.Roles.Count);
+    }
+
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public void CreateUser_RoleDoesntExist_ThrowsException()
+    {
+        // arrange
+        var roleList = new List<string>();
+        roleList.Add("nonExistentRole");
+
+        var user = new User()
         {
-            // arrange
-            var role = await CreateFixtureRoleInDb();
-            var role2 = await CreateFixtureRoleInDb();
+            Id = "cepheid#1467",
+            Roles = roleList,
+        };
 
-            var roleList = new List<string>();
-            roleList.Add(role.Id);
-            roleList.Add(role2.Id);
-
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = roleList,
-            };
-
-            // act
+        // act
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
+        {
             await _usersCommandHandler.CreateUser(user);
-            var result = await _usersRepository.GetUser(user.Id);
+        });
 
-            // assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(user.Id, result.Id);
-            Assert.AreEqual(user.Roles.Count, result.Roles.Count);
-        }
+        // assert
+        Assert.AreEqual(404, ex.StatusCode);
+        Assert.AreEqual($"Roles: '{string.Join(",", roleList)}' do not exist", ex.Message);
+    }
 
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public void CreateUser_RoleDoesntExist_ThrowsException()
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public void CreateUser_InvalidRequest_ThrowsException()
+    {
+        // arrange
+        var user = new User()
         {
-            // arrange
-            var roleList = new List<string>();
-            roleList.Add("nonExistentRole");
+            Id = "cepheid#1467",
+            Roles = null,
+        };
 
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = roleList,
-            };
-
-            // act
-            var ex = Assert.ThrowsAsync<HttpException>(async () =>
-            {
-                await _usersCommandHandler.CreateUser(user);
-            });
-
-            // assert
-            Assert.AreEqual(404, ex.StatusCode);
-            Assert.AreEqual($"Roles: '{string.Join(",", roleList)}' do not exist", ex.Message);
-        }
-
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public void CreateUser_InvalidRequest_ThrowsException()
+        // act
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
         {
-            // arrange
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = null,
-            };
-
-            // act
-            var ex = Assert.ThrowsAsync<HttpException>(async () =>
-            {
-                await _usersCommandHandler.CreateUser(user);
-            });
-
-            // assert
-            Assert.AreEqual(400, ex.StatusCode);
-            Assert.AreEqual("A user cannot have no Roles", ex.Message);
-        }
-
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task CreateUser_AlreadyExists_ThrowException()
-        {
-            // arrange
-            var role = await CreateFixtureRoleInDb();
-
-            var roleList = new List<string>();
-            roleList.Add(role.Id);
-
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = roleList,
-            };
-
-            // act
             await _usersCommandHandler.CreateUser(user);
-            var ex = Assert.ThrowsAsync<HttpException>(async () =>
-            {
-                await _usersCommandHandler.CreateUser(user);
-            });
+        });
 
-            // assert
-            Assert.AreEqual(409, ex.StatusCode);
-            Assert.AreEqual($"User: {user.Id} already exists", ex.Message);
-        }
+        // assert
+        Assert.AreEqual(400, ex.StatusCode);
+        Assert.AreEqual("A user cannot have no Roles", ex.Message);
+    }
 
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task CreateUser_NotFormattedLikeABattletag_ThrowException()
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public async Task CreateUser_AlreadyExists_ThrowException()
+    {
+        // arrange
+        var role = await CreateFixtureRoleInDb();
+
+        var roleList = new List<string>();
+        roleList.Add(role.Id);
+
+        var user = new User()
         {
-            // arrange
-            var role = await CreateFixtureRoleInDb();
+            Id = "cepheid#1467",
+            Roles = roleList,
+        };
 
-            var roleList = new List<string>();
-            roleList.Add(role.Id);
-
-            var user = new User()
-            {
-                Id = "notabattletagformat#14",
-                Roles = roleList,
-            };
-
-            // act
-            var ex = Assert.ThrowsAsync<HttpException>(async () =>
-            {
-                await _usersCommandHandler.CreateUser(user);
-            });
-
-            // assert
-            Assert.AreEqual(400, ex.StatusCode);
-            Assert.AreEqual("BattleTag is not valid", ex.Message);
-        }
-
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task UpdateUser_Success()
+        // act
+        await _usersCommandHandler.CreateUser(user);
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
         {
-            // arrange
-            var role = await CreateFixtureRoleInDb();
-            var role2 = await CreateFixtureRoleInDb();
-            var role3 = await CreateFixtureRoleInDb();
-
-            var roleList = new List<string>();
-            roleList.Add(role.Id);
-            roleList.Add(role2.Id);
-            roleList.Add(role3.Id);
-
-
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = roleList,
-            };
             await _usersCommandHandler.CreateUser(user);
+        });
 
-            // act
-            var result = await _usersRepository.GetUser(user.Id);
-            user.Roles.RemoveAt(user.Roles.Count -1);
-            await _usersCommandHandler.UpdateUser(user);
-            var resultAfterUpdate = await _usersRepository.GetUser(user.Id);
+        // assert
+        Assert.AreEqual(409, ex.StatusCode);
+        Assert.AreEqual($"User: {user.Id} already exists", ex.Message);
+    }
 
-            // assert
-            Assert.NotNull(resultAfterUpdate);
-            Assert.AreEqual(user.Roles.Count, resultAfterUpdate.Roles.Count);
-        }
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public async Task CreateUser_NotFormattedLikeABattletag_ThrowException()
+    {
+        // arrange
+        var role = await CreateFixtureRoleInDb();
 
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task UpdateUser_WithRoleThatDoesntExist_ThrowsException()
+        var roleList = new List<string>();
+        roleList.Add(role.Id);
+
+        var user = new User()
         {
-            // arrange
-            var role = await CreateFixtureRoleInDb();
+            Id = "notabattletagformat#14",
+            Roles = roleList,
+        };
 
-            var roleList = new List<string>();
-            roleList.Add(role.Id);
-
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = roleList,
-            };
+        // act
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
+        {
             await _usersCommandHandler.CreateUser(user);
+        });
 
-            var role2 = _fixture.Create<Role>();
-            var roleList2 = new List<string>();
-            roleList2.Add(role2.Id);
+        // assert
+        Assert.AreEqual(400, ex.StatusCode);
+        Assert.AreEqual("BattleTag is not valid", ex.Message);
+    }
 
-            var user2 = new User()
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public async Task UpdateUser_Success()
+    {
+        // arrange
+        var role = await CreateFixtureRoleInDb();
+        var role2 = await CreateFixtureRoleInDb();
+        var role3 = await CreateFixtureRoleInDb();
+
+        var roleList = new List<string>();
+        roleList.Add(role.Id);
+        roleList.Add(role2.Id);
+        roleList.Add(role3.Id);
+
+
+        var user = new User()
+        {
+            Id = "cepheid#1467",
+            Roles = roleList,
+        };
+        await _usersCommandHandler.CreateUser(user);
+
+        // act
+        var result = await _usersRepository.GetUser(user.Id);
+        user.Roles.RemoveAt(user.Roles.Count - 1);
+        await _usersCommandHandler.UpdateUser(user);
+        var resultAfterUpdate = await _usersRepository.GetUser(user.Id);
+
+        // assert
+        Assert.NotNull(resultAfterUpdate);
+        Assert.AreEqual(user.Roles.Count, resultAfterUpdate.Roles.Count);
+    }
+
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public async Task UpdateUser_WithRoleThatDoesntExist_ThrowsException()
+    {
+        // arrange
+        var role = await CreateFixtureRoleInDb();
+
+        var roleList = new List<string>();
+        roleList.Add(role.Id);
+
+        var user = new User()
+        {
+            Id = "cepheid#1467",
+            Roles = roleList,
+        };
+        await _usersCommandHandler.CreateUser(user);
+
+        var role2 = _fixture.Create<Role>();
+        var roleList2 = new List<string>();
+        roleList2.Add(role2.Id);
+
+        var user2 = new User()
+        {
+            Id = "cepheid#1467",
+            Roles = roleList2,
+        };
+
+        // act
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
+        {
+            await _usersCommandHandler.UpdateUser(user2);
+        });
+
+        // assert
+        Assert.AreEqual(404, ex.StatusCode);
+        Assert.AreEqual($"Roles: '{string.Join("','", roleList2)}' do not exist", ex.Message);
+    }
+
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public async Task UpdateUser_WithNullRoles_ThrowsException()
+    {
+        // arrange
+        var role = await CreateFixtureRoleInDb();
+
+        var roleList = new List<string>();
+        roleList.Add(role.Id);
+
+        var user = new User()
+        {
+            Id = "cepheid#1467",
+            Roles = roleList,
+        };
+        await _usersCommandHandler.CreateUser(user);
+
+        var user2 = new User()
+        {
+            Id = "cepheid#1467",
+            Roles = null,
+        };
+
+        // act
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
+        {
+            await _usersCommandHandler.UpdateUser(user2);
+        });
+
+        // assert
+        Assert.AreEqual(400, ex.StatusCode);
+        Assert.AreEqual("A user cannot have no Roles", ex.Message);
+    }
+
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public async Task DeleteUser_Success()
+    {
+        // arrange
+        var role = await CreateFixtureRoleInDb();
+
+        var roleList = new List<string>();
+        roleList.Add(role.Id);
+
+        var user = new User()
+        {
+            Id = "cepheid#1467",
+            Roles = roleList,
+        };
+        await _usersCommandHandler.CreateUser(user);
+
+        // act
+        await _usersCommandHandler.DeleteUser(user.Id);
+        var result = await _usersRepository.GetUser(user.Id);
+
+        // assert
+        Assert.IsNull(result);
+    }
+
+    [Test]
+    [Ignore("Ignore test because of Permissions design change")]
+    public void DeleteUser_IdDoesntExist_ThrowsException()
+    {
+        // act
+        var ex = Assert.ThrowsAsync<HttpException>(async () =>
+        {
+            await _usersCommandHandler.DeleteUser("idThatDoesntExist#1234");
+        });
+
+        // assert
+        Assert.AreEqual(404, ex.StatusCode);
+        Assert.AreEqual($"Role with id: 'idThatDoesntExist#1234' not found", ex.Message);
+    }
+
+    private async Task AddPermissionsForRole(Role role)
+    {
+        foreach (var permission in role.Permissions)
+        {
+            await _permissionsRepository.CreatePermission(new Permission()
             {
-                Id = "cepheid#1467",
-                Roles = roleList2,
-            };
-
-            // act
-            var ex = Assert.ThrowsAsync<HttpException>(async () =>
-            {
-                await _usersCommandHandler.UpdateUser(user2);
+                Description = permission,
             });
-
-            // assert
-            Assert.AreEqual(404, ex.StatusCode);
-            Assert.AreEqual($"Roles: '{string.Join("','", roleList2)}' do not exist", ex.Message);
         }
+    }
 
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task UpdateUser_WithNullRoles_ThrowsException()
-        {
-            // arrange
-            var role = await CreateFixtureRoleInDb();
-
-            var roleList = new List<string>();
-            roleList.Add(role.Id);
-
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = roleList,
-            };
-            await _usersCommandHandler.CreateUser(user);
-
-            var user2 = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = null,
-            };
-
-            // act
-            var ex = Assert.ThrowsAsync<HttpException>(async () =>
-            {
-                await _usersCommandHandler.UpdateUser(user2);
-            });
-
-            // assert
-            Assert.AreEqual(400, ex.StatusCode);
-            Assert.AreEqual("A user cannot have no Roles", ex.Message);
-        }
-
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public async Task DeleteUser_Success()
-        {
-            // arrange
-            var role = await CreateFixtureRoleInDb();
-
-            var roleList = new List<string>();
-            roleList.Add(role.Id);
-
-            var user = new User()
-            {
-                Id = "cepheid#1467",
-                Roles = roleList,
-            };
-            await _usersCommandHandler.CreateUser(user);
-
-            // act
-            await _usersCommandHandler.DeleteUser(user.Id);
-            var result = await _usersRepository.GetUser(user.Id);
-
-            // assert
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        [Ignore("Ignore test because of Permissions design change")]
-        public void DeleteUser_IdDoesntExist_ThrowsException()
-        {
-            // act
-            var ex = Assert.ThrowsAsync<HttpException>(async () =>
-            {
-                await _usersCommandHandler.DeleteUser("idThatDoesntExist#1234");
-            });
-
-            // assert
-            Assert.AreEqual(404, ex.StatusCode);
-            Assert.AreEqual($"Role with id: 'idThatDoesntExist#1234' not found", ex.Message);
-        }
-
-        private async Task AddPermissionsForRole(Role role)
-        {
-            foreach (var permission in role.Permissions)
-            {
-                await _permissionsRepository.CreatePermission(new Permission()
-                {
-                    Description = permission,
-                });
-            }
-        }
-        
-        private async Task<Role> CreateFixtureRoleInDb()
-        {
-            Role role = _fixture.Create<Role>();
-            await AddPermissionsForRole(role);
-            await _rolesRepository.CreateRole(role);
-            return role;
-        }
+    private async Task<Role> CreateFixtureRoleInDb()
+    {
+        Role role = _fixture.Create<Role>();
+        await AddPermissionsForRole(role);
+        await _rolesRepository.CreateRole(role);
+        return role;
     }
 }

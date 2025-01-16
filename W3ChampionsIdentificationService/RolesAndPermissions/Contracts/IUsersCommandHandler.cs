@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
 
-namespace W3ChampionsIdentificationService.RolesAndPermissions.Contracts
+namespace W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+
+public interface IUsersCommandHandler
 {
-    public interface IUsersCommandHandler
-    {
-        public Task CreateUser(User user);
-        public Task UpdateUser(User user);
-        public Task DeleteUser(string id);
-    }
+    public Task CreateUser(User user);
+    public Task UpdateUser(User user);
+    public Task DeleteUser(string id);
 }

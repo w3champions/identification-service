@@ -1,68 +1,70 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using W3ChampionsStatisticService.WebApi.ActionFilters;
+using W3ChampionsIdentificationService.WebApi.ActionFilters;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.Middleware;
 
-namespace W3ChampionsIdentificationService.RolesAndPermissions
+namespace W3ChampionsIdentificationService.RolesAndPermissions.Controllers;
+
+[ApiController]
+[Route("api/permissions")]
+public class PermissionsController(
+    IPermissionsRepository permissionsRepository,
+    IPermissionsCommandHandler permissionsCommandHandler) : ControllerBase
 {
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
+    private readonly IPermissionsCommandHandler _permissionsCommandHandler = permissionsCommandHandler;
 
-    [ApiController]
-    [Route("api/permissions")]
-    public class PermissionsController : ControllerBase
+    [HttpGet]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> GetAll([FromQuery] int? limit, [FromQuery] int? offset)
     {
-        private readonly IPermissionsRepository _permissionsRepository;
-        private readonly IPermissionsCommandHandler _permissionsCommandHandler;
-        public PermissionsController(
-            IPermissionsRepository permissionsRepository,
-            IPermissionsCommandHandler permissionsCommandHandler)
-        {
-            _permissionsRepository = permissionsRepository;
-            _permissionsCommandHandler = permissionsCommandHandler;
-        }
+        var permissions = await _permissionsRepository.GetAllPermissions(limit, offset);
+        return Ok(permissions);
+    }
 
-        [HttpGet]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> GetAll([FromQuery] int? limit, [FromQuery] int? offset)
+    [HttpPost]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> Create([FromBody] Permission permission)
+    {
+        try
         {
-            var permissions = await _permissionsRepository.GetAllPermissions(limit, offset);
-            return Ok(permissions);
+            await _permissionsCommandHandler.CreatePermission(permission);
         }
+        catch (HttpException ex)
+        {
+            return StatusCode(ex.StatusCode, ex.Message);
+        }
+        return Ok();
+    }
 
-        [HttpPost]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> Create([FromBody] Permission permission)
+    [HttpDelete]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> Delete([FromQuery] string id)
+    {
+        try
         {
-            try {
-                await _permissionsCommandHandler.CreatePermission(permission);
-            } catch (HttpException ex) {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            return Ok();
+            await _permissionsCommandHandler.DeletePermission(id);
         }
+        catch (HttpException ex)
+        {
+            return StatusCode(ex.StatusCode, ex.Message);
+        }
+        return Ok();
+    }
 
-        [HttpDelete]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> Delete([FromQuery] string id)
+    [HttpPut]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> Update([FromBody] Permission permission)
+    {
+        try
         {
-            try {
-                await _permissionsCommandHandler.DeletePermission(id);
-            } catch (HttpException ex) {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            return Ok();
+            await _permissionsCommandHandler.UpdatePermission(permission);
         }
-
-        [HttpPut]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> Update([FromBody] Permission permission)
+        catch (HttpException ex)
         {
-            try {
-                await _permissionsCommandHandler.UpdatePermission(permission);
-            } catch (HttpException ex) {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            return Ok();
+            return StatusCode(ex.StatusCode, ex.Message);
         }
+        return Ok();
     }
 }
