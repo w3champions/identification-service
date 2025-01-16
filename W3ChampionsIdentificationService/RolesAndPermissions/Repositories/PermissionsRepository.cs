@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
-namespace W3ChampionsIdentificationService.RolesAndPermissions;
+namespace W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 
 public class PermissionsRepository : MongoDbRepositoryBase, IPermissionsRepository
 {

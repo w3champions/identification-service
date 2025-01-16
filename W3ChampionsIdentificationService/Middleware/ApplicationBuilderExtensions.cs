@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using W3ChampionsIdentificationService.Middleware;
+
+namespace W3ChampionsIdentificationService.Middleware;
 
 public static class ApplicationBuilderExtensions
 {

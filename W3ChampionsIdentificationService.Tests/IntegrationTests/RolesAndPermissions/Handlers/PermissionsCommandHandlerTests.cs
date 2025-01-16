@@ -5,8 +5,9 @@ using W3ChampionsIdentificationService.Middleware;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 
-namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Handlers;
+namespace W3ChampionsIdentificationService.Tests.IntegrationTests.RolesAndPermissions.Handlers;
 
 public class PermissionsCommandHandlerTests : IntegrationTestBase
 {

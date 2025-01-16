@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.Config;
 
-namespace W3ChampionsIdentificationService.Tests.Integration;
+namespace W3ChampionsIdentificationService.Tests.IntegrationTests;
 
 public class IntegrationTestBase
 {

@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using W3ChampionsStatisticService.WebApi.ActionFilters;
+using W3ChampionsIdentificationService.WebApi.ActionFilters;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
-namespace W3ChampionsIdentificationService.RolesAndPermissions;
+namespace W3ChampionsIdentificationService.RolesAndPermissions.Controllers;
 
 [ApiController]
 [Route("api/roles")]

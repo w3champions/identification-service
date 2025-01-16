@@ -6,10 +6,11 @@ using W3ChampionsIdentificationService.Middleware;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 
 // All of the following tests are skipped for now, because of a Permissions design change.
 
-namespace W3ChampionsIdentificationService.Tests.Integration.RolesAndPermissions.Handlers;
+namespace W3ChampionsIdentificationService.Tests.IntegrationTests.RolesAndPermissions.Handlers;
 
 public class UsersCommandHandlerTests : IntegrationTestBase
 {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.Identity.Contracts;
 
-namespace W3ChampionsIdentificationService.Identity;
+namespace W3ChampionsIdentificationService.Identity.Repositories;
 
 public class MicrosoftIdentityRepository : MongoDbRepositoryBase, IMicrosoftIdentityRepository
 {

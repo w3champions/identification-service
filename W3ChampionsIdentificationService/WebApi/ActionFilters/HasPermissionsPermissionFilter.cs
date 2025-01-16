@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
-using W3ChampionsStatisticService.WebApi.ExceptionFilters;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.RolesAndPermissions;
+using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
+using W3ChampionsIdentificationService.WebApi.ExceptionFilters;
 
 namespace W3ChampionsIdentificationService.WebApi.ActionFilters;
 

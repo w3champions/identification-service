@@ -3,7 +3,7 @@ using W3ChampionsIdentificationService.W3CAuthentication;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using System.Collections.Generic;
 
-namespace W3ChampionsIdentificationService.Tests.Unit;
+namespace W3ChampionsIdentificationService.Tests.UnitTests;
 
 [TestFixture]
 public class JWTTests

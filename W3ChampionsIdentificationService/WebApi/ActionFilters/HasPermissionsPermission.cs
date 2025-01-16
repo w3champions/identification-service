@@ -1,9 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using W3ChampionsIdentificationService.WebApi.ActionFilters;
 
-namespace W3ChampionsStatisticService.WebApi.ActionFilters;
+namespace W3ChampionsIdentificationService.WebApi.ActionFilters;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class HasPermissionsPermission : Attribute, IFilterFactory

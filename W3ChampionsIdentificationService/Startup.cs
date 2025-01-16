@@ -5,13 +5,16 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Config;
-using W3ChampionsIdentificationService.Identity;
 using W3ChampionsIdentificationService.Identity.Contracts;
+using W3ChampionsIdentificationService.Identity.Repositories;
 using W3ChampionsIdentificationService.Microsoft;
+using W3ChampionsIdentificationService.Middleware;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
+using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 using W3ChampionsIdentificationService.Twitch;
+using W3ChampionsIdentificationService.W3CAuthentication;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
 using W3ChampionsIdentificationService.WebApi.ActionFilters;
 
