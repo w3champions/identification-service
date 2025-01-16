@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-namespace W3ChampionsIdentificationService.Microsoft
+namespace W3ChampionsIdentificationService.Microsoft;
+
+public interface IMicrosoftAuthenticationService
 {
-    public interface IMicrosoftAuthenticationService
-    {
-        Task<MicrosoftUser> GetUser(string idToken);
-        Task<string> GetIdToken(string code, string redirectUri);
-    }
+    Task<MicrosoftUser> GetUser(string idToken);
+    Task<string> GetIdToken(string code, string redirectUri);
 }

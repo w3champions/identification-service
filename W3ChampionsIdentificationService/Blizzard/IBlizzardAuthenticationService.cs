@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-namespace W3ChampionsIdentificationService.Blizzard
+namespace W3ChampionsIdentificationService.Blizzard;
+
+public interface IBlizzardAuthenticationService
 {
-    public interface IBlizzardAuthenticationService
-    {
-        Task<BlizzardUserInfo> GetUser(string bearer, BnetRegion region);
-        Task<OAuthToken> GetToken(string code, string redirectUri, BnetRegion region);
-    }
+    Task<BlizzardUserInfo> GetUser(string bearer, BnetRegion region);
+    Task<OAuthToken> GetToken(string code, string redirectUri, BnetRegion region);
 }

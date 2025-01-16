@@ -3,61 +3,59 @@ using Microsoft.AspNetCore.Mvc;
 using W3ChampionsStatisticService.WebApi.ActionFilters;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
-namespace W3ChampionsIdentificationService.RolesAndPermissions
+namespace W3ChampionsIdentificationService.RolesAndPermissions;
+
+[ApiController]
+[Route("api/users")]
+public class UsersController : ControllerBase
 {
-
-    [ApiController]
-    [Route("api/users")]
-    public class UsersController : ControllerBase
+    private readonly IUsersRepository _usersRepository;
+    private readonly IUsersCommandHandler _usersCommandHandler;
+    public UsersController(
+        IUsersRepository usersRepository,
+        IUsersCommandHandler usersCommandHandler)
     {
-        private readonly IUsersRepository _usersRepository;
-        private readonly IUsersCommandHandler _usersCommandHandler;
-        public UsersController(
-            IUsersRepository usersRepository,
-            IUsersCommandHandler usersCommandHandler)
-        {
-            _usersRepository = usersRepository;
-            _usersCommandHandler = usersCommandHandler;
-        }
+        _usersRepository = usersRepository;
+        _usersCommandHandler = usersCommandHandler;
+    }
 
-        [HttpGet]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> GetAll([FromQuery] int? limit, [FromQuery] int? offset)
-        {
-            var roles = await _usersRepository.GetAllUsers(limit, offset);
-            return Ok(roles);
-        }
+    [HttpGet]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> GetAll([FromQuery] int? limit, [FromQuery] int? offset)
+    {
+        var roles = await _usersRepository.GetAllUsers(limit, offset);
+        return Ok(roles);
+    }
 
-        [HttpGet("{tag}")]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> Get([FromRoute] string tag)
-        {
-            var user = await _usersRepository.GetUser(tag);
-            return Ok(user);
-        }
+    [HttpGet("{tag}")]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> Get([FromRoute] string tag)
+    {
+        var user = await _usersRepository.GetUser(tag);
+        return Ok(user);
+    }
 
-        [HttpPost]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> Create([FromBody] User user)
-        {
-            await _usersCommandHandler.CreateUser(user);
-            return Ok();
-        }
+    [HttpPost]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> Create([FromBody] User user)
+    {
+        await _usersCommandHandler.CreateUser(user);
+        return Ok();
+    }
 
-        [HttpPut]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> Update([FromBody] User user)
-        {
-            await _usersCommandHandler.UpdateUser(user);
-            return Ok();
-        }
+    [HttpPut]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> Update([FromBody] User user)
+    {
+        await _usersCommandHandler.UpdateUser(user);
+        return Ok();
+    }
 
-        [HttpDelete]
-        [HasPermissionsPermission]
-        public async Task<IActionResult> Delete([FromQuery] string userId)
-        {
-            await _usersCommandHandler.DeleteUser(userId);
-            return Ok();
-        }
+    [HttpDelete]
+    [HasPermissionsPermission]
+    public async Task<IActionResult> Delete([FromQuery] string userId)
+    {
+        await _usersCommandHandler.DeleteUser(userId);
+        return Ok();
     }
 }

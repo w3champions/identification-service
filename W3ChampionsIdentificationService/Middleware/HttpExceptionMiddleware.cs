@@ -2,29 +2,28 @@
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
-namespace W3ChampionsIdentificationService.Middleware
+namespace W3ChampionsIdentificationService.Middleware;
+
+internal class HttpExceptionMiddleware
 {
-    internal class HttpExceptionMiddleware
+    private readonly RequestDelegate _next;
+
+    public HttpExceptionMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public HttpExceptionMiddleware(RequestDelegate next)
+    public async Task Invoke(HttpContext context)
+    {
+        try
         {
-            _next = next;
+            await _next.Invoke(context);
         }
-
-        public async Task Invoke(HttpContext context)
+        catch (HttpException httpException)
         {
-            try
-            {
-                await _next.Invoke(context);
-            }
-            catch (HttpException httpException)
-            {
-                context.Response.StatusCode = httpException.StatusCode;
-                var responseFeature = context.Features.Get<IHttpResponseFeature>();
-                responseFeature.ReasonPhrase = httpException.Message;
-            }
+            context.Response.StatusCode = httpException.StatusCode;
+            var responseFeature = context.Features.Get<IHttpResponseFeature>();
+            responseFeature.ReasonPhrase = httpException.Message;
         }
     }
 }
