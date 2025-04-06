@@ -53,4 +53,15 @@ public class UsersController(
         await _usersCommandHandler.DeleteUser(userId);
         return Ok();
     }
+
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists([FromQuery] string id)
+    {
+        if (id is null)
+        {
+            return BadRequest("No user id supplied.");
+        }
+        User user = await _usersRepository.GetUser(id);
+        return user == null ? NotFound($"User {id} not found.") : Ok();
+    }
 }
