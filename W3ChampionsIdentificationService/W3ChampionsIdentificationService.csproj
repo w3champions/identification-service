@@ -6,7 +6,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.25.1" />
-        <PackageReference Include="MongoDB.Driver" Version="2.15.1" />
+        <PackageReference Include="MongoDB.Driver" Version="2.30.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
     </ItemGroup>
 
