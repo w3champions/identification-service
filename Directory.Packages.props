@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.25.1" />
+    <PackageVersion Include="MongoDB.Driver" Version="2.30.0" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
+    <PackageVersion Include="AutoFixture" Version="4.17.0" />
+    <PackageVersion Include="Moq" Version="4.17.2" />
+    <PackageVersion Include="nunit" Version="3.12.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+  </ItemGroup>
+</Project>
