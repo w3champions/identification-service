@@ -1,6 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 
 WORKDIR /app
+COPY Directory.Build.props .
+COPY Directory.Packages.props .
 COPY ./W3ChampionsIdentificationService.sln ./
 
 COPY ./W3ChampionsIdentificationService/W3ChampionsIdentificationService.csproj ./W3ChampionsIdentificationService/W3ChampionsIdentificationService.csproj

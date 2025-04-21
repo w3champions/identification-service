@@ -4,10 +4,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "W3ChampionsIdentificationSe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{3242B362-A159-4C3E-888D-4CBE3694DA74}"
 ProjectSection(SolutionItems) = preProject
+	.gitignore = .gitignore
 	azure-pipelines.yml = azure-pipelines.yml
+	Directory.Build.props = Directory.Build.props
+	Directory.Packages.props = Directory.Packages.props
 	Dockerfile = Dockerfile
 	README.md = README.md
-	.gitignore = .gitignore
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "W3ChampionsIdentificationService.Tests", "W3ChampionsIdentificationService.Tests\W3ChampionsIdentificationService.Tests.csproj", "{F94BF2A2-324F-44BD-857D-D235BA21BE63}"
