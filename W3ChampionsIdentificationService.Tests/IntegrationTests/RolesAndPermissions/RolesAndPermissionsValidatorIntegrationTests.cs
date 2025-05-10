@@ -74,11 +74,9 @@ public class RolesAndPermissionsValidatorIntegrationTests : IntegrationTestBase
 
     [Test]
     [Ignore("Ignore test because of Permissions design change")]
-    [TestCase("canMute", "Can mute a player", TestName = "PermissionValidationHttp_CorrectlyFormattedPermission_Success")]
-    [TestCase("", "Can mute a player", TestName = "PermissionValidationHttp_IdIsEmptyString_Throws400")]
-    [TestCase(null, "Can mute a player", TestName = "PermissionValidationHttp_IdIsNull_Throws400")]
-    [TestCase("canMute", "", TestName = "PermissionValidationHttp_DescriptionIsEmptyString_Throws400")]
-    [TestCase("canMute", null, TestName = "PermissionValidationHttp_DescriptionIsNull_Throws400")]
+    [TestCase("Can mute a player", TestName = "PermissionValidationHttp_CorrectlyFormattedPermission_Success")]
+    [TestCase("", TestName = "PermissionValidationHttp_DescriptionIsEmptyString_Throws400")]
+    [TestCase(null, TestName = "PermissionValidationHttp_DescriptionIsNull_Throws400")]
     public void PermissionsValidation_ThrowsCorrectErrors(string description)
     {
         var permission = new Permission()
