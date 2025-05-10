@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -55,7 +54,7 @@ public class Startup
         services.AddHostedService<MigratorHostedService>();
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app)
     {
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {

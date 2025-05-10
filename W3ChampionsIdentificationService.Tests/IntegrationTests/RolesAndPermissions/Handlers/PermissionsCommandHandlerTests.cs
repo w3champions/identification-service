@@ -68,7 +68,7 @@ public class PermissionsCommandHandlerTests : IntegrationTestBase
     [Test]
     [TestCase(null, "b", TestName = "CreatePermission_WithInvalidProperties_IdIsNull_Throws400")]
     [TestCase("a", null, TestName = "CreatePermission_WithInvalidProperties_DescriptionIsNull_Throws400")]
-    public void CreatePermission_WithInvalidProperties_ThrowsValidationHttpException(string id, string description)
+    public void CreatePermission_WithInvalidProperties_ThrowsValidationHttpException(string description)
     {
         // arrange
         var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);
@@ -127,7 +127,7 @@ public class PermissionsCommandHandlerTests : IntegrationTestBase
     [Test]
     [TestCase(null, "b", TestName = "UpdatePermission_InvalidFormats_IdIsNull_Throws400")]
     [TestCase("a", null, TestName = "UpdatePermission_InvalidFormats_DescriptionIsNull_Throws400")]
-    public void UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string id, string description)
+    public void UpdatePermission_InvalidFormats_ThrowsCorrectExceptions(string description)
     {
         // arrange
         var permissionsCommandHandler = new PermissionsCommandHandler(_permissionsRepository, _validator);

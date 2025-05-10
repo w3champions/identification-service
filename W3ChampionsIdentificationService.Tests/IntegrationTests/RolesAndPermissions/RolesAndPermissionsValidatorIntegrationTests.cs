@@ -79,7 +79,7 @@ public class RolesAndPermissionsValidatorIntegrationTests : IntegrationTestBase
     [TestCase(null, "Can mute a player", TestName = "PermissionValidationHttp_IdIsNull_Throws400")]
     [TestCase("canMute", "", TestName = "PermissionValidationHttp_DescriptionIsEmptyString_Throws400")]
     [TestCase("canMute", null, TestName = "PermissionValidationHttp_DescriptionIsNull_Throws400")]
-    public void PermissionsValidation_ThrowsCorrectErrors(string id, string description)
+    public void PermissionsValidation_ThrowsCorrectErrors(string description)
     {
         var permission = new Permission()
         {
