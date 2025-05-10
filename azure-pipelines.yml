@@ -11,22 +11,43 @@ variables:
 
 steps:
 
+# Use specific .NET version
 - task: UseDotNet@2
+  displayName: use specific .NET SDK
   inputs:
     packageType: 'sdk'
     version: '8.0.x'
+
+# Restore project
 - task: DotNetCoreCLI@2
+  displayName: dotnet restore
   inputs:
     command: 'restore'
     feedsToUse: 'select'
+
+# Build project
 - task: DotNetCoreCLI@2
+  displayName: dotnet build
   inputs:
     command: 'build'
+
+# Check formatting
 - task: DotNetCoreCLI@2
+  displayName: dotnet format
+  inputs:
+    command: 'custom'
+    custom: 'format'
+    arguments: '--verify-no-changes --verbosity diagnostic'
+
+# Run tests and publish test results
+- task: DotNetCoreCLI@2
+  displayName: run tests
   inputs:
     command: 'test'
 
+# Build Docker image from Dockerfile and push to Dockerhub
 - task: Docker@2
+  displayName: build and push docker image
   inputs:
     containerRegistry: 'official-docker-modmoto'
     repository: 'modmoto/w3champions-identification-service'
