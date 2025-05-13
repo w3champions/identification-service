@@ -15,7 +15,7 @@ dotnet_diagnostic.IDE0161.severity = error
 
 # Use primary constructor
 csharp_style_prefer_primary_constructors = true
-dotnet_diagnostic.IDE0290.severity = none
+dotnet_diagnostic.IDE0290.severity = error
 
 # Remove unnecessary using directives
 dotnet_diagnostic.IDE0005.severity = error

@@ -4,14 +4,9 @@ using System.Threading.Tasks;
 
 namespace W3ChampionsIdentificationService.Middleware;
 
-internal class HttpExceptionMiddleware
+internal class HttpExceptionMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public HttpExceptionMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    private readonly RequestDelegate _next = next;
 
     public async Task Invoke(HttpContext context)
     {
