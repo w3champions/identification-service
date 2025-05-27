@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace W3ChampionsIdentificationService.Twitch;
 
@@ -32,6 +33,7 @@ public class TwitchAuthenticationService : ITwitchAuthenticationService
             return _cachedToken;
         }
 
+        Log.Error("Could not retrieve Twitch Token: {StatusCode}", result.StatusCode);
         throw new Exception("Could not retrieve Twitch Token");
     }
 

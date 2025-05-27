@@ -16,6 +16,7 @@ using W3ChampionsIdentificationService.Twitch;
 using W3ChampionsIdentificationService.W3CAuthentication;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
 using W3ChampionsIdentificationService.WebApi.ActionFilters;
+using Serilog;
 
 namespace W3ChampionsIdentificationService;
 
@@ -23,6 +24,7 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
+        Log.Information("Configuring services");
         services.AddControllers();
 
         services.AddSingleton<IAppConfig, AppConfig>();
@@ -52,10 +54,12 @@ public class Startup
         services.AddTransient<HasPermissionsPermissionFilter>();
 
         services.AddHostedService<MigratorHostedService>();
+        Log.Information("Services configured");
     }
 
     public void Configure(IApplicationBuilder app)
     {
+        Log.Information("Configuring application");
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -73,5 +77,6 @@ public class Startup
             endpoints.MapControllers();
         });
         app.UseHttpException();
+        Log.Information("Application configured");
     }
 }

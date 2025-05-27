@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace W3ChampionsIdentificationService.Blizzard;
 
@@ -20,6 +21,7 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         var res = await httpClient.GetAsync("");
         if (!res.IsSuccessStatusCode)
         {
+            Log.Error("Failed to get user info from Blizzard: {StatusCode}", res.StatusCode);
             return null;
         }
 
