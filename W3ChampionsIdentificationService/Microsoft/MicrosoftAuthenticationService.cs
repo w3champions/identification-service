@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using Serilog;
 
 namespace W3ChampionsIdentificationService.Microsoft;
 
@@ -37,6 +38,7 @@ public class MicrosoftAuthenticationService : IMicrosoftAuthenticationService
         var res = await httpClient.PostAsync("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", form);
         if (!res.IsSuccessStatusCode)
         {
+            Log.Error("Failed to get id token from Microsoft: {StatusCode}", res.StatusCode);
             return null;
         }
 
