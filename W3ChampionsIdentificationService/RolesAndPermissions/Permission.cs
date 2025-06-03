@@ -23,4 +23,6 @@ public enum EPermission
     Tournaments,
     Content,
     Proxies,
+    SmurfCheckerQuery,
+    SmurfCheckerAdministration,
 }
