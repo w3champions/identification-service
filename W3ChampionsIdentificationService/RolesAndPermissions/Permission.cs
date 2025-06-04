@@ -24,5 +24,6 @@ public enum EPermission
     Content,
     Proxies,
     SmurfCheckerQuery,
+    SmurfCheckerQueryExplanation,
     SmurfCheckerAdministration,
 }
