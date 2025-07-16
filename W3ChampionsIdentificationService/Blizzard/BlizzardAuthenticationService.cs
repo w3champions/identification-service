@@ -48,11 +48,11 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         switch (bnetRegion)
         {
             case BnetRegion.eu:
-                return "https://eu.battle.net";
+                return "https://oauth.battle.net";
             case BnetRegion.cn:
-                return "https://www.battlenet.com.cn";
+                return "https://oauth.battlenet.com.cn";
             default:
-                return "https://eu.battle.net";
+                return "https://oauth.battle.net";
         }
     }
 }
