@@ -50,7 +50,7 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
             case BnetRegion.eu:
                 return "https://oauth.battle.net";
             case BnetRegion.cn:
-                return "https://www.battlenet.com.cn";
+                return "https://oauth.battlenet.com.cn";
             default:
                 return "https://oauth.battle.net";
         }
