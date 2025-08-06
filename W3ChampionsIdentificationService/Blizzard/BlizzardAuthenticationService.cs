@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -12,35 +13,75 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
     private readonly string _bnetClientId = Environment.GetEnvironmentVariable("BNET_API_CLIENT_ID");
     private readonly string _bnetApiSecret = Environment.GetEnvironmentVariable("BNET_API_SECRET");
 
+    private const string StreamingProviderEndpoint = "/StreamingProviderService/v1/GetPlayableTitles";
+    private const string UserInfoEndpoint = "/oauth/userinfo";
+    private const string TokenEndpoint = "/oauth/token";
+
     public async Task<BlizzardUserInfo> GetUser(string bearer, BnetRegion region)
     {
-        var httpClient = new HttpClient();
-        httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}/oauth/userinfo");
+        using var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}{UserInfoEndpoint}");
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
 
         var res = await httpClient.GetAsync("");
         if (!res.IsSuccessStatusCode)
         {
-            Log.Error("Failed to get user info from Blizzard: {StatusCode}", res.StatusCode);
+            var errorContent = await res.Content.ReadAsStringAsync();
+            Log.Error("Failed to get user info from Blizzard: [{ErrorCode}] {response}", res.StatusCode, errorContent);
             return null;
         }
 
-        var readAsStringAsync = await res.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<BlizzardUserInfo>(readAsStringAsync);
+        var content = await res.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<BlizzardUserInfo>(content);
     }
 
     public async Task<OAuthToken> GetToken(string code, string redirectUri, BnetRegion region)
     {
-        var httpClient = new HttpClient();
-        httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}/oauth/token");
+        using var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri($"{GetAuthenticationUri(region)}{TokenEndpoint}");
         var res = await httpClient.PostAsync($"?code={code}&grant_type=authorization_code&redirect_uri={redirectUri}&client_id={_bnetClientId}&client_secret={_bnetApiSecret}", null);
         if (!res.IsSuccessStatusCode)
         {
+            var errorContent = await res.Content.ReadAsStringAsync();
+            Log.Error("Failed to get token from Blizzard: [{ErrorCode}] {response}", res.StatusCode, errorContent);
             return null;
         }
 
-        var readAsStringAsync = await res.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<OAuthToken>(readAsStringAsync);
+        var content = await res.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<OAuthToken>(content);
+    }
+
+    public async Task<List<BlizzardPlayableTitle>> GetPlayableTitles(string bearer, BnetRegion region)
+    {
+        using var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri($"{GetPartnerUri(region)}{StreamingProviderEndpoint}");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
+        httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
+        var requestContent = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
+        var res = await httpClient.PostAsync("", requestContent);
+        if (!res.IsSuccessStatusCode)
+        {
+            var errorContent = await res.Content.ReadAsStringAsync();
+            Log.Error("Failed to get playable titles from Blizzard: [{ErrorCode}] {response}", res.StatusCode, errorContent);
+            return null;
+        }
+
+        var content = await res.Content.ReadAsStringAsync();
+        var apiResponse = JsonSerializer.Deserialize<GetPlayableTitlesResponse>(content);
+
+        if (apiResponse?.error != null)
+        {
+            Log.Error("Failed to get playable titles from Blizzard: [{ErrorCode}] {ErrorDescription}", apiResponse.error.code?.Code, apiResponse.error.code?.Description);
+            return null;
+        }
+
+        if (apiResponse?.titleCodes == null || apiResponse.titleCodes.Length == 0)
+        {
+            return new List<BlizzardPlayableTitle>();
+        }
+
+        return BlizzardPlayableTitleExtensions.FromTitleCodes(apiResponse.titleCodes);
     }
 
     private static string GetAuthenticationUri(BnetRegion bnetRegion)
@@ -53,6 +94,20 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
                 return "https://oauth.battlenet.com.cn";
             default:
                 return "https://oauth.battle.net";
+        }
+    }
+
+    private static string GetPartnerUri(BnetRegion bnetRegion)
+    {
+        // The US endpoint is the only endpoint for the entire global world.
+        switch (bnetRegion)
+        {
+            case BnetRegion.eu:
+                return "https://partner-us.api.blizzard.com";
+            case BnetRegion.cn:
+                return "https://partner-us.api.blizzard.com"; // TODO: Get china endpoint
+            default:
+                return "https://partner-us.api.blizzard.com";
         }
     }
 }

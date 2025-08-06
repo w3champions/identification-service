@@ -1,0 +1,37 @@
+name: w3champions-identification-service-local
+services:
+  w3champions-identification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: identification-service-local
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      - MONGO_CONNECTION_STRING=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo-db:27017
+      - BNET_API_CLIENT_ID=${BNET_API_CLIENT_ID}
+      - BNET_API_SECRET=${BNET_API_SECRET}
+      - TWITCH_API_SECRET=${TWITCH_API_SECRET}
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - AAD_APP_CLIENT_ID=${AAD_APP_CLIENT_ID}
+      - AAD_APP_CLIENT_SECRET=${AAD_APP_CLIENT_SECRET}
+    depends_on:
+      - mongo-db
+
+  mongo-db:
+    image: mongo:7.0.19
+    container_name: db-identification-service-local
+    restart: unless-stopped
+    ports:
+      - "27077:27017"
+    command: --wiredTigerCacheSizeGB=0.25
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - mongo-db-w3champions-identification-local:/data/db
+
+volumes:
+  mongo-db-w3champions-identification-local:
