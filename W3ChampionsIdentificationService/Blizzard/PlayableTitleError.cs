@@ -27,4 +27,13 @@ public class PlayableTitleError
             Message = "You need to have Warcraft 3 purchased."
         };
     }
+
+    public static PlayableTitleError MissingPlayableTitlesScope()
+    {
+        return new PlayableTitleError
+        {
+            ErrorCode = "MISSING_PLAYABLE_TITLES_SCOPE",
+            Message = "You need to grant the streaming.titles scope."
+        };
+    }
 }

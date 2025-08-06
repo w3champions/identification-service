@@ -51,11 +51,16 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         return JsonSerializer.Deserialize<OAuthToken>(content);
     }
 
-    public async Task<List<BlizzardPlayableTitle>> GetPlayableTitles(string bearer, BnetRegion region)
+    public async Task<(List<BlizzardPlayableTitle> titles, PlayableTitleError error)> GetPlayableTitles(OAuthToken token, BnetRegion region)
     {
+        if (token.scope == null || !token.scope.Contains("streaming.titles"))
+        {
+            return (null, PlayableTitleError.MissingPlayableTitlesScope());
+        }
+
         using var httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri($"{GetPartnerUri(region)}{StreamingProviderEndpoint}");
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.access_token);
         httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
         var requestContent = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
@@ -64,7 +69,7 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         {
             var errorContent = await res.Content.ReadAsStringAsync();
             Log.Error("Failed to get playable titles from Blizzard: [{ErrorCode}] {response}", res.StatusCode, errorContent);
-            return null;
+            return (null, PlayableTitleError.ApiCallFailed());
         }
 
         var content = await res.Content.ReadAsStringAsync();
@@ -73,15 +78,15 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         if (apiResponse?.error != null)
         {
             Log.Error("Failed to get playable titles from Blizzard: [{ErrorCode}] {ErrorDescription}", apiResponse.error.code?.Code, apiResponse.error.code?.Description);
-            return null;
+            return (null, PlayableTitleError.ApiCallFailed());
         }
 
-        if (apiResponse?.titleCodes == null || apiResponse.titleCodes.Length == 0)
+        if (apiResponse?.titleIds == null || apiResponse.titleIds.Length == 0)
         {
-            return new List<BlizzardPlayableTitle>();
+            return (new List<BlizzardPlayableTitle>(), null);
         }
 
-        return BlizzardPlayableTitleExtensions.FromTitleCodes(apiResponse.titleCodes);
+        return (BlizzardPlayableTitleExtensions.FromTitleIds(apiResponse.titleIds), null);
     }
 
     private static string GetAuthenticationUri(BnetRegion bnetRegion)

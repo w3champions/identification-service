@@ -8,6 +8,7 @@ public class OAuthToken
     public string token_type { get; set; }
     public int expires_in { get; set; }
     public DateTime CreateDate { get; set; }
+    public string scope { get; set; }
 
     public bool hasExpired()
     {
