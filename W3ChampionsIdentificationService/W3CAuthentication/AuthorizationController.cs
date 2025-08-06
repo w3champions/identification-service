@@ -56,14 +56,13 @@ public class AuthorizationController(
             return Unauthorized("Unable to get user info");
         }
 
-        var titles = await _blizzardAuthenticationService.GetPlayableTitles(token.access_token, region);
-        if (titles == null)
+        var (titles, playableTitleError) = await _blizzardAuthenticationService.GetPlayableTitles(token, region);
+        if (playableTitleError != null)
         {
-            Log.Error("Unable to get playable titles for {BattleTag}", userInfo.battletag);
+            Log.Error("Unable to get playable titles for {BattleTag}: {Error}", userInfo.battletag, playableTitleError.Message);
             if (ENFORCE_PLAYABLE_TITLES_SCOPE)
             {
-                var error = PlayableTitleError.ApiCallFailed();
-                return Unauthorized(error);
+                return Unauthorized(playableTitleError);
             }
             else
             {
