@@ -48,12 +48,11 @@ public enum BlizzardPlayableTitle
 
 public static class BlizzardPlayableTitleExtensions
 {
-    public static List<BlizzardPlayableTitle> FromTitleCodes(string[] titleCodes)
+    public static List<BlizzardPlayableTitle> FromTitleIds(int[] titleIds)
     {
-        return (titleCodes ?? Array.Empty<string>())
-            .Where(titleCode => int.TryParse(titleCode, out var titleId) &&
-                               Enum.IsDefined(typeof(BlizzardPlayableTitle), titleId))
-            .Select(titleCode => (BlizzardPlayableTitle)int.Parse(titleCode))
+        return (titleIds ?? Array.Empty<int>())
+            .Where(titleId => Enum.IsDefined(typeof(BlizzardPlayableTitle), titleId))
+            .Select(titleId => (BlizzardPlayableTitle)titleId)
             .ToList();
     }
 }

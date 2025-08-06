@@ -86,7 +86,7 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
             return (new List<BlizzardPlayableTitle>(), null);
         }
 
-        return (BlizzardPlayableTitleExtensions.FromTitleCodes(apiResponse.titleIds), null);
+        return (BlizzardPlayableTitleExtensions.FromTitleIds(apiResponse.titleIds), null);
     }
 
     private static string GetAuthenticationUri(BnetRegion bnetRegion)
