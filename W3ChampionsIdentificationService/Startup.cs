@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using System.Net;
+using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Config;
 using W3ChampionsIdentificationService.Identity.Contracts;
@@ -62,7 +64,8 @@ public class Startup
         Log.Information("Configuring application");
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+            KnownNetworks = { new IPNetwork(IPAddress.Parse("172.18.0.0"), 16) } // Docker network
         });
         app.UseRouting();
         app.UseCors(builder =>
