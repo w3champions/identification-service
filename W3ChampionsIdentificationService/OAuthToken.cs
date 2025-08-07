@@ -16,10 +16,10 @@ public class OAuthToken
         return DateTime.Now > CreateDate.Add(TimeSpan.FromSeconds(expires_in));
     }
 
-    public bool HasScope(string scope)
+    public bool HasScope(string targetScope)
     {
         if (!SupportsScopes) return false;
-        return scope.Split(' ').Contains(scope);
+        return this.scope.Split(' ').Contains(targetScope);
     }
 
     public bool SupportsScopes
