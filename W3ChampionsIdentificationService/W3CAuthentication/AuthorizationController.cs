@@ -24,9 +24,9 @@ public class AuthorizationController(
     IPermissionsRepository permissionsRepository,
     IMicrosoftIdentityRepository microsoftIdentityRepository) : ControllerBase
 {
-    private const bool ENFORCE_PLAYABLE_TITLES_SCOPE = false;
-    private const bool ENFORCE_ALLOW_OLD_VERSIONS = false;
-    private const bool ENFORCE_WARCRAFT_3_OWNERSHIP = false;
+    private const bool ENFORCE_PLAYABLE_TITLES_SCOPE = true;
+    private const bool ENFORCE_BLOCK_OLD_VERSIONS = false;
+    private const bool ENFORCE_WARCRAFT_3_OWNERSHIP = true;
 
     private readonly IBlizzardAuthenticationService _blizzardAuthenticationService = blizzardAuthenticationService;
     private readonly ITwitchAuthenticationService _twitchAuthenticationService = twitchAuthenticationService;
@@ -58,6 +58,7 @@ public class AuthorizationController(
         }
 
         var (titles, playableTitleError) = await _blizzardAuthenticationService.GetPlayableTitles(token, region);
+        bool hasOldVersion = false;
         if (playableTitleError != null)
         {
             Log.Information("Unable to get playable titles for {BattleTag}: {Error}", userInfo.battletag, playableTitleError.Message);
@@ -70,7 +71,8 @@ public class AuthorizationController(
                     }
                     break;
                 case "UNSUPPORTED_VERSION":
-                    if (ENFORCE_ALLOW_OLD_VERSIONS)
+                    hasOldVersion = true;
+                    if (ENFORCE_BLOCK_OLD_VERSIONS)
                     {
                         return Unauthorized(playableTitleError);
                     }
@@ -84,7 +86,7 @@ public class AuthorizationController(
         if (!titles.Any(t => t == BlizzardPlayableTitle.Warcraft3Reforged || t == BlizzardPlayableTitle.Warcraft3ReignOfChaos))
         {
             Log.Warning("User {BattleTag} does not have Warcraft 3 in their Battle.Net account - titles: {Titles}", userInfo.battletag, string.Join(", ", titles.Select(t => t.ToString())));
-            if (ENFORCE_WARCRAFT_3_OWNERSHIP)
+            if (!hasOldVersion && ENFORCE_WARCRAFT_3_OWNERSHIP)
             {
                 var error = AuthenticationError.MissingWarcraft3();
                 return Unauthorized(error);
