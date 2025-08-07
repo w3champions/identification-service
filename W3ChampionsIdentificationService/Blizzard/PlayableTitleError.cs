@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace W3ChampionsIdentificationService.Blizzard;
 
-public class PlayableTitleError
+public class AuthenticationError
 {
     [JsonPropertyName("errorCode")]
     public string ErrorCode { get; set; }
@@ -10,30 +10,48 @@ public class PlayableTitleError
     [JsonPropertyName("message")]
     public string Message { get; set; }
 
-    public static PlayableTitleError ApiCallFailed()
+    public static AuthenticationError ApiCallFailed()
     {
-        return new PlayableTitleError
+        return new AuthenticationError
         {
             ErrorCode = "PLAYABLE_TITLES_API_FAILED",
             Message = "Unable to get playable titles"
         };
     }
 
-    public static PlayableTitleError MissingWarcraft3()
+    public static AuthenticationError MissingWarcraft3()
     {
-        return new PlayableTitleError
+        return new AuthenticationError
         {
             ErrorCode = "MISSING_WARCRAFT_3",
             Message = "You need to have Warcraft 3 purchased."
         };
     }
 
-    public static PlayableTitleError MissingPlayableTitlesScope()
+    public static AuthenticationError MissingPlayableTitlesScope()
     {
-        return new PlayableTitleError
+        return new AuthenticationError
         {
             ErrorCode = "MISSING_PLAYABLE_TITLES_SCOPE",
             Message = "You need to grant the streaming.titles scope."
+        };
+    }
+
+    public static AuthenticationError UnsupportedVersion()
+    {
+        return new AuthenticationError
+        {
+            ErrorCode = "UNSUPPORTED_VERSION",
+            Message = "You need to update your client to the latest version."
+        };
+    }
+
+    public static AuthenticationError UnknownError()
+    {
+        return new AuthenticationError
+        {
+            ErrorCode = "UNKNOWN_ERROR",
+            Message = "An unknown error occurred"
         };
     }
 }
