@@ -25,6 +25,7 @@ public class AuthorizationController(
     IMicrosoftIdentityRepository microsoftIdentityRepository) : ControllerBase
 {
     private const bool ENFORCE_PLAYABLE_TITLES_SCOPE = false;
+    private const bool ENFORCE_ALLOW_OLD_VERSIONS = false;
     private const bool ENFORCE_WARCRAFT_3_OWNERSHIP = false;
 
     private readonly IBlizzardAuthenticationService _blizzardAuthenticationService = blizzardAuthenticationService;
@@ -59,15 +60,25 @@ public class AuthorizationController(
         var (titles, playableTitleError) = await _blizzardAuthenticationService.GetPlayableTitles(token, region);
         if (playableTitleError != null)
         {
-            Log.Error("Unable to get playable titles for {BattleTag}: {Error}", userInfo.battletag, playableTitleError.Message);
-            if (ENFORCE_PLAYABLE_TITLES_SCOPE)
+            Log.Information("Unable to get playable titles for {BattleTag}: {Error}", userInfo.battletag, playableTitleError.Message);
+            switch (playableTitleError.ErrorCode)
             {
-                return Unauthorized(playableTitleError);
+                case "MISSING_PLAYABLE_TITLES_SCOPE":
+                    if (ENFORCE_PLAYABLE_TITLES_SCOPE)
+                    {
+                        return Unauthorized(playableTitleError);
+                    }
+                    break;
+                case "UNSUPPORTED_VERSION":
+                    if (ENFORCE_ALLOW_OLD_VERSIONS)
+                    {
+                        return Unauthorized(playableTitleError);
+                    }
+                    break;
+                default:
+                    return Unauthorized(playableTitleError);
             }
-            else
-            {
-                titles = [];
-            }
+            titles = [];
         }
 
         if (!titles.Any(t => t == BlizzardPlayableTitle.Warcraft3Reforged || t == BlizzardPlayableTitle.Warcraft3ReignOfChaos))
@@ -75,9 +86,13 @@ public class AuthorizationController(
             Log.Warning("User {BattleTag} does not have Warcraft 3 in their Battle.Net account - titles: {Titles}", userInfo.battletag, string.Join(", ", titles.Select(t => t.ToString())));
             if (ENFORCE_WARCRAFT_3_OWNERSHIP)
             {
-                var error = PlayableTitleError.MissingWarcraft3();
+                var error = AuthenticationError.MissingWarcraft3();
                 return Unauthorized(error);
             }
+        }
+        else
+        {
+            Log.Information("User {BattleTag} has Warcraft 3 in their Battle.Net account - titles: {Titles}", userInfo.battletag, string.Join(", ", titles.Select(t => t.ToString())));
         }
 
         var user = await _usersRepository.GetUser(userInfo.battletag);

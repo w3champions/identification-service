@@ -51,11 +51,22 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         return JsonSerializer.Deserialize<OAuthToken>(content);
     }
 
-    public async Task<(List<BlizzardPlayableTitle> titles, PlayableTitleError error)> GetPlayableTitles(OAuthToken token, BnetRegion region)
+    public async Task<(List<BlizzardPlayableTitle> titles, AuthenticationError error)> GetPlayableTitles(OAuthToken token, BnetRegion region)
     {
-        if (token.scope == null || !token.scope.Contains("streaming.titles"))
+        if (!token.SupportsScopes)
         {
-            return (null, PlayableTitleError.MissingPlayableTitlesScope());
+            Log.Information("OAuth token does not support scopes - old client?");
+            return (null, AuthenticationError.UnsupportedVersion());
+        }
+        if (!token.HasScope("openid"))
+        {
+            Log.Error("Received OAuth token with scopes '{Scopes}' but without openid scope - something is wrong!", token.scope);
+            return (null, AuthenticationError.UnknownError());
+        }
+        if (!token.HasScope("streaming.titles"))
+        {
+            Log.Information("User has opted out of streaming.titles scope. Scopes: '{Scopes}'", token.scope);
+            return (null, AuthenticationError.MissingPlayableTitlesScope());
         }
 
         using var httpClient = new HttpClient();
@@ -69,7 +80,7 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         {
             var errorContent = await res.Content.ReadAsStringAsync();
             Log.Error("Failed to get playable titles from Blizzard: [{ErrorCode}] {response}", res.StatusCode, errorContent);
-            return (null, PlayableTitleError.ApiCallFailed());
+            return (null, AuthenticationError.ApiCallFailed());
         }
 
         var content = await res.Content.ReadAsStringAsync();
@@ -78,7 +89,7 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
         if (apiResponse?.error != null)
         {
             Log.Error("Failed to get playable titles from Blizzard: [{ErrorCode}] {ErrorDescription}", apiResponse.error.code?.Code, apiResponse.error.code?.Description);
-            return (null, PlayableTitleError.ApiCallFailed());
+            return (null, AuthenticationError.ApiCallFailed());
         }
 
         if (apiResponse?.titleIds == null || apiResponse.titleIds.Length == 0)
