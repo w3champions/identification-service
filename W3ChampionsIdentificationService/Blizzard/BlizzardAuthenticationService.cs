@@ -76,6 +76,14 @@ public class BlizzardAuthenticationService : IBlizzardAuthenticationService
 
         var requestContent = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
         var res = await httpClient.PostAsync("", requestContent);
+
+        // This error might also occur if you're running locally. This service requires IP allowlisting!
+        if (res.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            // User did not grant the streaming.titles scope.
+            Log.Error("Unable to retrieve playable titles from Blizzard Backend: User did not grant the streaming.titles scope. Scopes: {Scopes}", token.scope);
+            return (null, AuthenticationError.MissingPlayableTitlesScope());
+        }
         if (!res.IsSuccessStatusCode)
         {
             var errorContent = await res.Content.ReadAsStringAsync();
