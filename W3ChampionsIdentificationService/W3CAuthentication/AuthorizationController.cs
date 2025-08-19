@@ -25,7 +25,7 @@ public class AuthorizationController(
     IMicrosoftIdentityRepository microsoftIdentityRepository) : ControllerBase
 {
     private const bool ENFORCE_PLAYABLE_TITLES_SCOPE = true;
-    private const bool ENFORCE_BLOCK_OLD_VERSIONS = false;
+    private const bool ENFORCE_BLOCK_OLD_VERSIONS = true;
     private const bool ENFORCE_WARCRAFT_3_OWNERSHIP = true;
 
     private readonly IBlizzardAuthenticationService _blizzardAuthenticationService = blizzardAuthenticationService;
