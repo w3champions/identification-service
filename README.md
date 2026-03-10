@@ -1,6 +1,6 @@
 # w3champions-identification-service
 
-This is the Authorization Backend for the https://github.com/w3champions/w3champions-ui Project.
+This is the Authorization Backend for the W3Champions Website and Launcher.
 
 ## Create new certs
 As the key and pub file will be replaced during the deployment, here a quick reminder on how to generate those:
