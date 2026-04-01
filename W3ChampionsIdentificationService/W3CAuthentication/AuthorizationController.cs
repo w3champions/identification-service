@@ -82,8 +82,7 @@ public class AuthorizationController(
             }
             titles = [];
         }
-
-        if (!titles.Any(t => t == BlizzardPlayableTitle.Warcraft3Reforged || t == BlizzardPlayableTitle.Warcraft3ReignOfChaos))
+        if (!titles.Any(BlizzardPlayableTitleExtensions.Warcraft3Titles.Contains))
         {
             Log.Warning("User {BattleTag} does not have Warcraft 3 in their Battle.Net account - titles: {Titles}", userInfo.battletag, string.Join(", ", titles.Select(t => t.ToString())));
             if (!hasOldVersion && ENFORCE_WARCRAFT_3_OWNERSHIP)
