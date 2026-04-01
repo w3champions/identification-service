@@ -48,9 +48,16 @@ public enum BlizzardPlayableTitle
 
 public static class BlizzardPlayableTitleExtensions
 {
+    public static readonly HashSet<BlizzardPlayableTitle> Warcraft3Titles =
+    [
+        BlizzardPlayableTitle.Warcraft3Reforged,
+        BlizzardPlayableTitle.Warcraft3ReignOfChaos,
+        BlizzardPlayableTitle.Warcraft3FrozenThrone,
+    ];
+
     public static List<BlizzardPlayableTitle> FromTitleIds(int[] titleIds)
     {
-        return (titleIds ?? Array.Empty<int>())
+        return (titleIds ?? [])
             .Where(titleId => Enum.IsDefined(typeof(BlizzardPlayableTitle), titleId))
             .Select(titleId => (BlizzardPlayableTitle)titleId)
             .ToList();
