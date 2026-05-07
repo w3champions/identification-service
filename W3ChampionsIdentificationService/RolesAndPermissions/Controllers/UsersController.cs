@@ -54,6 +54,10 @@ public class UsersController(
         return Ok();
     }
 
+    // Returns the canonical-cased Id of the matched user when found.
+    // Lookup is case-insensitive (see UsersRepository.GetUser); the response body lets
+    // callers reconcile arbitrary-cased input back to the canonical Battle.net casing
+    // stored at first OAuth.
     [HttpGet("exists")]
     public async Task<IActionResult> Exists([FromQuery] string id)
     {
@@ -62,6 +66,8 @@ public class UsersController(
             return BadRequest("No user id supplied.");
         }
         User user = await _usersRepository.GetUser(id);
-        return user == null ? NotFound($"User {id} not found.") : Ok();
+        return user == null
+            ? NotFound($"User {id} not found.")
+            : Ok(new UserExistsResponse { Id = user.Id });
     }
 }
