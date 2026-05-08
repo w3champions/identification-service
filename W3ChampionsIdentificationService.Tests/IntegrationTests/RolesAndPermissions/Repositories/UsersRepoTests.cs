@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
@@ -125,5 +126,36 @@ public class UsersRepoTests : IntegrationTestBase
         // assert
         Assert.IsNotNull(persisted);
         Assert.AreEqual("mixedcase#0001", persisted.IdNormalized);
+    }
+
+    [Test]
+    public async Task CreateIndex_CreatesUniqueIndexOnIdNormalized()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+
+        // act
+        await userRepo.CreateIndex();
+
+        // assert
+        var coll = CreateCollection<User>();
+        var indexes = await (await coll.Indexes.ListAsync()).ToListAsync();
+        var idNormalizedIndex = indexes.FirstOrDefault(i => i["name"] == "IdNormalized_unique");
+
+        Assert.IsNotNull(idNormalizedIndex,
+            $"Expected an index named 'IdNormalized_unique' but found: {string.Join(",", indexes.Select(i => i["name"].AsString))}");
+        Assert.IsTrue(idNormalizedIndex["unique"].AsBoolean,
+            "Index must be unique to prevent future casing-duplicate inserts.");
+    }
+
+    [Test]
+    public async Task CreateIndex_Idempotent_RunningTwiceDoesNotThrow()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+
+        // act & assert
+        await userRepo.CreateIndex();
+        Assert.DoesNotThrowAsync(async () => await userRepo.CreateIndex());
     }
 }

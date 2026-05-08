@@ -33,4 +33,12 @@ public class UsersRepository(MongoClient mongoClient, IAppConfig appConfig) : Mo
     {
         await Delete<User>(id);
     }
+
+    public async Task CreateIndex()
+    {
+        var collection = CreateCollection<User>();
+        var indexKeys = Builders<User>.IndexKeys.Ascending(u => u.IdNormalized);
+        var options = new CreateIndexOptions { Unique = true, Name = "IdNormalized_unique" };
+        await collection.Indexes.CreateOneAsync(new CreateIndexModel<User>(indexKeys, options));
+    }
 }
