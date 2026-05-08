@@ -158,4 +158,59 @@ public class UsersRepoTests : IntegrationTestBase
         await userRepo.CreateIndex();
         Assert.DoesNotThrowAsync(async () => await userRepo.CreateIndex());
     }
+
+    [Test]
+    public async Task MigrateIdNormalized_BackfillsMissingField()
+    {
+        // Insert a doc directly with IdNormalized field absent (raw BSON)
+        var rawColl = CreateClient().GetCollection<MongoDB.Bson.BsonDocument>("User");
+        await rawColl.InsertOneAsync(new MongoDB.Bson.BsonDocument
+        {
+            { "_id", "PreMigration#9999" },
+            { "BnetId", "999" },
+            { "Roles", new MongoDB.Bson.BsonArray() },
+            // No IdNormalized
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+
+        var migrated = await rawColl.Find(MongoDB.Driver.Builders<MongoDB.Bson.BsonDocument>.Filter.Eq("_id", "PreMigration#9999")).FirstOrDefaultAsync();
+        Assert.IsNotNull(migrated);
+        Assert.IsTrue(migrated.Contains("IdNormalized"), "Migration must add IdNormalized field.");
+        Assert.AreEqual("premigration#9999", migrated["IdNormalized"].AsString);
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_DoesNotOverwriteExistingField()
+    {
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var canonical = new User { Id = "Existing#1234", BnetId = "x", Roles = new System.Collections.Generic.List<string>() };
+        await userRepo.CreateUser(canonical);
+        // Setter populated IdNormalized to "existing#1234"
+
+        await userRepo.MigrateIdNormalized();
+
+        var rawColl = CreateClient().GetCollection<MongoDB.Bson.BsonDocument>("User");
+        var doc = await rawColl.Find(MongoDB.Driver.Builders<MongoDB.Bson.BsonDocument>.Filter.Eq("_id", "Existing#1234")).FirstOrDefaultAsync();
+        Assert.AreEqual("existing#1234", doc["IdNormalized"].AsString,
+            "Migration should not modify already-populated IdNormalized values.");
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_Idempotent_RunningTwiceMatchesNoDocs()
+    {
+        var rawColl = CreateClient().GetCollection<MongoDB.Bson.BsonDocument>("User");
+        await rawColl.InsertOneAsync(new MongoDB.Bson.BsonDocument
+        {
+            { "_id", "Once#1" }, { "BnetId", "1" }, { "Roles", new MongoDB.Bson.BsonArray() }
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+        Assert.DoesNotThrowAsync(async () => await userRepo.MigrateIdNormalized());
+
+        var doc = await rawColl.Find(MongoDB.Driver.Builders<MongoDB.Bson.BsonDocument>.Filter.Eq("_id", "Once#1")).FirstOrDefaultAsync();
+        Assert.AreEqual("once#1", doc["IdNormalized"].AsString);
+    }
 }

@@ -11,4 +11,5 @@ public interface IUsersRepository
     public Task UpdateUser(User user);
     public Task DeleteUser(string id);
     public Task CreateIndex();
+    public Task MigrateIdNormalized();
 }
