@@ -20,7 +20,7 @@ public class User : IIdentifiable
     }
 
     [BsonIgnoreIfNull]
-    public string IdNormalized { get; set; }
+    public string IdNormalized { get; private set; }
 
     public List<string> Roles { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using MongoDB.Driver;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -70,5 +71,59 @@ public class UsersRepoTests : IntegrationTestBase
         Assert.AreEqual(listOfUsers[6].Id, users[2].Id, "Third user is not correct");
         Assert.AreEqual(listOfUsers[7].Id, users[3].Id, "Fourth user is not correct");
         Assert.AreEqual(10, allUsers.Count, "Incorrect number of users returned by GetAllUsers()");
+    }
+
+    [Test]
+    public async Task GetUser_CaseInsensitiveMatch_ReturnsCanonicalUser()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var canonical = new User { Id = "TORREN#11438", BnetId = "811045114", Roles = new List<string>() };
+        await userRepo.CreateUser(canonical);
+
+        // act
+        var foundLower = await userRepo.GetUser("torren#11438");
+        var foundMixed = await userRepo.GetUser("Torren#11438");
+        var foundExact = await userRepo.GetUser("TORREN#11438");
+
+        // assert
+        Assert.IsNotNull(foundLower);
+        Assert.AreEqual("TORREN#11438", foundLower.Id, "Lowercase query must return the canonical-cased user.");
+        Assert.IsNotNull(foundMixed);
+        Assert.AreEqual("TORREN#11438", foundMixed.Id);
+        Assert.IsNotNull(foundExact);
+        Assert.AreEqual("TORREN#11438", foundExact.Id);
+    }
+
+    [Test]
+    public async Task GetUser_NoMatch_ReturnsNull()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var canonical = new User { Id = "Existing#1111", BnetId = "1", Roles = new List<string>() };
+        await userRepo.CreateUser(canonical);
+
+        // act
+        var result = await userRepo.GetUser("nonexistent#9999");
+
+        // assert
+        Assert.IsNull(result);
+    }
+
+    [Test]
+    public async Task CreateUser_PopulatesIdNormalizedInPersistedDocument()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var user = new User { Id = "MixedCase#0001", BnetId = "x", Roles = new List<string>() };
+        await userRepo.CreateUser(user);
+
+        // act
+        var coll = CreateCollection<User>();
+        var persisted = await coll.Find(x => x.Id == "MixedCase#0001").FirstOrDefaultAsync();
+
+        // assert
+        Assert.IsNotNull(persisted);
+        Assert.AreEqual("mixedcase#0001", persisted.IdNormalized);
     }
 }

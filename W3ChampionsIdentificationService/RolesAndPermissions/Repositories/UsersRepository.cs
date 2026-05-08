@@ -10,7 +10,8 @@ public class UsersRepository(MongoClient mongoClient, IAppConfig appConfig) : Mo
 {
     public async Task<User> GetUser(string id)
     {
-        return await LoadFirst<User>(id);
+        if (id is null) return null;
+        return await LoadFirst<User>(x => x.IdNormalized == id.ToLowerInvariant());
     }
 
     public async Task<List<User>> GetAllUsers(int? limit = 50, int? offset = 0)
