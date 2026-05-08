@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 using W3ChampionsIdentificationService.Identity.Contracts;
+using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService;
 
@@ -14,6 +15,10 @@ public class MigratorHostedService(IServiceProvider serviceProvider) : IHostedSe
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await _serviceProvider.GetService<IMicrosoftIdentityRepository>().CreateIndex();
+
+        var usersRepo = _serviceProvider.GetService<IUsersRepository>();
+        await usersRepo.MigrateIdNormalized();
+        await usersRepo.CreateIndex();
     }
 
     // noop
