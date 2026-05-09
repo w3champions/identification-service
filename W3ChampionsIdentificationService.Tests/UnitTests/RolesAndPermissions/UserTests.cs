@@ -36,4 +36,12 @@ public class UserTests
         Assert.AreEqual("lowtag#0001", user.Id);
         Assert.AreEqual("lowtag#0001", user.IdNormalized);
     }
+
+    [Test]
+    public void SetIdToEmptyString_IdNormalizedIsEmptyString()
+    {
+        var user = new User { Id = "" };
+        Assert.AreEqual("", user.Id);
+        Assert.AreEqual("", user.IdNormalized);
+    }
 }

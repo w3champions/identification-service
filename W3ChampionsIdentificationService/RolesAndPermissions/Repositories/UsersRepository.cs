@@ -47,7 +47,10 @@ public class UsersRepository(MongoClient mongoClient, IAppConfig appConfig) : Mo
     {
         var rawCollection = CreateClient().GetCollection<BsonDocument>(typeof(User).Name);
 
-        var filter = Builders<BsonDocument>.Filter.Exists("IdNormalized", false);
+        var filter = Builders<BsonDocument>.Filter.And(
+            Builders<BsonDocument>.Filter.Exists("IdNormalized", false),
+            Builders<BsonDocument>.Filter.Type("_id", BsonType.String)
+        );
         var update = new[]
         {
             new BsonDocument("$set",
