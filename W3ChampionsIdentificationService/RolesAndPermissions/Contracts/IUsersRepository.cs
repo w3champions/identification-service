@@ -10,4 +10,6 @@ public interface IUsersRepository
     public Task CreateUser(User user);
     public Task UpdateUser(User user);
     public Task DeleteUser(string id);
+    public Task CreateIndex();
+    public Task MigrateIdNormalized();
 }

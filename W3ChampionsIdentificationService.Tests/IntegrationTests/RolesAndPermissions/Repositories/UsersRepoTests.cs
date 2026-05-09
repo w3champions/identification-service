@@ -1,6 +1,9 @@
 ﻿using AutoFixture;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
@@ -70,5 +73,228 @@ public class UsersRepoTests : IntegrationTestBase
         Assert.AreEqual(listOfUsers[6].Id, users[2].Id, "Third user is not correct");
         Assert.AreEqual(listOfUsers[7].Id, users[3].Id, "Fourth user is not correct");
         Assert.AreEqual(10, allUsers.Count, "Incorrect number of users returned by GetAllUsers()");
+    }
+
+    [Test]
+    public async Task GetUser_CaseInsensitiveMatch_ReturnsCanonicalUser()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var canonical = new User { Id = "TORREN#11438", BnetId = "811045114", Roles = new List<string>() };
+        await userRepo.CreateUser(canonical);
+
+        // act
+        var foundLower = await userRepo.GetUser("torren#11438");
+        var foundMixed = await userRepo.GetUser("Torren#11438");
+        var foundExact = await userRepo.GetUser("TORREN#11438");
+
+        // assert
+        Assert.IsNotNull(foundLower);
+        Assert.AreEqual("TORREN#11438", foundLower.Id, "Lowercase query must return the canonical-cased user.");
+        Assert.IsNotNull(foundMixed);
+        Assert.AreEqual("TORREN#11438", foundMixed.Id);
+        Assert.IsNotNull(foundExact);
+        Assert.AreEqual("TORREN#11438", foundExact.Id);
+    }
+
+    [Test]
+    public async Task GetUser_NoMatch_ReturnsNull()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var canonical = new User { Id = "Existing#1111", BnetId = "1", Roles = new List<string>() };
+        await userRepo.CreateUser(canonical);
+
+        // act
+        var result = await userRepo.GetUser("nonexistent#9999");
+
+        // assert
+        Assert.IsNull(result);
+    }
+
+    [Test]
+    public async Task CreateUser_PopulatesIdNormalizedInPersistedDocument()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var user = new User { Id = "MixedCase#0001", BnetId = "x", Roles = new List<string>() };
+        await userRepo.CreateUser(user);
+
+        // act
+        var coll = CreateCollection<User>();
+        var persisted = await coll.Find(x => x.Id == "MixedCase#0001").FirstOrDefaultAsync();
+
+        // assert
+        Assert.IsNotNull(persisted);
+        Assert.AreEqual("mixedcase#0001", persisted.IdNormalized);
+    }
+
+    [Test]
+    public async Task CreateIndex_CreatesUniqueIndexOnIdNormalized()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+
+        // act
+        await userRepo.CreateIndex();
+
+        // assert
+        var coll = CreateCollection<User>();
+        var indexes = await (await coll.Indexes.ListAsync()).ToListAsync();
+        var idNormalizedIndex = indexes.FirstOrDefault(i => i["name"] == "IdNormalized_unique");
+
+        Assert.IsNotNull(idNormalizedIndex,
+            $"Expected an index named 'IdNormalized_unique' but found: {string.Join(",", indexes.Select(i => i["name"].AsString))}");
+        Assert.IsTrue(idNormalizedIndex["unique"].AsBoolean,
+            "Index must be unique to prevent future casing-duplicate inserts.");
+    }
+
+    [Test]
+    public async Task CreateIndex_Idempotent_RunningTwiceDoesNotThrow()
+    {
+        // arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+
+        // act & assert
+        await userRepo.CreateIndex();
+        Assert.DoesNotThrowAsync(async () => await userRepo.CreateIndex());
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_BackfillsMissingField()
+    {
+        // Insert a doc directly with IdNormalized field absent (raw BSON)
+        var rawColl = CreateClient().GetCollection<MongoDB.Bson.BsonDocument>("User");
+        await rawColl.InsertOneAsync(new MongoDB.Bson.BsonDocument
+        {
+            { "_id", "PreMigration#9999" },
+            { "BnetId", "999" },
+            { "Roles", new MongoDB.Bson.BsonArray() },
+            // No IdNormalized
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+
+        var migrated = await rawColl.Find(MongoDB.Driver.Builders<MongoDB.Bson.BsonDocument>.Filter.Eq("_id", "PreMigration#9999")).FirstOrDefaultAsync();
+        Assert.IsNotNull(migrated);
+        Assert.IsTrue(migrated.Contains("IdNormalized"), "Migration must add IdNormalized field.");
+        Assert.AreEqual("premigration#9999", migrated["IdNormalized"].AsString);
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_DoesNotOverwriteExistingField()
+    {
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var canonical = new User { Id = "Existing#1234", BnetId = "x", Roles = new System.Collections.Generic.List<string>() };
+        await userRepo.CreateUser(canonical);
+        // Setter populated IdNormalized to "existing#1234"
+
+        await userRepo.MigrateIdNormalized();
+
+        var rawColl = CreateClient().GetCollection<MongoDB.Bson.BsonDocument>("User");
+        var doc = await rawColl.Find(MongoDB.Driver.Builders<MongoDB.Bson.BsonDocument>.Filter.Eq("_id", "Existing#1234")).FirstOrDefaultAsync();
+        Assert.AreEqual("existing#1234", doc["IdNormalized"].AsString,
+            "Migration should not modify already-populated IdNormalized values.");
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_Idempotent_RunningTwiceMatchesNoDocs()
+    {
+        var rawColl = CreateClient().GetCollection<BsonDocument>("User");
+        await rawColl.InsertOneAsync(new BsonDocument
+        {
+            { "_id", "Once#1" }, { "BnetId", "1" }, { "Roles", new BsonArray() }
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+
+        // Verify first run populated IdNormalized
+        var doc = await rawColl.Find(Builders<BsonDocument>.Filter.Eq("_id", "Once#1")).FirstOrDefaultAsync();
+        Assert.AreEqual("once#1", doc["IdNormalized"].AsString);
+
+        // After the second run, no docs without IdNormalized should remain
+        await userRepo.MigrateIdNormalized();
+        var remainingCount = await rawColl
+            .Find(Builders<BsonDocument>.Filter.Exists("IdNormalized", false))
+            .CountDocumentsAsync();
+        Assert.AreEqual(0, remainingCount, "Second run must leave no docs without IdNormalized.");
+    }
+
+    // Fix 2: Actual duplicate-insert test for unique index
+    [Test]
+    public async Task CreateIndex_UniqueConstraint_RejectsDuplicateLowercasedId()
+    {
+        // Arrange
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.CreateIndex();
+
+        var user1 = new User { Id = "Foo#1", BnetId = "100", Roles = new List<string>() };
+        await userRepo.CreateUser(user1);
+
+        // Act & Assert — inserting a user whose IdNormalized collides with the first
+        var user2 = new User { Id = "FOO#1", BnetId = "101", Roles = new List<string>() };
+        var ex = Assert.ThrowsAsync<MongoWriteException>(
+            async () => await userRepo.CreateUser(user2));
+
+        Assert.IsNotNull(ex, "Expected MongoWriteException for duplicate-key violation.");
+        Assert.IsTrue(
+            ex.WriteError.Category == ServerErrorCategory.DuplicateKey,
+            $"Expected DuplicateKey error category, got: {ex.WriteError.Category}");
+    }
+
+    // Fix 4: Migration test for legacy _id shapes
+    [Test]
+    public async Task MigrateIdNormalized_NonStringId_IsLeftUntouched()
+    {
+        // Insert a doc with a non-string ObjectId as _id (legacy shape)
+        var rawColl = CreateClient().GetCollection<BsonDocument>("User");
+        var objectId = ObjectId.GenerateNewId();
+        await rawColl.InsertOneAsync(new BsonDocument
+        {
+            { "_id", objectId },
+            { "BnetId", "42" },
+            { "Roles", new BsonArray() }
+            // No IdNormalized
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+
+        var doc = await rawColl
+            .Find(Builders<BsonDocument>.Filter.Eq("_id", objectId))
+            .FirstOrDefaultAsync();
+
+        Assert.IsNotNull(doc);
+        Assert.IsFalse(doc.Contains("IdNormalized"),
+            "Migration must NOT add IdNormalized to docs with non-string _id.");
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_EmptyStringId_SetsIdNormalizedToEmptyString()
+    {
+        // Insert a doc with empty-string _id (edge case)
+        var rawColl = CreateClient().GetCollection<BsonDocument>("User");
+        await rawColl.InsertOneAsync(new BsonDocument
+        {
+            { "_id", "" },
+            { "BnetId", "0" },
+            { "Roles", new BsonArray() }
+            // No IdNormalized
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+
+        var doc = await rawColl
+            .Find(Builders<BsonDocument>.Filter.Eq("_id", ""))
+            .FirstOrDefaultAsync();
+
+        Assert.IsNotNull(doc);
+        Assert.IsTrue(doc.Contains("IdNormalized"),
+            "Migration must add IdNormalized even when _id is empty string.");
+        Assert.AreEqual("", doc["IdNormalized"].AsString,
+            "IdNormalized must be empty string when _id is empty string.");
     }
 }
