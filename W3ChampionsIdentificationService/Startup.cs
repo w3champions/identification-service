@@ -10,6 +10,7 @@ using W3ChampionsIdentificationService.Identity.Contracts;
 using W3ChampionsIdentificationService.Identity.Repositories;
 using W3ChampionsIdentificationService.Microsoft;
 using W3ChampionsIdentificationService.Middleware;
+using W3ChampionsIdentificationService.Migrations;
 using W3ChampionsIdentificationService.RolesAndPermissions;
 using W3ChampionsIdentificationService.RolesAndPermissions.CommandHandlers;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
@@ -41,6 +42,7 @@ public class Startup
         services.AddTransient<IRolesRepository, RolesRepository>();
         services.AddTransient<IUsersRepository, UsersRepository>();
         services.AddTransient<IMicrosoftIdentityRepository, MicrosoftIdentityRepository>();
+        services.AddTransient<IMigrationsRepository, MigrationsRepository>();
 
         services.AddTransient<IPermissionsCommandHandler, PermissionsCommandHandler>();
         services.AddTransient<IRolesCommandHandler, RolesCommandHandler>();

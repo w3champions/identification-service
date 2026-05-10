@@ -43,21 +43,60 @@ public class UsersRepository(MongoClient mongoClient, IAppConfig appConfig) : Mo
         await collection.Indexes.CreateOneAsync(new CreateIndexModel<User>(indexKeys, options));
     }
 
+    private const int MigrationBatchSize = 1000;
+
+    // Idempotent at the row level: skips docs whose IdNormalized already equals the
+    // canonical lowercase. Safe to re-run after a partial/interrupted execution —
+    // already-migrated docs are no-ops on the next pass.
+    //
+    // We re-evaluate IdNormalized client-side with .NET ToLowerInvariant() so it
+    // matches GetUser's lookup. MongoDB's $toLower only folds ASCII, which would
+    // leave non-ASCII characters (e.g. 'Ǫ' U+01EA) uppercase and break lookups for
+    // those users. We also process docs where IdNormalized exists but is stale —
+    // legacy rows written before canonicalization stored a verbatim copy of _id.
+    //
+    // Writes are flushed in batches of MigrationBatchSize to bound client memory
+    // and make progress visible to other replicas (so a crash mid-run doesn't
+    // require reprocessing everything from scratch).
     public async Task MigrateIdNormalized()
     {
         var rawCollection = CreateClient().GetCollection<BsonDocument>(typeof(User).Name);
 
-        var filter = Builders<BsonDocument>.Filter.And(
-            Builders<BsonDocument>.Filter.Exists("IdNormalized", false),
-            Builders<BsonDocument>.Filter.Type("_id", BsonType.String)
-        );
-        var update = new[]
-        {
-            new BsonDocument("$set",
-                new BsonDocument("IdNormalized",
-                    new BsonDocument("$toLower", "$_id")))
-        };
+        var filter = Builders<BsonDocument>.Filter.Type("_id", BsonType.String);
+        var projection = Builders<BsonDocument>.Projection
+            .Include("_id")
+            .Include("IdNormalized");
 
-        await rawCollection.UpdateManyAsync(filter, PipelineDefinition<BsonDocument, BsonDocument>.Create(update));
+        var bulkOps = new List<WriteModel<BsonDocument>>(MigrationBatchSize);
+
+        using var cursor = await rawCollection.FindAsync(filter,
+            new FindOptions<BsonDocument, BsonDocument> { Projection = projection });
+        while (await cursor.MoveNextAsync())
+        {
+            foreach (var doc in cursor.Current)
+            {
+                var id = doc["_id"].AsString;
+                var canonical = id.ToLowerInvariant();
+                var existing = doc.TryGetValue("IdNormalized", out var idn) && idn.IsString
+                    ? idn.AsString
+                    : null;
+                if (existing == canonical) continue;
+
+                bulkOps.Add(new UpdateOneModel<BsonDocument>(
+                    Builders<BsonDocument>.Filter.Eq("_id", id),
+                    Builders<BsonDocument>.Update.Set("IdNormalized", canonical)));
+
+                if (bulkOps.Count >= MigrationBatchSize)
+                {
+                    await rawCollection.BulkWriteAsync(bulkOps);
+                    bulkOps.Clear();
+                }
+            }
+        }
+
+        if (bulkOps.Count > 0)
+        {
+            await rawCollection.BulkWriteAsync(bulkOps);
+        }
     }
 }
