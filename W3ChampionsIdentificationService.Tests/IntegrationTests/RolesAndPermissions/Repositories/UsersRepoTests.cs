@@ -98,6 +98,25 @@ public class UsersRepoTests : IntegrationTestBase
     }
 
     [Test]
+    public async Task GetUser_NonAsciiCaseInsensitiveMatch_ReturnsCanonicalUser()
+    {
+        // 'Ǫ' is U+01EA; ToLowerInvariant() folds to 'ǫ' U+01EB.
+        // MongoDB's $toLower aggregation operator does NOT fold this — only ASCII —
+        // so the lookup and any server-side normalization must agree on .NET semantics.
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        var canonical = new User { Id = "aǪua#2851", BnetId = "105550725", Roles = new List<string>() };
+        await userRepo.CreateUser(canonical);
+
+        var foundExact = await userRepo.GetUser("aǪua#2851");
+        var foundLower = await userRepo.GetUser("aǫua#2851");
+
+        Assert.IsNotNull(foundExact, "Exact-cased non-ASCII lookup must find the row.");
+        Assert.AreEqual("aǪua#2851", foundExact.Id);
+        Assert.IsNotNull(foundLower, "Already-lowercased non-ASCII lookup must find the row.");
+        Assert.AreEqual("aǪua#2851", foundLower.Id);
+    }
+
+    [Test]
     public async Task GetUser_NoMatch_ReturnsNull()
     {
         // arrange
@@ -183,19 +202,71 @@ public class UsersRepoTests : IntegrationTestBase
     }
 
     [Test]
-    public async Task MigrateIdNormalized_DoesNotOverwriteExistingField()
+    public async Task MigrateIdNormalized_LeavesAlreadyCanonicalFieldUnchanged()
     {
         var userRepo = new UsersRepository(_mongoClient, _appConfig);
         var canonical = new User { Id = "Existing#1234", BnetId = "x", Roles = new System.Collections.Generic.List<string>() };
         await userRepo.CreateUser(canonical);
-        // Setter populated IdNormalized to "existing#1234"
+        // Setter populated IdNormalized to "existing#1234".
 
         await userRepo.MigrateIdNormalized();
 
         var rawColl = CreateClient().GetCollection<MongoDB.Bson.BsonDocument>("User");
         var doc = await rawColl.Find(MongoDB.Driver.Builders<MongoDB.Bson.BsonDocument>.Filter.Eq("_id", "Existing#1234")).FirstOrDefaultAsync();
         Assert.AreEqual("existing#1234", doc["IdNormalized"].AsString,
-            "Migration should not modify already-populated IdNormalized values.");
+            "Migration must not touch IdNormalized when it already equals the canonical lowercase.");
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_RewritesStaleMixedCaseIdNormalized()
+    {
+        // Legacy shape: pre-canonicalization code copied _id verbatim into IdNormalized.
+        // The previous migration's $exists filter skipped these rows entirely, leaving
+        // them un-normalized. The new client-side migration must rewrite them.
+        var rawColl = CreateClient().GetCollection<BsonDocument>("User");
+        await rawColl.InsertOneAsync(new BsonDocument
+        {
+            { "_id", "Stale#0001" },
+            { "IdNormalized", "Stale#0001" }, // mixed-case copy of _id
+            { "BnetId", "1" },
+            { "Roles", new BsonArray() },
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+
+        var doc = await rawColl.Find(Builders<BsonDocument>.Filter.Eq("_id", "Stale#0001")).FirstOrDefaultAsync();
+        Assert.AreEqual("stale#0001", doc["IdNormalized"].AsString,
+            "Migration must rewrite IdNormalized when the stored value is not the canonical lowercase of _id.");
+    }
+
+    [Test]
+    public async Task MigrateIdNormalized_RewritesStaleNonAsciiIdNormalized()
+    {
+        // The reported bug: non-ASCII battletag, IdNormalized was stored verbatim and
+        // never touched because $exists filter skipped it. .NET ToLowerInvariant of 'Ǫ'
+        // (U+01EA) is 'ǫ' (U+01EB); MongoDB's $toLower would NOT fold this. The new
+        // migration normalizes client-side and lookup succeeds.
+        var rawColl = CreateClient().GetCollection<BsonDocument>("User");
+        await rawColl.InsertOneAsync(new BsonDocument
+        {
+            { "_id", "aǪua#2851" },
+            { "IdNormalized", "aǪua#2851" }, // pre-canonicalization verbatim copy
+            { "BnetId", "105550725" },
+            { "Roles", BsonNull.Value },
+        });
+
+        var userRepo = new UsersRepository(_mongoClient, _appConfig);
+        await userRepo.MigrateIdNormalized();
+
+        var doc = await rawColl.Find(Builders<BsonDocument>.Filter.Eq("_id", "aǪua#2851")).FirstOrDefaultAsync();
+        Assert.AreEqual("aǫua#2851", doc["IdNormalized"].AsString,
+            "Migration must Unicode-fold non-ASCII chars to match GetUser's .NET-side ToLowerInvariant.");
+
+        // And the bug must be gone: lookup with the original (mixed-case) tag now succeeds.
+        var lookedUp = await userRepo.GetUser("aǪua#2851");
+        Assert.IsNotNull(lookedUp);
+        Assert.AreEqual("aǪua#2851", lookedUp.Id);
     }
 
     [Test]

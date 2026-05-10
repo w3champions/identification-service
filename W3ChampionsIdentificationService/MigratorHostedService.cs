@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 using W3ChampionsIdentificationService.Identity.Contracts;
+using W3ChampionsIdentificationService.Migrations;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 
 namespace W3ChampionsIdentificationService;
@@ -17,7 +18,13 @@ public class MigratorHostedService(IServiceProvider serviceProvider) : IHostedSe
         await _serviceProvider.GetService<IMicrosoftIdentityRepository>().CreateIndex();
 
         var usersRepo = _serviceProvider.GetService<IUsersRepository>();
-        await usersRepo.MigrateIdNormalized();
+        var migrationsRepo = _serviceProvider.GetService<IMigrationsRepository>();
+
+        // Bump the suffix when the migration body's semantics change so the new
+        // logic runs once per cluster after the deploy lands.
+        await migrationsRepo.RunIfNeeded(
+            "IdNormalized_v2_unicode",
+            () => usersRepo.MigrateIdNormalized());
         await usersRepo.CreateIndex();
     }
 
