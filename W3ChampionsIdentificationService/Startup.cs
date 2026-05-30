@@ -71,7 +71,12 @@ public class Startup
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
         {
-            options.Cookie.Name = "w3c-idp-session";
+            // __Host- prefix: browsers enforce that such cookies are Secure, have Path="/",
+            // and carry no Domain — i.e. strictly host-only. The settings below satisfy that
+            // (Secure=Always, default Path="/", no Cookie.Domain), hardening against cookie
+            // fixation/subdomain injection. The cookie is read/written via the auth scheme,
+            // so the raw name change is transparent to the rest of the code.
+            options.Cookie.Name = "__Host-w3c-idp-session";
             options.Cookie.HttpOnly = true;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             options.Cookie.SameSite = SameSiteMode.Lax;
@@ -79,15 +84,19 @@ public class Startup
             options.SlidingExpiration = false;
         });
 
-        // Project convention: OidcSigningKeyPem is "" in local dev (env var unset) and set in prod.
-        // When set, load it for signing; when empty, fall back to OpenIddict's ephemeral
-        // development certificate so `dotnet run` boots (no startup crash — matches how the
-        // service tolerates missing config today).
-        var appConfig = services.BuildServiceProvider().GetRequiredService<IAppConfig>();
+        // Project convention: OIDC key PEMs are "" in local dev (env vars unset) and set in prod.
+        // When set, they are loaded as the signing/encryption credentials; when empty, OpenIddict's
+        // ephemeral development certificates are used so `dotnet run` boots (no startup crash —
+        // matches how the service tolerates missing config today).
+        // AppConfig is a stateless env-var reader with a parameterless ctor, so instantiate it
+        // directly rather than building a throwaway service provider (avoids ASP0000 + a duplicate
+        // DI container).
+        var appConfig = new AppConfig();
         var hasOidcKey = !string.IsNullOrEmpty(appConfig.OidcSigningKeyPem);
-        var oidcRsa = RSA.Create();
-        if (hasOidcKey)
-            oidcRsa.ImportFromPem(appConfig.OidcSigningKeyPem);
+        var hasOidcEncKey = !string.IsNullOrEmpty(appConfig.OidcEncryptionKeyPem);
+
+        if (!Uri.TryCreate(appConfig.OidcIssuer, UriKind.Absolute, out var issuerUri))
+            throw new InvalidOperationException($"OIDC_ISSUER is not a valid absolute URI: '{appConfig.OidcIssuer}'");
 
         services.AddOpenIddict()
             .AddCore(core =>
@@ -101,25 +110,47 @@ public class Startup
             })
             .AddServer(server =>
             {
+                // These /connect/* endpoints are the NEW standards-compliant OIDC surface.
+                // They are distinct from the legacy bespoke /api/oauth/* endpoints in
+                // AuthorizationController (e.g. OIDC "/connect/userinfo" vs legacy "/api/oauth/user-info").
                 server
                     .SetAuthorizationEndpointUris("/connect/authorize")
                     .SetTokenEndpointUris("/connect/token")
                     .SetUserInfoEndpointUris("/connect/userinfo")
-                    .SetIssuer(new Uri(appConfig.OidcIssuer));
+                    .SetIssuer(issuerUri);
 
                 server
                     .AllowAuthorizationCodeFlow()
                     .RequireProofKeyForCodeExchange();
 
+                // Signing credential: prod uses the configured RSA key; local dev (no key) uses an
+                // ephemeral development certificate so the service boots without the secret.
                 if (hasOidcKey)
-                    server.AddSigningKey(new RsaSecurityKey(oidcRsa));
+                {
+                    var signingRsa = RSA.Create();
+                    signingRsa.ImportFromPem(appConfig.OidcSigningKeyPem);
+                    server.AddSigningKey(new RsaSecurityKey(signingRsa));
+                }
                 else
+                {
                     server.AddDevelopmentSigningCertificate();
+                }
 
-                // OpenIddict also requires an ENCRYPTION credential (authorization codes are
-                // encrypted by default). A development cert works for local dev.
-                // TODO(prod): supply a stable encryption key for production.
-                server.AddDevelopmentEncryptionCertificate();
+                // Encryption credential (OpenIddict encrypts authorization codes by default).
+                // Prod MUST supply a stable key, else codes are encrypted with a per-process
+                // ephemeral cert that breaks across restarts/replicas.
+                if (hasOidcEncKey)
+                {
+                    var encryptionRsa = RSA.Create();
+                    encryptionRsa.ImportFromPem(appConfig.OidcEncryptionKeyPem);
+                    server.AddEncryptionKey(new RsaSecurityKey(encryptionRsa));
+                }
+                else
+                {
+                    server.AddDevelopmentEncryptionCertificate();
+                    if (hasOidcKey)
+                        Log.Warning("OIDC: production signing key is set but OIDC_ENCRYPTION_KEY_PEM is empty — using an EPHEMERAL dev encryption certificate. Authorization codes will not survive restarts and cannot be decrypted across replicas. Set OIDC_ENCRYPTION_KEY_PEM in production.");
+                }
 
                 server.UseAspNetCore(aspnet =>
                 {

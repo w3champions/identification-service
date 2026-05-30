@@ -18,6 +18,9 @@ public class AppConfig : IAppConfig
     public string OidcSigningKeyPem
         => Regex.Unescape(Environment.GetEnvironmentVariable("OIDC_SIGNING_KEY_PEM") ?? "");
 
+    public string OidcEncryptionKeyPem
+        => Regex.Unescape(Environment.GetEnvironmentVariable("OIDC_ENCRYPTION_KEY_PEM") ?? "");
+
     public string WebsiteLoginUrl
         => Environment.GetEnvironmentVariable("WEBSITE_LOGIN_URL") ?? "https://localhost:3000/sso-continue";
 

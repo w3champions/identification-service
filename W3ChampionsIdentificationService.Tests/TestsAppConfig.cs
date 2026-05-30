@@ -10,6 +10,8 @@ public class TestsAppConfig : IAppConfig
 
     public string OidcSigningKeyPem => "";
 
+    public string OidcEncryptionKeyPem => "";
+
     public string WebsiteLoginUrl => "https://localhost:3000/sso-continue";
 
     public string OidcIssuer => "https://localhost:5050";
