@@ -123,6 +123,11 @@ public class Startup
                     .AllowAuthorizationCodeFlow()
                     .RequireProofKeyForCodeExchange();
 
+                // Register the optional scopes the IdP supports so OpenIddict recognizes them
+                // (unregistered scopes are rejected) and discovery advertises them. `openid`
+                // is implicit and must not be registered here.
+                server.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile);
+
                 // Signing credential: prod uses the configured RSA key; local dev (no key) uses an
                 // ephemeral development certificate so the service boots without the secret.
                 if (hasOidcKey)
