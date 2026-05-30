@@ -16,6 +16,9 @@ public static class OidcClientCli
 {
     public static async Task<int> RunAsync(string[] args)
     {
+        if (args.Length == 0)
+            return Usage();
+
         var subcommand = args[0];
         using var host = BuildCliHost(args);
         try
