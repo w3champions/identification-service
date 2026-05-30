@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using Serilog;
@@ -77,8 +80,19 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
             // (Startup only forwards For/Proto), so Request.Host is the internal Docker host. The
             // query string carries client_id/redirect_uri/scope/state/PKCE and is preserved; OpenIddict
             // re-parses the request from the query, not the host.
+            //
+            // STRIP `prompt` from the return URL: prompt=login means "force reauth ONCE". If we kept
+            // it, the post-handoff continuation would still carry prompt=login → we'd sign out the
+            // freshly-set session and redirect again → infinite loop. Removing it means the resumed
+            // request has no prompt, so the controller then sees hasSession && !promptLogin and issues
+            // the code. This service only handles prompt=none/login and has no consent screen
+            // (ConsentType.Implicit), so there's no prompt=consent semantics to preserve.
+            var query = QueryHelpers.ParseQuery(Request.QueryString.Value ?? "");
+            query.Remove("prompt");
+            var strippedQuery = QueryString.Create(
+                query.SelectMany(kv => kv.Value.Select(v => new KeyValuePair<string, string>(kv.Key, v))));
             var issuerBase = _appConfig.OidcIssuer.TrimEnd('/');   // guard against a trailing slash → "//connect"
-            var selfAbsoluteUrl = $"{issuerBase}{Request.Path}{Request.QueryString}";
+            var selfAbsoluteUrl = $"{issuerBase}{Request.Path}{strippedQuery}";
             var redirectUrl = $"{_appConfig.WebsiteLoginUrl}?return={HttpUtility.UrlEncode(selfAbsoluteUrl)}";
 
             Log.Information("No IdP session for client {ClientId} — redirecting to website login {LoginUrl}", oidcRequest.ClientId, _appConfig.WebsiteLoginUrl);
