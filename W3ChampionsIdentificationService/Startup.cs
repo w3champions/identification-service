@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using OpenIddict.Abstractions;
 using System;
@@ -23,6 +26,7 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 using W3ChampionsIdentificationService.Twitch;
 using W3ChampionsIdentificationService.W3CAuthentication;
+using W3ChampionsIdentificationService.DataProtection;
 using W3ChampionsIdentificationService.Oidc;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
 using W3ChampionsIdentificationService.WebApi.ActionFilters;
@@ -65,6 +69,23 @@ public class Startup
         services.AddTransient<HasPermissionsPermissionFilter>();
 
         services.AddHostedService<MigratorHostedService>();
+
+        // Persist + share the DataProtection key ring in MongoDB. The IdP session cookie below
+        // is encrypted with DataProtection, whose default key ring is EPHEMERAL and per-instance:
+        // a cookie set by one replica (or before a restart) cannot be decrypted by another, which
+        // would loop the user back through login mid-handoff. Backing the key ring with the
+        // already-present MongoDB makes it durable + shared with no new infrastructure.
+        // SetApplicationName MUST be a stable constant so every replica/restart derives the same
+        // protection purpose. (Distinct from OIDC_ENCRYPTION_KEY_PEM, which protects OIDC codes.)
+        var dataProtectionConfig = new AppConfig();
+        var dataProtectionKeysCollection =
+            new MongoClient(dataProtectionConfig.MongoConnectionString)
+                .GetDatabase(dataProtectionConfig.DatabaseName)
+                .GetCollection<BsonDocument>("DataProtectionKeys");
+        services.AddDataProtection()
+            .SetApplicationName("w3c-identification-service");
+        services.Configure<KeyManagementOptions>(options =>
+            options.XmlRepository = new MongoXmlRepository(dataProtectionKeysCollection));
 
         services.AddAuthentication(options =>
         {
