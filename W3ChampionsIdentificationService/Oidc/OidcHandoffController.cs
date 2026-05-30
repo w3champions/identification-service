@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using W3ChampionsIdentificationService.Config;
 
 namespace W3ChampionsIdentificationService.Oidc;
 
@@ -15,8 +16,10 @@ namespace W3ChampionsIdentificationService.Oidc;
 /// cookie, then 302-redirects back to /connect/authorize to complete the OIDC flow.
 /// </summary>
 [ApiController]
-public class OidcHandoffController : ControllerBase
+public class OidcHandoffController(IAppConfig appConfig) : ControllerBase
 {
+    private readonly IAppConfig _appConfig = appConfig;
+
     private static readonly string JwtPublicKey =
         Regex.Unescape(Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY") ?? "");
 
@@ -29,6 +32,17 @@ public class OidcHandoffController : ControllerBase
     [Consumes("application/x-www-form-urlencoded")]
     public async Task<IActionResult> Handoff([FromForm] HandoffRequest request)
     {
+        // Login-CSRF defense (FIRST check): the legitimate handoff is auto-submitted from the
+        // website's /sso-continue page, so its Origin is the website origin. A cross-site page
+        // auto-submitting an attacker-controlled JWT carries a foreign Origin — reject it before
+        // touching the token, so it can never fixate an IdP session for the attacker's BattleTag.
+        var origin = Request.Headers.Origin.ToString();
+        if (!HandoffOriginValidator.IsAllowedOrigin(origin, _appConfig.WebsiteLoginUrl))
+        {
+            Log.Warning("Handoff rejected: Origin '{Origin}' does not match the website login origin", origin);
+            return BadRequest("invalid origin");
+        }
+
         if (string.IsNullOrEmpty(request.Jwt))
         {
             Log.Warning("Handoff called without jwt form field");
