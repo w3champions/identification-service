@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -8,7 +10,7 @@ namespace W3ChampionsIdentificationService;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -18,8 +20,18 @@ public class Program
             .MinimumLevel.Override("System.Net.Http", LogEventLevel.Warning) // Filter out verbose System.Net.Http logs
             .WriteTo.Console(new JsonFormatter(renderMessage: true), restrictedToMinimumLevel: LogEventLevel.Information) // Write to Console to allow log scraping
             .CreateLogger();
+
+        var cliSubcommands = new[] { "register-client", "list-clients", "delete-client" };
+        if (args.Length > 0 && Array.Exists(cliSubcommands, c => c == args[0]))
+        {
+            var exitCode = await W3ChampionsIdentificationService.Oidc.Cli.OidcClientCli.RunAsync(args);
+            Log.CloseAndFlush();
+            return exitCode;
+        }
+
         Log.Information("Starting Identification Service");
         CreateHostBuilder(args).Build().Run();
+        return 0;
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
