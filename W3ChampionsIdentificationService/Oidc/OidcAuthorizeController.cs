@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -37,6 +38,23 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
 
         if (!result.Succeeded || result.Principal == null)
         {
+            // OIDC silent auth: a prompt=none authorize request with no IdP session must NOT
+            // trigger interactive login. Per the spec it returns an immediate login_required
+            // error to the client's redirect_uri (silent-auth callers expect this, never an
+            // interactive redirect). OpenIddict translates this Forbid into the standard error
+            // response on the token/authorize channel.
+            if (oidcRequest.HasPromptValue(PromptValues.None))
+            {
+                Log.Information("prompt=none with no IdP session for client {ClientId} — returning login_required", oidcRequest.ClientId);
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.LoginRequired,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The user is not logged in.",
+                    }));
+            }
+
             // No IdP session — redirect the browser to the website for interactive login.
             // Build the self URL from the canonical, startup-validated OIDC issuer rather than
             // Request.Host: behind the Traefik→nginx-proxy chain X-Forwarded-Host is NOT trusted
