@@ -22,6 +22,7 @@ public class OidcClientCliArgsTests
         Assert.AreEqual("https://feedback.w3champions.com/callback", result.RedirectUri);
         Assert.AreEqual(new[] { "openid", "email" }, result.Scopes);
         Assert.IsFalse(result.Update);
+        Assert.IsTrue(result.RequirePkce); // PKCE required unless --no-pkce is passed
     }
 
     [Test]
@@ -49,6 +50,20 @@ public class OidcClientCliArgsTests
         ]);
 
         Assert.IsTrue(result.Update);
+    }
+
+    [Test]
+    public void ParseRegisterArgs_NoPkceFlag_SetsRequirePkceFalse()
+    {
+        var result = OidcClientCli.ParseRegisterArgs(
+        [
+            "register-client",
+            "--client-id", "quackback",
+            "--redirect-uri", "https://feedback.w3champions.com/callback",
+            "--no-pkce"
+        ]);
+
+        Assert.IsFalse(result.RequirePkce);
     }
 
     [Test]

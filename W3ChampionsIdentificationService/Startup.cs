@@ -153,9 +153,14 @@ public class Startup
                     .SetUserInfoEndpointUris("/connect/userinfo")
                     .SetIssuer(issuerUri);
 
+                // PKCE is NOT globally required. Confidential clients that authenticate with a
+                // client secret (e.g. Quackback's portal Custom OIDC, which deliberately does not
+                // send a code_challenge) cannot complete the flow if PKCE is mandatory. PKCE stays
+                // supported/advertised (S256) and is enforced per-client via the client's
+                // Requirements — register-client adds it by default; pass --no-pkce to omit it for
+                // confidential clients that can't send it.
                 server
-                    .AllowAuthorizationCodeFlow()
-                    .RequireProofKeyForCodeExchange();
+                    .AllowAuthorizationCodeFlow();
 
                 // Register the optional scopes the IdP supports so OpenIddict recognizes them
                 // (unregistered scopes are rejected) and discovery advertises them. `openid`
