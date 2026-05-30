@@ -173,7 +173,12 @@ public class Startup
                 server.UseAspNetCore(aspnet =>
                 {
                     aspnet.EnableAuthorizationEndpointPassthrough();
-                    aspnet.EnableTokenEndpointPassthrough();
+                    // Token endpoint is NOT in passthrough — OpenIddict handles /connect/token
+                    // internally. Passthrough is only needed when a custom controller produces
+                    // the token response; we have no such controller, so letting OpenIddict's
+                    // built-in handler process the authorization-code exchange is both correct
+                    // and sufficient (it validates the code, re-emits the claims+destinations
+                    // stored by OidcAuthorizeController.SignIn, and mints access/id tokens).
                     aspnet.EnableUserInfoEndpointPassthrough();
                 });
             })

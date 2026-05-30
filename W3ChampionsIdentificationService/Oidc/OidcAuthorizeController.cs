@@ -19,8 +19,13 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
 {
     private readonly IAppConfig _appConfig = appConfig;
 
+    // GET-only: OIDC relying parties (including Better Auth / Quackback) initiate the
+    // authorization request via a GET redirect. OIDC params live in the query string, which
+    // the website-handoff resume URL ($"{issuerBase}{Request.Path}{Request.QueryString}")
+    // already preserves. POST support is dropped because form-body params are NOT included
+    // in that resume URL, so the resumed GET would arrive with no client_id/redirect_uri/
+    // scope/state/PKCE and OpenIddict would reject the flow.
     [HttpGet("~/connect/authorize")]
-    [HttpPost("~/connect/authorize")]
     public async Task<IActionResult> Authorize()
     {
         var oidcRequest = HttpContext.GetOpenIddictServerRequest()
