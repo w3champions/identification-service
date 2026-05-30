@@ -20,10 +20,10 @@ public class OidcClientSecretTests
 
     [TestCase("https://feedback.w3champions.com/api/auth/oauth2/callback/custom-oidc", true)]
     [TestCase("https://example.com/callback", true)]
-    [TestCase("http://example.com/callback",  false, TestName = "HTTP_rejected")]
-    [TestCase("",                              false, TestName = "Empty_rejected")]
-    [TestCase(null,                            false, TestName = "Null_rejected")]
-    [TestCase("not-a-url",                     false, TestName = "Relative_rejected")]
+    [TestCase("http://example.com/callback", false, TestName = "HTTP_rejected")]
+    [TestCase("", false, TestName = "Empty_rejected")]
+    [TestCase(null, false, TestName = "Null_rejected")]
+    [TestCase("not-a-url", false, TestName = "Relative_rejected")]
     public void RedirectUri_HttpsGuard(string uri, bool shouldPass)
     {
         Assert.AreEqual(shouldPass, OidcClientCli.IsValidHttpsRedirectUri(uri));

@@ -20,7 +20,7 @@ public static class OidcClientCli
             return Usage();
 
         var subcommand = args[0];
-        using var host = BuildCliHost(args);
+        using var host = BuildCliHost();
         try
         {
             await host.StartAsync();
@@ -28,8 +28,8 @@ public static class OidcClientCli
             return subcommand switch
             {
                 "register-client" => await RegisterClient(args, manager),
-                "list-clients"    => await ListClients(manager),
-                "delete-client"   => await DeleteClient(args, manager),
+                "list-clients" => await ListClients(manager),
+                "delete-client" => await DeleteClient(args, manager),
                 _ => Usage()
             };
         }
@@ -79,14 +79,14 @@ public static class OidcClientCli
         {
             switch (args[i])
             {
-                case "--client-id":    clientId    = NextValue(args, ref i); break;
+                case "--client-id": clientId = NextValue(args, ref i); break;
                 case "--redirect-uri": redirectUri = NextValue(args, ref i); break;
-                case "--scopes":       scopes      = NextValue(args, ref i).Split(','); break;
-                case "--update":       update      = true; break;
+                case "--scopes": scopes = NextValue(args, ref i).Split(','); break;
+                case "--update": update = true; break;
             }
         }
 
-        if (string.IsNullOrEmpty(clientId))    throw new ArgumentException("--client-id is required");
+        if (string.IsNullOrEmpty(clientId)) throw new ArgumentException("--client-id is required");
         if (string.IsNullOrEmpty(redirectUri)) throw new ArgumentException("--redirect-uri is required");
         if (!IsValidHttpsRedirectUri(redirectUri))
             throw new ArgumentException($"redirect-uri must be an absolute HTTPS URL, got: {redirectUri}");
@@ -121,13 +121,13 @@ public static class OidcClientCli
 
         var descriptor = new OpenIddictApplicationDescriptor
         {
-            ClientId     = parsed.ClientId,
+            ClientId = parsed.ClientId,
             ClientSecret = rawSecret,       // OpenIddict hashes this via PBKDF2 internally.
-            ClientType   = ClientTypes.Confidential,
+            ClientType = ClientTypes.Confidential,
             // Implicit consent: Quackback is a first-party trusted client, so no consent
             // screen is shown (the IdP has no consent UI to render one).
-            ConsentType  = ConsentTypes.Implicit,
-            Permissions  =
+            ConsentType = ConsentTypes.Implicit,
+            Permissions =
             {
                 Permissions.Endpoints.Authorization,
                 Permissions.Endpoints.Token,
@@ -144,7 +144,7 @@ public static class OidcClientCli
 
         if (!parsed.Scopes.Contains("profile", StringComparer.OrdinalIgnoreCase))
             descriptor.Permissions.Remove(Permissions.Scopes.Profile);
-        if (!parsed.Scopes.Contains("email",   StringComparer.OrdinalIgnoreCase))
+        if (!parsed.Scopes.Contains("email", StringComparer.OrdinalIgnoreCase))
             descriptor.Permissions.Remove(Permissions.Scopes.Email);
 
         if (existing != null && parsed.Update)
@@ -207,7 +207,7 @@ public static class OidcClientCli
         return 1;
     }
 
-    private static IHost BuildCliHost(string[] args) =>
+    private static IHost BuildCliHost() =>
         Host.CreateDefaultBuilder()
             .ConfigureLogging(logging =>
             {

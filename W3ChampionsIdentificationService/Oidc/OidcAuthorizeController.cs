@@ -72,11 +72,11 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
 
         identity.SetDestinations(claim => claim.Type switch
         {
-            Claims.Subject       => new[] { Destinations.AccessToken, Destinations.IdentityToken },
-            Claims.Name          => new[] { Destinations.IdentityToken },
-            Claims.Email         => new[] { Destinations.IdentityToken },
+            Claims.Subject => new[] { Destinations.AccessToken, Destinations.IdentityToken },
+            Claims.Name => new[] { Destinations.IdentityToken },
+            Claims.Email => new[] { Destinations.IdentityToken },
             Claims.EmailVerified => new[] { Destinations.IdentityToken },
-            _                    => new[] { Destinations.AccessToken }
+            _ => new[] { Destinations.AccessToken }
         });
 
         var principal = new ClaimsPrincipal(identity);

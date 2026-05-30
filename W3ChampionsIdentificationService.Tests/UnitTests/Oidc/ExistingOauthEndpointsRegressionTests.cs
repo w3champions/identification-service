@@ -202,10 +202,10 @@ public class ExistingOauthEndpointsRegressionTests
         var root = doc.RootElement;
 
         Assert.IsTrue(root.TryGetProperty("battleTag", out _), "battleTag claim must be present");
-        Assert.IsTrue(root.TryGetProperty("isAdmin", out _),   "isAdmin claim must be present");
-        Assert.IsTrue(root.TryGetProperty("name", out _),      "name claim must be present");
-        Assert.IsTrue(root.TryGetProperty("permissions", out _),"permissions claim must be present");
-        Assert.IsTrue(root.TryGetProperty("bnetId", out _),    "bnetId claim must be present");
+        Assert.IsTrue(root.TryGetProperty("isAdmin", out _), "isAdmin claim must be present");
+        Assert.IsTrue(root.TryGetProperty("name", out _), "name claim must be present");
+        Assert.IsTrue(root.TryGetProperty("permissions", out _), "permissions claim must be present");
+        Assert.IsTrue(root.TryGetProperty("bnetId", out _), "bnetId claim must be present");
     }
 
     [Test]

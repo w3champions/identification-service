@@ -31,7 +31,7 @@ public class HandoffReturnUrlValidatorTests
         TestName = "Userinfo_injection_is_rejected")]
     [TestCase("https://identification-service.w3champions.com:8443/connect/authorize",
         TestName = "Non_default_port_is_rejected")]
-    [TestCase("",   TestName = "Empty_string_is_rejected")]
+    [TestCase("", TestName = "Empty_string_is_rejected")]
     [TestCase(null, TestName = "Null_is_rejected")]
     [TestCase("not-a-url", TestName = "Non_url_is_rejected")]
     [TestCase("javascript:alert(1)", TestName = "Javascript_scheme_is_rejected")]

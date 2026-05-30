@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -22,7 +21,7 @@ public class HandoffJwtValidatorTests
     {
         _testRsa = RSA.Create(2048);
         _privatePem = _testRsa.ExportRSAPrivateKeyPem();
-        _publicPem  = _testRsa.ExportSubjectPublicKeyInfoPem();
+        _publicPem = _testRsa.ExportSubjectPublicKeyInfoPem();
         _wrongRsa = RSA.Create(2048);
         _wrongPublicPem = _wrongRsa.ExportSubjectPublicKeyInfoPem();
     }

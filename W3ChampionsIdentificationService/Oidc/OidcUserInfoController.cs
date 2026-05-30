@@ -32,7 +32,7 @@ public class OidcUserInfoController : ControllerBase
         // in the authorize controller. OpenIddict 7.5.0 stores scopes as individual `oi_scp`
         // claims in the JWT and GetScopes(ClaimsPrincipal) reads them back reliably.
         var principal = result.Principal;
-        var sub    = principal.FindFirstValue(Claims.Subject);   // = battleTag
+        var sub = principal.FindFirstValue(Claims.Subject);   // = battleTag
         var scopes = principal.GetScopes();                       // granted scopes from the access token
 
         var response = new Dictionary<string, object> { ["sub"] = sub };
@@ -40,7 +40,7 @@ public class OidcUserInfoController : ControllerBase
             response["name"] = sub;                               // name = full battletag (incl. #discriminator)
         if (scopes.Contains(Scopes.Email))
         {
-            response["email"]          = OidcClaimMapper.BattleTagToSyntheticEmail(sub);
+            response["email"] = OidcClaimMapper.BattleTagToSyntheticEmail(sub);
             response["email_verified"] = false;
         }
         return Ok(response);
