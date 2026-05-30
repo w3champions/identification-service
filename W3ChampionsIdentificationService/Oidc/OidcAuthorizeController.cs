@@ -118,7 +118,15 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
             identity.AddClaim(new Claim(Claims.EmailVerified, "false", ClaimValueTypes.Boolean)); // typed bool → serialized as JSON false, matching userinfo
         }
 
-        identity.SetDestinations(claim => claim.Type switch
+        var principal = new ClaimsPrincipal(identity);
+
+        // Order matters: SetScopes FIRST so it adds the private scope claims (oi_scp), THEN assign
+        // destinations over the FULL claim set (principal-level SetDestinations iterates all claims).
+        // Otherwise the oi_scp claims, added after destination assignment, would get no destination
+        // and be omitted from the access token — leaving OidcUserInfoController.GetScopes() empty so
+        // userinfo drops name/email. The `_ => AccessToken` default routes oi_scp into the access token.
+        principal.SetScopes(scopes);
+        principal.SetDestinations(claim => claim.Type switch
         {
             Claims.Subject => new[] { Destinations.AccessToken, Destinations.IdentityToken },
             Claims.Name => new[] { Destinations.IdentityToken },
@@ -126,9 +134,6 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
             Claims.EmailVerified => new[] { Destinations.IdentityToken },
             _ => new[] { Destinations.AccessToken }
         });
-
-        var principal = new ClaimsPrincipal(identity);
-        principal.SetScopes(scopes);
 
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
