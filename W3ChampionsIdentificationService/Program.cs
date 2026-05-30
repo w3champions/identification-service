@@ -10,7 +10,7 @@ namespace W3ChampionsIdentificationService;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -25,12 +25,13 @@ public class Program
         if (args.Length > 0 && Array.Exists(cliSubcommands, c => c == args[0]))
         {
             var exitCode = await W3ChampionsIdentificationService.Oidc.Cli.OidcClientCli.RunAsync(args);
-            Environment.Exit(exitCode);
-            return;
+            Log.CloseAndFlush();
+            return exitCode;
         }
 
         Log.Information("Starting Identification Service");
         CreateHostBuilder(args).Build().Run();
+        return 0;
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
