@@ -201,14 +201,19 @@ public class Startup
             KnownProxies = { IPAddress.Parse("212.60.5.180") } // Russia gateway
         });
         app.UseRouting();
-        app.UseAuthentication();
-        app.UseAuthorization();
+        // CORS must run BEFORE authentication: for endpoints OpenIddict completes inside
+        // UseAuthentication() (notably /connect/token, handled in-middleware since token
+        // passthrough is disabled), the response is produced before any later middleware — so
+        // CORS has to be in front of UseAuthentication to attach Access-Control-Allow-Origin,
+        // otherwise browser-based OIDC clients are blocked. Policy itself is unchanged; only moved.
         app.UseCors(builder =>
             builder
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowed(_ => true)
                 .AllowCredentials());
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>
         {
