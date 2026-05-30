@@ -23,6 +23,7 @@ using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.RolesAndPermissions.Repositories;
 using W3ChampionsIdentificationService.Twitch;
 using W3ChampionsIdentificationService.W3CAuthentication;
+using W3ChampionsIdentificationService.Oidc;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
 using W3ChampionsIdentificationService.WebApi.ActionFilters;
 using Serilog;
@@ -97,6 +98,18 @@ public class Startup
 
         if (!Uri.TryCreate(appConfig.OidcIssuer, UriKind.Absolute, out var issuerUri))
             throw new InvalidOperationException($"OIDC_ISSUER is not a valid absolute URI: '{appConfig.OidcIssuer}'");
+
+        // Warn when running with a production signing key but the issuer is not among the
+        // handoff return-URL allowlist origins. In that case the SSO handoff will 400
+        // (HandoffReturnUrlValidator rejects the authorize return URL) mid-flow.
+        // Local dev intentionally uses a localhost issuer and never exercises the handoff,
+        // so this is a prod-only warning (gated on hasOidcKey = the prod signal).
+        if (hasOidcKey && !HandoffReturnUrlValidator.IsAllowed(appConfig.OidcIssuer))
+            Log.Warning(
+                "OIDC_ISSUER '{Issuer}' is not in the handoff return-URL allowlist [{Allowed}]; " +
+                "the SSO handoff will reject the authorize return URL with HTTP 400. " +
+                "Set OIDC_ISSUER to one of the allowed origins.",
+                appConfig.OidcIssuer, string.Join(", ", HandoffReturnUrlValidator.AllowedOrigins));
 
         services.AddOpenIddict()
             .AddCore(core =>

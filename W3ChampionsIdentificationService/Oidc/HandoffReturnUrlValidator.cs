@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace W3ChampionsIdentificationService.Oidc;
 
@@ -9,11 +10,17 @@ namespace W3ChampionsIdentificationService.Oidc;
 /// </summary>
 public static class HandoffReturnUrlValidator
 {
-    private static readonly string[] AllowedOrigins =
+    private static readonly string[] _allowed =
     [
         "https://identification-service.w3champions.com",
         "https://identification-service.test.w3champions.com",
     ];
+
+    /// <summary>
+    /// The origins that are permitted as handoff return-URL origins.
+    /// Exposed so Startup can check that <c>OIDC_ISSUER</c> is among them and warn if not.
+    /// </summary>
+    public static IReadOnlyList<string> AllowedOrigins => _allowed;
 
     /// <summary>
     /// Returns true if <paramref name="returnUrl"/> is an absolute HTTPS URL
@@ -29,7 +36,7 @@ public static class HandoffReturnUrlValidator
             return false;
 
         var origin = uri.GetLeftPart(UriPartial.Authority);
-        foreach (var allowed in AllowedOrigins)
+        foreach (var allowed in _allowed)
         {
             if (string.Equals(origin, allowed, StringComparison.OrdinalIgnoreCase))
                 return true;
