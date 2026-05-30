@@ -1,8 +1,14 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using OpenIddict.Abstractions;
+using System;
 using System.Net;
+using System.Security.Cryptography;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 using W3ChampionsIdentificationService.Blizzard;
 using W3ChampionsIdentificationService.Config;
@@ -58,6 +64,76 @@ public class Startup
         services.AddTransient<HasPermissionsPermissionFilter>();
 
         services.AddHostedService<MigratorHostedService>();
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        })
+        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+        {
+            options.Cookie.Name = "w3c-idp-session";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+            options.SlidingExpiration = false;
+        });
+
+        // Project convention: OidcSigningKeyPem is "" in local dev (env var unset) and set in prod.
+        // When set, load it for signing; when empty, fall back to OpenIddict's ephemeral
+        // development certificate so `dotnet run` boots (no startup crash — matches how the
+        // service tolerates missing config today).
+        var appConfig = services.BuildServiceProvider().GetRequiredService<IAppConfig>();
+        var hasOidcKey = !string.IsNullOrEmpty(appConfig.OidcSigningKeyPem);
+        var oidcRsa = RSA.Create();
+        if (hasOidcKey)
+            oidcRsa.ImportFromPem(appConfig.OidcSigningKeyPem);
+
+        services.AddOpenIddict()
+            .AddCore(core =>
+            {
+                core.UseMongoDb(options =>
+                {
+                    options.UseDatabase(
+                        new MongoClient(appConfig.MongoConnectionString)
+                            .GetDatabase(appConfig.DatabaseName));
+                });
+            })
+            .AddServer(server =>
+            {
+                server
+                    .SetAuthorizationEndpointUris("/connect/authorize")
+                    .SetTokenEndpointUris("/connect/token")
+                    .SetUserInfoEndpointUris("/connect/userinfo")
+                    .SetIssuer(new Uri(appConfig.OidcIssuer));
+
+                server
+                    .AllowAuthorizationCodeFlow()
+                    .RequireProofKeyForCodeExchange();
+
+                if (hasOidcKey)
+                    server.AddSigningKey(new RsaSecurityKey(oidcRsa));
+                else
+                    server.AddDevelopmentSigningCertificate();
+
+                // OpenIddict also requires an ENCRYPTION credential (authorization codes are
+                // encrypted by default). A development cert works for local dev.
+                // TODO(prod): supply a stable encryption key for production.
+                server.AddDevelopmentEncryptionCertificate();
+
+                server.UseAspNetCore(aspnet =>
+                {
+                    aspnet.EnableAuthorizationEndpointPassthrough();
+                    aspnet.EnableTokenEndpointPassthrough();
+                    aspnet.EnableUserInfoEndpointPassthrough();
+                });
+            })
+            .AddValidation(validation =>
+            {
+                validation.UseLocalServer();
+                validation.UseAspNetCore();
+            });
+
         Log.Information("Services configured");
     }
 
@@ -71,6 +147,8 @@ public class Startup
             KnownProxies = { IPAddress.Parse("212.60.5.180") } // Russia gateway
         });
         app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.UseCors(builder =>
             builder
                 .AllowAnyHeader()
