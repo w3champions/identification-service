@@ -33,15 +33,23 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
         if (!result.Succeeded || result.Principal == null)
         {
             // No IdP session — redirect the browser to the website for interactive login.
-            var selfAbsoluteUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}";
+            // Build the self URL from the canonical, startup-validated OIDC issuer rather than
+            // Request.Host: behind the Traefik→nginx-proxy chain X-Forwarded-Host is NOT trusted
+            // (Startup only forwards For/Proto), so Request.Host is the internal Docker host. The
+            // query string carries client_id/redirect_uri/scope/state/PKCE and is preserved; OpenIddict
+            // re-parses the request from the query, not the host.
+            var issuerBase = _appConfig.OidcIssuer.TrimEnd('/');   // guard against a trailing slash → "//connect"
+            var selfAbsoluteUrl = $"{issuerBase}{Request.Path}{Request.QueryString}";
             var redirectUrl = $"{_appConfig.WebsiteLoginUrl}?return={HttpUtility.UrlEncode(selfAbsoluteUrl)}";
 
-            Log.Information("No IdP session — redirecting to website login at {RedirectUrl}", redirectUrl);
+            Log.Information("No IdP session for client {ClientId} — redirecting to website login {LoginUrl}", oidcRequest.ClientId, _appConfig.WebsiteLoginUrl);
             return Redirect(redirectUrl);
         }
 
         var battleTag = result.Principal.FindFirstValue("battleTag")
             ?? throw new InvalidOperationException("battleTag claim missing from IdP session");
+
+        var scopes = oidcRequest.GetScopes();
 
         var identity = new ClaimsIdentity(
             authenticationType: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
@@ -49,9 +57,13 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
             roleType: Claims.Role);
 
         identity.AddClaim(Claims.Subject, battleTag);
-        identity.AddClaim(Claims.Name, battleTag); // full battletag (incl. #discriminator) as display name — keeps users identifiable
-        identity.AddClaim(Claims.Email, OidcClaimMapper.BattleTagToSyntheticEmail(battleTag));
-        identity.AddClaim(Claims.EmailVerified, "false");
+        if (scopes.Contains(Scopes.Profile))
+            identity.AddClaim(Claims.Name, battleTag); // full battletag (incl. #discriminator) — keeps users identifiable
+        if (scopes.Contains(Scopes.Email))
+        {
+            identity.AddClaim(Claims.Email, OidcClaimMapper.BattleTagToSyntheticEmail(battleTag));
+            identity.AddClaim(new Claim(Claims.EmailVerified, "false", ClaimValueTypes.Boolean)); // typed bool → serialized as JSON false, matching userinfo
+        }
 
         identity.SetDestinations(claim => claim.Type switch
         {
@@ -63,7 +75,7 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
         });
 
         var principal = new ClaimsPrincipal(identity);
-        principal.SetScopes(oidcRequest.GetScopes());
+        principal.SetScopes(scopes);
 
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
