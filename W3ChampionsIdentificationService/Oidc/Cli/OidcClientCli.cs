@@ -61,7 +61,7 @@ public static class OidcClientCli
         string.Equals(parsed.Scheme, "https", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Parsed + validated register-client arguments. Public for testability.</summary>
-    public sealed record RegisterArgs(string ClientId, string RedirectUri, string[] Scopes, bool Update);
+    public sealed record RegisterArgs(string ClientId, string RedirectUri, string[] Scopes, bool Update, bool RequirePkce);
 
     /// <summary>
     /// Parses and validates the register-client argument vector. Throws <see cref="ArgumentException"/>
@@ -74,6 +74,7 @@ public static class OidcClientCli
         string clientId = null, redirectUri = null;
         string[] scopes = ["openid", "profile", "email"];
         bool update = false;
+        bool requirePkce = true;
 
         for (int i = 1; i < args.Length; i++)
         {
@@ -83,6 +84,7 @@ public static class OidcClientCli
                 case "--redirect-uri": redirectUri = NextValue(args, ref i); break;
                 case "--scopes": scopes = NextValue(args, ref i).Split(','); break;
                 case "--update": update = true; break;
+                case "--no-pkce": requirePkce = false; break;
             }
         }
 
@@ -91,7 +93,7 @@ public static class OidcClientCli
         if (!IsValidHttpsRedirectUri(redirectUri))
             throw new ArgumentException($"redirect-uri must be an absolute HTTPS URL, got: {redirectUri}");
 
-        return new RegisterArgs(clientId, redirectUri, scopes, update);
+        return new RegisterArgs(clientId, redirectUri, scopes, update, requirePkce);
     }
 
     /// <summary>
@@ -139,8 +141,13 @@ public static class OidcClientCli
                 Permissions.Scopes.Email,
             },
             RedirectUris = { new Uri(parsed.RedirectUri) },
-            Requirements = { Requirements.Features.ProofKeyForCodeExchange },
         };
+
+        // PKCE is required by default (defense-in-depth, esp. for public clients). Confidential
+        // clients that cannot send PKCE — e.g. Quackback's portal Custom OIDC, which is protected
+        // by its client secret — are registered with --no-pkce to omit the requirement.
+        if (parsed.RequirePkce)
+            descriptor.Requirements.Add(Requirements.Features.ProofKeyForCodeExchange);
 
         if (!parsed.Scopes.Contains("profile", StringComparer.OrdinalIgnoreCase))
             descriptor.Permissions.Remove(Permissions.Scopes.Profile);
@@ -201,7 +208,7 @@ public static class OidcClientCli
 
     private static int Usage()
     {
-        Console.Error.WriteLine("Usage: register-client --client-id <id> --redirect-uri <uri> [--scopes openid,profile,email] [--update rotates the secret]");
+        Console.Error.WriteLine("Usage: register-client --client-id <id> --redirect-uri <uri> [--scopes openid,profile,email] [--no-pkce omits the PKCE requirement for confidential clients that can't send it] [--update rotates the secret]");
         Console.Error.WriteLine("       list-clients");
         Console.Error.WriteLine("       delete-client --client-id <id>");
         return 1;
