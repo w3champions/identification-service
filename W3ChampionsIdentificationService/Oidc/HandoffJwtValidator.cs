@@ -51,15 +51,13 @@ public class HandoffJwtValidator
         {
             throw new HandoffValidationException("Token has expired", ex);
         }
+        catch (ArgumentException ex)   // null/empty/malformed token, bad base64url header (incl. SecurityTokenMalformedException)
+        {
+            throw new HandoffValidationException("Malformed token", ex);
+        }
         catch (SecurityTokenException ex)
         {
             throw new HandoffValidationException("Token validation failed", ex);
         }
     }
-}
-
-public class HandoffValidationException : Exception
-{
-    public HandoffValidationException(string message, Exception inner = null)
-        : base(message, inner) { }
 }

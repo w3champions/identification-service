@@ -101,4 +101,17 @@ public class HandoffJwtValidatorTests
         Assert.Throws<HandoffValidationException>(() =>
             validator.ValidateAndExtractBattleTag(jwt));
     }
+
+    [TestCase(null, TestName = "Null_input")]
+    [TestCase("", TestName = "Empty_input")]
+    [TestCase("   ", TestName = "Whitespace_input")]
+    [TestCase("not-a-jwt", TestName = "Garbage_single_segment")]
+    [TestCase("aaa.bbb", TestName = "Two_segments")]
+    [TestCase("a.b.c", TestName = "Three_invalid_base64url_segments")]
+    public void MalformedToken_ThrowsHandoffValidationException(string jwt)
+    {
+        var validator = new HandoffJwtValidator(_publicPem);
+        Assert.Throws<HandoffValidationException>(() =>
+            validator.ValidateAndExtractBattleTag(jwt));
+    }
 }
