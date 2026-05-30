@@ -79,6 +79,29 @@ public class ExistingOauthEndpointsRegressionTests
         return JsonDocument.Parse(json);
     }
 
+    // ── env hygiene ────────────────────────────────────────────────────────
+
+    private string _originalJwtPublicKey;
+
+    [SetUp]
+    public void SetUp()
+    {
+        // Capture and override JWT_PUBLIC_KEY so GetUserInfo validates against
+        // our test key pair.  NOTE: AuthorizationController.JwtPublicKey is a
+        // static readonly field captured on first type access — the ordering
+        // assumption (env set before the type is first touched) still holds.
+        // Restoring on teardown is hygiene so the override does not leak to
+        // other tests / fixtures in the same process.
+        _originalJwtPublicKey = Environment.GetEnvironmentVariable("JWT_PUBLIC_KEY");
+        Environment.SetEnvironmentVariable("JWT_PUBLIC_KEY", PublicKey);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        Environment.SetEnvironmentVariable("JWT_PUBLIC_KEY", _originalJwtPublicKey);
+    }
+
     // ── Group A — response-shape regression ───────────────────────────────
 
     [Test]
@@ -87,10 +110,6 @@ public class ExistingOauthEndpointsRegressionTests
         // Arrange — mint a real w3c JWT using the same key pair as JwtTests
         var permissions = new List<string> { nameof(EPermission.Permissions), nameof(EPermission.Moderation) };
         var auth = W3CUserAuthentication.Create("TestPlayer#9999", PrivateKey, permissions);
-
-        // Set the env var BEFORE the static field on AuthorizationController is
-        // initialised (this is the first access to the type in this test run).
-        Environment.SetEnvironmentVariable("JWT_PUBLIC_KEY", PublicKey);
 
         var controller = new AuthorizationController(
             Mock.Of<IBlizzardAuthenticationService>(),
@@ -148,6 +167,27 @@ public class ExistingOauthEndpointsRegressionTests
             JsonValueKind.Number, expEl.ValueKind,
             "exp must be a numeric epoch, not an ISO string; " +
             "this guards against IdentityModel changing the serialisation format");
+    }
+
+    [Test]
+    public void MintedJwt_Payload_IsAdminIsJsonString()
+    {
+        // Guard: today the code emits isAdmin via isAdmin.ToString() with no
+        // JsonClaimValueTypes annotation, so it serialises as a JSON STRING
+        // ("True"/"False") — NOT a JSON boolean.  Consumers parse it with
+        // Boolean.Parse on the string value, so this shape must not silently
+        // flip to a JSON boolean if a future IdentityModel/serialiser changes
+        // claim handling.
+        var auth = W3CUserAuthentication.Create("TestPlayer#9999", PrivateKey, new List<string> { "Permissions" });
+
+        using var doc = DecodePayload(auth.JWT);
+        Assert.IsTrue(
+            doc.RootElement.TryGetProperty("isAdmin", out var isAdminEl),
+            "JWT payload must contain 'isAdmin' claim");
+        Assert.AreEqual(
+            JsonValueKind.String, isAdminEl.ValueKind,
+            "isAdmin must be a JSON string ('True'/'False'), not a JSON boolean; " +
+            "this locks the current byte-compat shape consumers depend on");
     }
 
     [Test]
