@@ -176,19 +176,24 @@ public class Startup
                 }
 
                 // Encryption credential (OpenIddict encrypts authorization codes by default).
-                // Prod MUST supply a stable key, else codes are encrypted with a per-process
-                // ephemeral cert that breaks across restarts/replicas.
                 if (hasOidcEncKey)
                 {
                     var encryptionRsa = RSA.Create();
                     encryptionRsa.ImportFromPem(appConfig.OidcEncryptionKeyPem);
                     server.AddEncryptionKey(new RsaSecurityKey(encryptionRsa));
                 }
+                else if (hasOidcKey)
+                {
+                    // Production (signing key set) MUST have a stable encryption key, else auth codes are
+                    // encrypted with an ephemeral dev cert that breaks across restarts/replicas. Fail fast.
+                    throw new InvalidOperationException(
+                        "OIDC_ENCRYPTION_KEY_PEM must be set when OIDC_SIGNING_KEY_PEM is set (production). " +
+                        "Generate one with: openssl genrsa 2048");
+                }
                 else
                 {
+                    // Local dev (no signing key): ephemeral dev encryption cert is fine.
                     server.AddDevelopmentEncryptionCertificate();
-                    if (hasOidcKey)
-                        Log.Warning("OIDC: production signing key is set but OIDC_ENCRYPTION_KEY_PEM is empty — using an EPHEMERAL dev encryption certificate. Authorization codes will not survive restarts and cannot be decrypted across replicas. Set OIDC_ENCRYPTION_KEY_PEM in production.");
                 }
 
                 server.UseAspNetCore(aspnet =>
