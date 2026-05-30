@@ -1,4 +1,7 @@
 using System;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace W3ChampionsIdentificationService.Oidc;
 
@@ -14,6 +17,8 @@ public static class OidcClaimMapper
     // a GENERIC IdP behaviour (no relying-party name appears here).
     private const string SyntheticEmailDomain = "w3champions.invalid";
 
+    private static readonly Regex SafeLocalPart = new("^[a-z0-9._-]+$", RegexOptions.Compiled);
+
     /// <summary>
     /// Derives a synthetic, non-deliverable email for a w3c identity that has no
     /// real email, used when an OIDC client requests the `email` scope. Replaces
@@ -24,7 +29,26 @@ public static class OidcClaimMapper
     {
         if (string.IsNullOrEmpty(battleTag))
             throw new ArgumentException("battleTag must not be empty", nameof(battleTag));
-        var localPart = battleTag.Replace('#', '-').ToLowerInvariant();
+
+        var candidate = battleTag.Replace('#', '-').ToLowerInvariant();
+        // Normal ASCII battletags keep a readable local-part (e.g. "modmoto-2809").
+        // Anything with non-ASCII / unsafe chars falls back to a deterministic,
+        // collision-free ASCII local-part derived from a hash of the ORIGINAL battletag,
+        // so the email is always RFC-5321-legal and unique per identity. (The human-
+        // readable identity is the `name` claim = full battletag, not this email.)
+        var localPart = SafeLocalPart.IsMatch(candidate)
+            ? candidate
+            : "u-" + Sha256Hex(battleTag);
+
         return $"{localPart}@{SyntheticEmailDomain}";
+    }
+
+    private static string Sha256Hex(string input)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+        var sb = new StringBuilder(32);
+        for (int i = 0; i < 16; i++)            // 16 bytes -> 128 bits -> 32 hex chars
+            sb.Append(hash[i].ToString("x2"));
+        return sb.ToString();
     }
 }
