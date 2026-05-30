@@ -32,18 +32,34 @@ public class OidcAuthorizeController(IAppConfig appConfig) : ControllerBase
         var oidcRequest = HttpContext.GetOpenIddictServerRequest()
             ?? throw new InvalidOperationException("OpenIddict request not available");
 
-        // Check for an existing IdP session cookie.
+        // Check for an existing IdP session cookie and resolve the prompt directives together so
+        // the none/login handling stays coherent.
         var result = await HttpContext.AuthenticateAsync(
             CookieAuthenticationDefaults.AuthenticationScheme);
+        var hasSession = result.Succeeded && result.Principal != null;
+        var promptNone = oidcRequest.HasPromptValue(PromptValues.None);
+        var promptLogin = oidcRequest.HasPromptValue(PromptValues.Login);
 
-        if (!result.Succeeded || result.Principal == null)
+        // prompt=login forces reauthentication: discard any existing IdP session so the user is
+        // sent back through login (account switch / fresh login) instead of being silently served
+        // the previous BattleTag.
+        if (promptLogin && hasSession)
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            Log.Information("prompt=login for client {ClientId} — cleared existing IdP session to force reauthentication", oidcRequest.ClientId);
+            hasSession = false;
+        }
+
+        if (!hasSession)
         {
             // OIDC silent auth: a prompt=none authorize request with no IdP session must NOT
             // trigger interactive login. Per the spec it returns an immediate login_required
             // error to the client's redirect_uri (silent-auth callers expect this, never an
             // interactive redirect). OpenIddict translates this Forbid into the standard error
-            // response on the token/authorize channel.
-            if (oidcRequest.HasPromptValue(PromptValues.None))
+            // response on the token/authorize channel. (prompt=none with prompt=login is a
+            // contradictory request; we honor prompt=none here and return login_required rather
+            // than redirecting to interactive login.)
+            if (promptNone)
             {
                 Log.Information("prompt=none with no IdP session for client {ClientId} — returning login_required", oidcRequest.ClientId);
                 return Forbid(
