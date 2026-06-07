@@ -23,6 +23,7 @@ public enum EPermission
     Tournaments,
     Content,
     Proxies,
+    Warnings,
     SmurfCheckerQuery,
     SmurfCheckerQueryExplanation,
     SmurfCheckerAdministration,
