@@ -24,9 +24,12 @@ public class AuthorizationController(
     IPermissionsRepository permissionsRepository,
     IMicrosoftIdentityRepository microsoftIdentityRepository) : ControllerBase
 {
-    private const bool ENFORCE_PLAYABLE_TITLES_SCOPE = true;
-    private const bool ENFORCE_BLOCK_OLD_VERSIONS = true;
-    private const bool ENFORCE_WARCRAFT_3_OWNERSHIP = true;
+    // static readonly (not const) so these compile-time toggles don't get constant-folded
+    // by the compiler, which would otherwise flag the code after each check as CS0162
+    // "Unreachable code detected".
+    private static readonly bool ENFORCE_PLAYABLE_TITLES_SCOPE = true;
+    private static readonly bool ENFORCE_BLOCK_OLD_VERSIONS = true;
+    private static readonly bool ENFORCE_WARCRAFT_3_OWNERSHIP = true;
 
     private readonly IBlizzardAuthenticationService _blizzardAuthenticationService = blizzardAuthenticationService;
     private readonly ITwitchAuthenticationService _twitchAuthenticationService = twitchAuthenticationService;
