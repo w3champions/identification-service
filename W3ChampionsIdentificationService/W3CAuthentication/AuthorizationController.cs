@@ -87,7 +87,7 @@ public class AuthorizationController(
             Log.Warning("User {BattleTag} does not have Warcraft 3 in their Battle.Net account - titles: {Titles}", userInfo.battletag, string.Join(", ", titles.Select(t => t.ToString())));
             if (!hasOldVersion && ENFORCE_WARCRAFT_3_OWNERSHIP)
             {
-                var error = AuthenticationError.MissingWarcraft3();
+                var error = AuthenticationError.MissingWarcraft3(userInfo.battletag);
                 return Unauthorized(error);
             }
         }

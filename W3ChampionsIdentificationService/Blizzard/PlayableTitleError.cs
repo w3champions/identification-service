@@ -10,6 +10,10 @@ public class AuthenticationError
     [JsonPropertyName("message")]
     public string Message { get; set; }
 
+    [JsonPropertyName("battleTag")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string BattleTag { get; set; }
+
     public static AuthenticationError ApiCallFailed()
     {
         return new AuthenticationError
@@ -19,12 +23,13 @@ public class AuthenticationError
         };
     }
 
-    public static AuthenticationError MissingWarcraft3()
+    public static AuthenticationError MissingWarcraft3(string battleTag)
     {
         return new AuthenticationError
         {
             ErrorCode = "MISSING_WARCRAFT_3",
-            Message = "You need to have Warcraft 3 purchased."
+            Message = "You need to have Warcraft 3 purchased.",
+            BattleTag = battleTag
         };
     }
 
