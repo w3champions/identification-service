@@ -10,6 +10,8 @@ public class AuthenticationError
     [JsonPropertyName("message")]
     public string Message { get; set; }
 
+    // Only set for MISSING_WARCRAFT_3 so the launcher can show which account was used;
+    // omitted from the JSON entirely when null so other error bodies stay unchanged.
     [JsonPropertyName("battleTag")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string BattleTag { get; set; }
@@ -29,7 +31,7 @@ public class AuthenticationError
         {
             ErrorCode = "MISSING_WARCRAFT_3",
             Message = "You need to have Warcraft 3 purchased.",
-            BattleTag = battleTag
+            BattleTag = string.IsNullOrWhiteSpace(battleTag) ? null : battleTag
         };
     }
 

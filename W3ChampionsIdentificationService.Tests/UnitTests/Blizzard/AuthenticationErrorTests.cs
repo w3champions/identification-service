@@ -4,10 +4,9 @@ using W3ChampionsIdentificationService.Blizzard;
 
 namespace W3ChampionsIdentificationService.Tests.UnitTests.Blizzard;
 
-// ASP.NET Core MVC in this service serializes controller results (e.g. Unauthorized(error))
-// with System.Text.Json — Startup.ConfigureServices calls services.AddControllers() with no
-// AddNewtonsoftJson() output formatter registered, so the [JsonPropertyName]/[JsonIgnore]
-// System.Text.Json attributes on AuthenticationError are the ones that actually apply.
+// The [JsonPropertyName]/[JsonIgnore] System.Text.Json attributes on AuthenticationError
+// make the JSON output independent of MVC JsonSerializerOptions, ensuring consistent
+// serialization regardless of how the response is returned from the controller.
 [TestFixture]
 public class AuthenticationErrorTests
 {
@@ -34,5 +33,20 @@ public class AuthenticationErrorTests
         Assert.AreEqual("MISSING_PLAYABLE_TITLES_SCOPE", doc.RootElement.GetProperty("errorCode").GetString());
         Assert.IsFalse(doc.RootElement.TryGetProperty("battleTag", out _),
             "battleTag must be omitted entirely for error codes that don't set it, not emitted as null.");
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public void MissingWarcraft3_WithEmptyOrNullBattleTag_OmitsBattleTagFromJson(string battleTag)
+    {
+        var error = AuthenticationError.MissingWarcraft3(battleTag);
+
+        var json = JsonSerializer.Serialize(error);
+        using var doc = JsonDocument.Parse(json);
+
+        Assert.AreEqual("MISSING_WARCRAFT_3", doc.RootElement.GetProperty("errorCode").GetString());
+        Assert.IsFalse(doc.RootElement.TryGetProperty("battleTag", out _),
+            "battleTag must be omitted from JSON when null or whitespace, not emitted as empty string.");
     }
 }
