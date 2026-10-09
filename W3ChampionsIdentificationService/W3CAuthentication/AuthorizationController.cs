@@ -145,7 +145,13 @@ public class AuthorizationController(
     [HttpGet("user-info")]
     public IActionResult GetUserInfo([FromQuery] string jwt)
     {
-        var user = W3CUserAuthentication.FromJWT(jwt, JwtPublicKey);
+        var token = Request.GetJwt(jwt);
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return Unauthorized("Sorry Hackerboi");
+        }
+
+        var user = W3CUserAuthentication.FromJWT(token, JwtPublicKey);
         return user != null ? Ok(user) : Unauthorized("Sorry Hackerboi");
     }
 
