@@ -24,7 +24,7 @@ public class IdentityController(
     [HttpGet("microsoft-identity-linked")]
     public async Task<IActionResult> GetMicrosoftIdentity([FromQuery] string jwt)
     {
-        var user = W3CUserAuthentication.FromJWT(jwt, JwtPublicKey);
+        var user = GetUser(jwt);
         if (user == null)
         {
             return Unauthorized("Sorry Hackerboi");
@@ -40,7 +40,7 @@ public class IdentityController(
         [FromQuery] string redirectUri
         )
     {
-        var user = W3CUserAuthentication.FromJWT(jwt, JwtPublicKey);
+        var user = GetUser(jwt);
         if (user == null)
         {
             return Unauthorized("Sorry Hackerboi");
@@ -49,5 +49,11 @@ public class IdentityController(
         var u = await _microsoftAuthenticationService.GetUser(token);
         await _microsoftIdentityRepository.LinkBattleTag(u.sub, user.BattleTag);
         return Ok();
+    }
+
+    private W3CUserAuthentication GetUser(string legacyQueryJwt)
+    {
+        var token = Request.GetJwt(legacyQueryJwt);
+        return string.IsNullOrWhiteSpace(token) ? null : W3CUserAuthentication.FromJWT(token, JwtPublicKey);
     }
 }

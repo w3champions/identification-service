@@ -1,10 +1,9 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using W3ChampionsIdentificationService.RolesAndPermissions.Contracts;
 using W3ChampionsIdentificationService.RolesAndPermissions;
+using W3ChampionsIdentificationService.W3CAuthentication;
 using W3ChampionsIdentificationService.W3CAuthentication.Contracts;
 using W3ChampionsIdentificationService.WebApi.ExceptionFilters;
 
@@ -19,10 +18,10 @@ public class HasPermissionsPermissionFilter(
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var queryString = HttpUtility.ParseQueryString(context.HttpContext.Request.QueryString.Value);
-        if (queryString.AllKeys.Contains("authorization"))
+        var request = context.HttpContext.Request;
+        var auth = request.GetJwt(request.Query["authorization"].ToString());
+        if (!string.IsNullOrWhiteSpace(auth))
         {
-            var auth = queryString["authorization"];
             var res = _authService.GetUserByToken(auth);
             if (res != null && !string.IsNullOrEmpty(res.BattleTag))
             {
@@ -31,6 +30,7 @@ public class HasPermissionsPermissionFilter(
                 {
                     context.ActionArguments["battleTag"] = res.BattleTag;
                     await next.Invoke();
+                    return;
                 }
             }
         }
