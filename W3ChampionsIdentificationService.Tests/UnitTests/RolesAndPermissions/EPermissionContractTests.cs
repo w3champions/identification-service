@@ -11,6 +11,7 @@ public class EPermissionContractTests
     [TestCase("Warnings", 11)]
     [TestCase("Jobs", 12)]
     [TestCase("CommercialLicense", 13)]
+    [TestCase("Replays", 14)]
     public void PermissionHasContractValue(string name, int expectedValue)
     {
         Assert.IsTrue(Enum.TryParse<EPermission>(name, out var permission), $"{name} is missing from EPermission");

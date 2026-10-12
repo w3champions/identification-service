@@ -29,4 +29,5 @@ public enum EPermission
     Warnings = 11,
     Jobs = 12,
     CommercialLicense = 13,
+    Replays = 14,
 }
