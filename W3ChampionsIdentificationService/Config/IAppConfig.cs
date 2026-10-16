@@ -8,4 +8,5 @@ public interface IAppConfig
     string OidcEncryptionKeyPem { get; }
     string WebsiteLoginUrl { get; }
     string OidcIssuer { get; }
+    string IdentificationInternalApiSecret { get; }
 }

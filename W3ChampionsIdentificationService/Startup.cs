@@ -67,6 +67,7 @@ public class Startup
         services.AddTransient<IW3CAuthenticationService, W3CAuthenticationService>();
 
         services.AddTransient<HasPermissionsPermissionFilter>();
+        services.AddTransient<InternalSecretAuthFilter>();
 
         services.AddHostedService<MigratorHostedService>();
 
