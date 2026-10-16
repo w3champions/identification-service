@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -71,6 +72,19 @@ public class PermissionsControllerTests
         Assert.IsNotNull(serviceFilter);
         Assert.AreEqual(typeof(InternalSecretAuthFilter), serviceFilter.ServiceType);
         Assert.IsEmpty(method.GetCustomAttributes().OfType<HasPermissionsPermission>());
+        Assert.IsEmpty(
+            typeof(PermissionsController).GetCustomAttributes(true).OfType<HasPermissionsPermission>(),
+            "A class-level HasPermissionsPermission would 401 the roster endpoint");
+    }
+
+    [Test]
+    public void AdminBattleTagsResponse_SerializesWithCamelCaseBattleTagsProperty()
+    {
+        var json = JsonSerializer.Serialize(
+            new AdminBattleTagsResponse(new List<string> { "Foo#1234" }),
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.AreEqual("{\"battleTags\":[\"Foo#1234\"]}", json);
     }
 
     [Test]
