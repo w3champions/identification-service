@@ -25,6 +25,8 @@ public class HasPermissionsPermissionFilterTests
 {
     private const string AdminToken = "admin-token";
     private const string NoPermissionToken = "no-permission-token";
+    private const string NoRowToken = "no-row-token";
+    private const string NoRowBattleTag = "NoRow#3";
     private const string AdminBattleTag = "Admin#1234";
     private const string PlainBattleTag = "Plain#5678";
 
@@ -40,7 +42,11 @@ public class HasPermissionsPermissionFilterTests
         _authService.Setup(s => s.GetUserByToken(AdminToken)).Returns(new W3CUserAuthentication { BattleTag = AdminBattleTag });
         _authService.Setup(s => s.GetUserByToken(NoPermissionToken)).Returns(new W3CUserAuthentication { BattleTag = PlainBattleTag });
 
+        _authService.Setup(s => s.GetUserByToken(NoRowToken)).Returns(new W3CUserAuthentication { BattleTag = NoRowBattleTag });
+
         _permissionsRepository = new Mock<IPermissionsRepository>();
+        _permissionsRepository.Setup(r => r.GetPermissionsForAdmin(NoRowBattleTag))
+            .ReturnsAsync((List<string>)null);
         _permissionsRepository.Setup(r => r.GetPermissionsForAdmin(AdminBattleTag))
             .ReturnsAsync([nameof(EPermission.Permissions)]);
         _permissionsRepository.Setup(r => r.GetPermissionsForAdmin(PlainBattleTag))
@@ -151,5 +157,12 @@ public class HasPermissionsPermissionFilterTests
         var (context, nextInvoked) = await Run("Bearer not.a.jwt", null);
         AssertUnauthorized(context, nextInvoked);
         _permissionsRepository.Verify(r => r.GetPermissionsForAdmin(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task NoPermissionRow_Unauthorized()
+    {
+        var (context, nextInvoked) = await Run($"Bearer {NoRowToken}", null);
+        AssertUnauthorized(context, nextInvoked);
     }
 }

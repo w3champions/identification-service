@@ -26,7 +26,7 @@ public class HasPermissionsPermissionFilter(
             if (res != null && !string.IsNullOrEmpty(res.BattleTag))
             {
                 var permissions = await _permissionsRepository.GetPermissionsForAdmin(res.BattleTag);
-                if (permissions.Contains(nameof(EPermission.Permissions)))
+                if (permissions?.Contains(nameof(EPermission.Permissions)) == true)
                 {
                     context.ActionArguments["battleTag"] = res.BattleTag;
                     await next.Invoke();
