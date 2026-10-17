@@ -11,4 +11,5 @@ public interface IPermissionsRepository
     public Task UpdatePermission(Permission permission);
     public Task DeletePermission(string id);
     public Task<List<string>> GetPermissionsForAdmin(string id);
+    public Task<List<string>> GetAdminBattleTags();
 }

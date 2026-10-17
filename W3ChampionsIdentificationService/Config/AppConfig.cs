@@ -26,4 +26,7 @@ public class AppConfig : IAppConfig
 
     public string OidcIssuer
         => Environment.GetEnvironmentVariable("OIDC_ISSUER") ?? "https://localhost:5050";
+
+    public string IdentificationInternalApiSecret
+        => Environment.GetEnvironmentVariable("IDENTIFICATION_INTERNAL_API_SECRET");
 }

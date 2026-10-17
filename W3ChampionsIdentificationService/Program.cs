@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using W3ChampionsIdentificationService.Config;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 
@@ -30,6 +31,10 @@ public class Program
         }
 
         Log.Information("Starting Identification Service");
+        if (string.IsNullOrWhiteSpace(new AppConfig().IdentificationInternalApiSecret))
+        {
+            Log.Warning("IDENTIFICATION_INTERNAL_API_SECRET not set: the admin roster endpoint will reject every request (fail closed)");
+        }
         CreateHostBuilder(args).Build().Run();
         return 0;
     }

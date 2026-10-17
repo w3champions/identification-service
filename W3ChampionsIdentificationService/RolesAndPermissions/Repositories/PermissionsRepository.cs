@@ -39,8 +39,17 @@ public class PermissionsRepository(MongoClient mongoClient, IAppConfig appConfig
         var permission = await LoadFirst<Permission>(x => x.Id == id);
         if (permission != null)
         {
-            return permission.Permissions.Select(permission => permission.ToString()).ToList();
+            return permission.Permissions?.Select(p => p.ToString()).ToList() ?? [];
         }
         return null;
+    }
+
+    public async Task<List<string>> GetAdminBattleTags()
+    {
+        var all = await LoadAll<Permission>();
+        return all
+            .Where(p => p.Permissions is { Length: > 0 })
+            .Select(p => p.BattleTag)
+            .ToList();
     }
 }

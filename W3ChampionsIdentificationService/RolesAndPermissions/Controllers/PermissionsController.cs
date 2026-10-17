@@ -23,6 +23,13 @@ public class PermissionsController(
         return Ok(permissions);
     }
 
+    [HttpGet("admin-battletags")]
+    [ServiceFilter(typeof(InternalSecretAuthFilter))]
+    public async Task<IActionResult> GetAdminBattleTags()
+    {
+        return Ok(new AdminBattleTagsResponse(await _permissionsRepository.GetAdminBattleTags()));
+    }
+
     [HttpPost]
     [HasPermissionsPermission]
     public async Task<IActionResult> Create([FromBody] Permission permission)

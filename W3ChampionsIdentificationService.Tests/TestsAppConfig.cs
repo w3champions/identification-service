@@ -15,4 +15,6 @@ public class TestsAppConfig : IAppConfig
     public string WebsiteLoginUrl => "https://localhost:3000/sso-continue";
 
     public string OidcIssuer => "https://localhost:5050";
+
+    public string IdentificationInternalApiSecret => null;
 }
