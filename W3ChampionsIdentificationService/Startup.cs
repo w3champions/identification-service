@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Http;
@@ -36,6 +37,18 @@ namespace W3ChampionsIdentificationService;
 
 public class Startup
 {
+    /// <summary>
+    /// Any origin may call the API (the website's token and user-info fetches, browser OIDC clients' token calls),
+    /// never with credentials. The session cookie (__Host-w3c-idp-session) is only needed on top-level navigations
+    /// (authorize, handoff, logout image), which CORS does not govern. A reflected origin together with credentials
+    /// would let a same-site page send that cookie with a script request and read the answer.
+    /// </summary>
+    public static void ConfigureCors(CorsPolicyBuilder policy) =>
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+
     public void ConfigureServices(IServiceCollection services)
     {
         Log.Information("Configuring services");
@@ -237,13 +250,8 @@ public class Startup
         // UseAuthentication() (notably /connect/token, handled in-middleware since token
         // passthrough is disabled), the response is produced before any later middleware — so
         // CORS has to be in front of UseAuthentication to attach Access-Control-Allow-Origin,
-        // otherwise browser-based OIDC clients are blocked. Policy itself is unchanged; only moved.
-        app.UseCors(builder =>
-            builder
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .SetIsOriginAllowed(_ => true)
-                .AllowCredentials());
+        // otherwise browser-based OIDC clients are blocked.
+        app.UseCors(ConfigureCors);
         app.UseAuthentication();
         app.UseAuthorization();
 
